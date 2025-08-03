@@ -5,26 +5,39 @@ const Footer = () => {
   return (
     <footer className="w-full bg-background border-t border-border">
       {/* Newsletter Section */}
-      <div className="bg-brand-green">
-        <div className="container mx-auto px-6 py-16">
-          <div className="text-center">
-            <h2 className="text-4xl md:text-5xl font-bold text-background mb-4">
-              Sign Up For Our Newsletter!
-            </h2>
-            <p className="text-background/80 text-lg mb-8 max-w-2xl mx-auto">
-              Stay updated with our latest courses, podcast episodes, and exclusive content delivered straight to your inbox.
-            </p>
+      <div className="bg-background border-y border-border">
+        <div className="container mx-auto px-4 sm:px-6 py-12 sm:py-16">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-12">
+            {/* Logo Section */}
+            <div className="flex items-center space-x-3 flex-shrink-0">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-brand-green rounded-lg flex items-center justify-center">
+                <span className="text-background font-bold text-xl sm:text-2xl">n</span>
+              </div>
+              <span className="text-foreground font-bold text-2xl sm:text-3xl">newlabel</span>
+            </div>
+            
+            {/* Newsletter Content */}
+            <div className="flex-1 text-center lg:text-left max-w-2xl">
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-3 sm:mb-4">
+                Sign Up For Our Newsletter!
+              </h2>
+              <p className="text-muted-foreground text-base sm:text-lg mb-6 sm:mb-8">
+                Stay updated with our latest courses, podcast episodes, and exclusive content delivered straight to your inbox.
+              </p>
+            </div>
             
             {/* Newsletter Form */}
-            <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4 max-w-md mx-auto">
-              <Input
-                type="email"
-                placeholder="Enter your email address"
-                className="bg-background text-foreground border-0 flex-1"
-              />
-              <Button className="bg-background text-brand-green hover:bg-background/90 font-semibold px-8 py-3">
-                Subscribe
-              </Button>
+            <div className="flex-shrink-0 w-full lg:w-auto lg:min-w-[300px]">
+              <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto lg:mx-0">
+                <Input
+                  type="email"
+                  placeholder="Enter your email address"
+                  className="bg-secondary text-foreground border-border flex-1 h-12 px-4"
+                />
+                <Button className="bg-muted text-foreground hover:bg-muted/80 font-semibold px-6 py-3 h-12 whitespace-nowrap">
+                  Join Now
+                </Button>
+              </div>
             </div>
           </div>
         </div>
