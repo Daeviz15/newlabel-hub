@@ -4,7 +4,7 @@ import CoursesSection from "@/components/CoursesSection";
 import PodcastSection from "@/components/PodcastSection";
 import HowItWorksSection from "@/components/HowItWorksSection";
 import FAQSection from "@/components/FAQSection";
-import Footer from "@/components/Footer";
+import LandingFooter from "@/components/LandingFooter";
 
 const Index = () => {
   return (
@@ -15,7 +15,7 @@ const Index = () => {
       <PodcastSection />
       <HowItWorksSection />
       <FAQSection />
-      <Footer />
+      <LandingFooter />
     </div>
   );
 };
