@@ -1,7 +1,10 @@
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 import heroImage from "@/assets/hero-woman-laptop.jpg";
 
 const HeroSection = () => {
+  const navigate = useNavigate();
+
   return (
     <section className="w-full bg-background py-12 sm:py-16 lg:py-20">
       <div className="container mx-auto px-4 sm:px-6">
@@ -34,10 +37,17 @@ const HeroSection = () => {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center space-y-3 sm:space-y-0 sm:space-x-4 mb-12 sm:mb-16 px-4">
-            <Button className="bg-brand-green hover:bg-brand-green-hover text-background font-semibold px-6 sm:px-8 py-3 text-base sm:text-lg w-full sm:w-auto">
+            <Button 
+              onClick={() => navigate('/signup')}
+              className="bg-brand-green hover:bg-brand-green-hover text-background font-semibold px-6 sm:px-8 py-3 text-base sm:text-lg w-full sm:w-auto"
+            >
               Get Started
             </Button>
-            <Button variant="outline" className="border-border text-foreground hover:bg-secondary px-6 sm:px-8 py-3 text-base sm:text-lg w-full sm:w-auto">
+            <Button 
+              onClick={() => navigate('/login')}
+              variant="outline" 
+              className="border-border text-foreground hover:bg-secondary px-6 sm:px-8 py-3 text-base sm:text-lg w-full sm:w-auto"
+            >
               Learn more →
             </Button>
           </div>
