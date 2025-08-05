@@ -5,21 +5,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
-  BookOpen, 
-  Users, 
-  Calendar, 
-  TrendingUp, 
-  LogOut,
-  Bell,
-  Search,
-  Menu,
-  PlusCircle,
+  Search, 
+  Heart,
+  BookmarkCheck,
   Star,
-  Clock,
-  Award
+  ShoppingCart,
+  MoreHorizontal
 } from "lucide-react";
 
 interface Profile {
@@ -122,10 +116,10 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto mb-4"></div>
+          <p className="text-gray-400">Loading...</p>
         </div>
       </div>
     );
@@ -135,14 +129,65 @@ const Dashboard = () => {
     return null;
   }
 
+  const CourseCard = ({ title, instructor, price, image, rating, reviews }: {
+    title: string;
+    instructor: string;
+    price: string;
+    image: string;
+    rating?: number;
+    reviews?: string;
+  }) => (
+    <Card className="bg-gray-800 border-gray-700 overflow-hidden group cursor-pointer hover:bg-gray-750 transition-colors">
+      <div className="relative">
+        <img 
+          src={image} 
+          alt={title} 
+          className="w-full h-48 object-cover"
+        />
+        <div className="absolute top-3 left-3">
+          <Badge className="bg-gray-900/80 text-white border-0">${price}</Badge>
+        </div>
+        <div className="absolute top-3 right-3 space-x-2">
+          <Button size="sm" variant="ghost" className="h-8 w-8 p-0 bg-gray-900/80 hover:bg-gray-900">
+            <Heart className="h-4 w-4 text-white" />
+          </Button>
+          <Button size="sm" variant="ghost" className="h-8 w-8 p-0 bg-gray-900/80 hover:bg-gray-900">
+            <BookmarkCheck className="h-4 w-4 text-white" />
+          </Button>
+        </div>
+      </div>
+      <CardContent className="p-4">
+        <h3 className="text-white font-semibold text-sm mb-1 line-clamp-2">{title}</h3>
+        <p className="text-gray-400 text-xs mb-2">{instructor}</p>
+        {rating && (
+          <div className="flex items-center text-xs text-gray-400">
+            <Star className="h-3 w-3 text-yellow-400 fill-current mr-1" />
+            <span>{rating} ({reviews})</span>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+
+  const userName = profile?.full_name?.split(' ')[0] || user.email?.split('@')[0] || 'User';
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-900 text-white">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <Menu className="h-6 w-6 text-gray-600" />
-            <h1 className="text-2xl font-bold text-gray-900">EduFlow</h1>
+      <header className="bg-gray-900 border-b border-gray-800 px-6 py-4">
+        <div className="flex items-center justify-between max-w-7xl mx-auto">
+          <div className="flex items-center space-x-8">
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-green-500 rounded flex items-center justify-center">
+                <span className="text-black font-bold text-sm">N</span>
+              </div>
+              <span className="text-white font-semibold">newlabel</span>
+            </div>
+            <nav className="flex items-center space-x-6">
+              <a href="#" className="text-gray-300 hover:text-white text-sm">Students+</a>
+              <a href="#" className="text-gray-300 hover:text-white text-sm">About Us</a>
+              <a href="#" className="text-gray-300 hover:text-white text-sm">Contact Us</a>
+            </nav>
           </div>
           
           <div className="flex items-center space-x-4">
@@ -150,232 +195,232 @@ const Dashboard = () => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search courses..."
-                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Search courses, sessions, Edits"
+                className="pl-10 pr-4 py-2 w-80 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-green-500"
               />
             </div>
-            <Bell className="h-6 w-6 text-gray-600 cursor-pointer" />
-            <Avatar className="h-10 w-10">
+            <Button variant="ghost" size="sm" className="text-gray-300 hover:text-white">
+              <ShoppingCart className="h-5 w-5" />
+            </Button>
+            <Button variant="ghost" size="sm" className="text-gray-300 hover:text-white">
+              <MoreHorizontal className="h-5 w-5" />
+            </Button>
+            <Avatar className="h-8 w-8">
               <AvatarImage src={profile?.avatar_url || undefined} />
-              <AvatarFallback>
+              <AvatarFallback className="bg-gray-700 text-white text-sm">
                 {profile?.full_name?.split(' ').map(n => n[0]).join('') || user.email?.[0]?.toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            <Button variant="ghost" size="sm" onClick={handleLogout}>
-              <LogOut className="h-4 w-4 mr-2" />
-              Logout
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={handleLogout}
+              className="text-gray-300 hover:text-white"
+            >
+              John Doe
             </Button>
           </div>
         </div>
       </header>
 
-      <div className="flex">
-        {/* Sidebar */}
-        <aside className="w-64 bg-white border-r border-gray-200 min-h-screen">
-          <nav className="p-4 space-y-2">
-            <a href="#" className="flex items-center space-x-3 px-3 py-2 text-gray-700 rounded-lg bg-blue-50 text-blue-700">
-              <BookOpen className="h-5 w-5" />
-              <span>Dashboard</span>
-            </a>
-            <a href="#" className="flex items-center space-x-3 px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100">
-              <Users className="h-5 w-5" />
-              <span>My Courses</span>
-            </a>
-            <a href="#" className="flex items-center space-x-3 px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100">
-              <Calendar className="h-5 w-5" />
-              <span>Schedule</span>
-            </a>
-            <a href="#" className="flex items-center space-x-3 px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100">
-              <TrendingUp className="h-5 w-5" />
-              <span>Progress</span>
-            </a>
-            <a href="#" className="flex items-center space-x-3 px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100">
-              <Award className="h-5 w-5" />
-              <span>Certificates</span>
-            </a>
-          </nav>
-        </aside>
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        {/* Welcome Section */}
+        <div className="bg-green-500 rounded-xl p-8 mb-8">
+          <h1 className="text-3xl font-bold text-black mb-2">Good Morning, {userName}</h1>
+          <p className="text-black/80">Great to have you back. Ready to split up where you left off?</p>
+        </div>
 
-        {/* Main Content */}
-        <main className="flex-1 p-6">
-          {/* Welcome Section */}
-          <div className="mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">
-              Welcome back, {profile?.full_name || user.email}!
-            </h2>
-            <p className="text-gray-600">Continue your learning journey</p>
+        {/* What's Trending This Week */}
+        <section className="mb-8">
+          <h2 className="text-xl font-semibold text-white mb-2">What's Trending This week</h2>
+          <p className="text-gray-400 text-sm mb-6">Learn binge-worthy, career-building lessons from experts across tech media and business.</p>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <CourseCard
+              title="The Future Of AI In Everyday Products"
+              instructor="Jaly"
+              price="18"
+              image="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop"
+              rating={4.8}
+              reviews="1.2k"
+            />
+            <CourseCard
+              title="Firm Foundation"
+              instructor="⚡"
+              price="18"
+              image="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=300&fit=crop"
+            />
+            <CourseCard
+              title="The Silent Trauma Of Millennials"
+              instructor="The House Chronicles"
+              price="18"
+              image="https://images.unsplash.com/photo-1494790108755-2616c6b4b2b9?w=400&h=300&fit=crop"
+            />
+            <CourseCard
+              title="The Future Of AI In Everyday Products"
+              instructor="Jaly"
+              price="18"
+              image="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop"
+            />
           </div>
+        </section>
 
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Enrolled Courses</CardTitle>
-                <BookOpen className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">12</div>
-                <p className="text-xs text-muted-foreground">+2 from last month</p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Completed</CardTitle>
-                <Award className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">8</div>
-                <p className="text-xs text-muted-foreground">+3 from last month</p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Learning Hours</CardTitle>
-                <Clock className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">84</div>
-                <p className="text-xs text-muted-foreground">+12 from last week</p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Certificates</CardTitle>
-                <Star className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">5</div>
-                <p className="text-xs text-muted-foreground">+1 this month</p>
-              </CardContent>
-            </Card>
+        {/* New Releases */}
+        <section className="mb-8">
+          <h2 className="text-xl font-semibold text-white mb-2">New Releases</h2>
+          <p className="text-gray-400 text-sm mb-6">Learn binge-worthy, career-building lessons from experts across tech media and business.</p>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <CourseCard
+              title="The Future Of AI In Everyday Products"
+              instructor="Jaly"
+              price="18"
+              image="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop"
+            />
+            <CourseCard
+              title="Firm Foundation"
+              instructor="⚡"
+              price="18"
+              image="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=300&fit=crop"
+            />
+            <CourseCard
+              title="The Silent Trauma Of Millennials"
+              instructor="The House Chronicles"
+              price="18"
+              image="https://images.unsplash.com/photo-1494790108755-2616c6b4b2b9?w=400&h=300&fit=crop"
+            />
+            <CourseCard
+              title="The Future Of AI In Everyday Products"
+              instructor="Jaly"
+              price="18"
+              image="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop"
+            />
           </div>
+        </section>
 
-          {/* Continue Learning Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <Card>
-              <CardHeader>
-                <CardTitle>Continue Learning</CardTitle>
-                <CardDescription>Pick up where you left off</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center space-x-4 p-4 border rounded-lg">
-                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <BookOpen className="h-6 w-6 text-blue-600" />
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-semibold">React Fundamentals</h4>
-                    <p className="text-sm text-gray-600">Module 3: State Management</p>
-                    <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-                      <div className="bg-blue-600 h-2 rounded-full" style={{ width: '65%' }}></div>
-                    </div>
-                  </div>
-                  <Badge variant="secondary">65%</Badge>
-                </div>
-
-                <div className="flex items-center space-x-4 p-4 border rounded-lg">
-                  <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                    <BookOpen className="h-6 w-6 text-green-600" />
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-semibold">JavaScript Advanced</h4>
-                    <p className="text-sm text-gray-600">Module 2: Async Programming</p>
-                    <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-                      <div className="bg-green-600 h-2 rounded-full" style={{ width: '80%' }}></div>
-                    </div>
-                  </div>
-                  <Badge variant="secondary">80%</Badge>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Recommended for You</CardTitle>
-                <CardDescription>Based on your learning path</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center space-x-4 p-4 border rounded-lg">
-                  <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                    <BookOpen className="h-6 w-6 text-purple-600" />
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-semibold">TypeScript Essentials</h4>
-                    <p className="text-sm text-gray-600">Build type-safe applications</p>
-                    <div className="flex items-center mt-1">
-                      <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                      <span className="text-sm text-gray-600 ml-1">4.8 (1.2k reviews)</span>
-                    </div>
-                  </div>
-                  <Button size="sm">
-                    <PlusCircle className="h-4 w-4 mr-1" />
-                    Enroll
-                  </Button>
-                </div>
-
-                <div className="flex items-center space-x-4 p-4 border rounded-lg">
-                  <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                    <BookOpen className="h-6 w-6 text-orange-600" />
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-semibold">Node.js Backend</h4>
-                    <p className="text-sm text-gray-600">Server-side development</p>
-                    <div className="flex items-center mt-1">
-                      <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                      <span className="text-sm text-gray-600 ml-1">4.6 (892 reviews)</span>
-                    </div>
-                  </div>
-                  <Button size="sm">
-                    <PlusCircle className="h-4 w-4 mr-1" />
-                    Enroll
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+        {/* Recommended For You */}
+        <section className="mb-8">
+          <h2 className="text-xl font-semibold text-white mb-2">Recommended For You</h2>
+          <p className="text-gray-400 text-sm mb-6">Learn binge-worthy, career-building lessons from experts across tech media and business.</p>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <CourseCard
+              title="The Future Of AI In Everyday Products"
+              instructor="Jaly"
+              price="18"
+              image="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop"
+            />
+            <CourseCard
+              title="Firm Foundation"
+              instructor="⚡"
+              price="18"
+              image="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=300&fit=crop"
+            />
+            <CourseCard
+              title="The Silent Trauma Of Millennials"
+              instructor="The House Chronicles"
+              price="18"
+              image="https://images.unsplash.com/photo-1494790108755-2616c6b4b2b9?w=400&h=300&fit=crop"
+            />
+            <CourseCard
+              title="The Future Of AI In Everyday Products"
+              instructor="Jaly"
+              price="18"
+              image="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop"
+            />
           </div>
+        </section>
 
-          {/* Upcoming Schedule */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Upcoming Schedule</CardTitle>
-              <CardDescription>Your learning schedule for this week</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex items-center space-x-4">
-                    <div className="text-center">
-                      <div className="text-sm text-gray-600">Today</div>
-                      <div className="text-lg font-bold">15</div>
-                    </div>
-                    <div>
-                      <h4 className="font-semibold">React Hooks Workshop</h4>
-                      <p className="text-sm text-gray-600">2:00 PM - 4:00 PM</p>
-                    </div>
-                  </div>
-                  <Badge>Live</Badge>
+        {/* This Week's Top Pick */}
+        <section className="mb-8">
+          <h2 className="text-xl font-semibold text-white mb-6">This week's top pick</h2>
+          
+          <Card className="bg-gray-800 border-gray-700 overflow-hidden">
+            <div className="flex flex-col lg:flex-row">
+              <div className="lg:w-1/3">
+                <img 
+                  src="https://images.unsplash.com/photo-1594736797933-d0f50b7b8972?w=500&h=400&fit=crop" 
+                  alt="Featured Course" 
+                  className="w-full h-64 lg:h-full object-cover"
+                />
+              </div>
+              <CardContent className="lg:w-2/3 p-8 flex flex-col justify-center">
+                <h3 className="text-2xl font-bold text-white mb-4">
+                  The Future Of AI In Everyday Products
+                </h3>
+                <div className="mb-4">
+                  <p className="text-green-400 font-semibold mb-1">Ada Nwosu</p>
+                  <p className="text-gray-400 text-sm">Former software engineer at StubHub</p>
                 </div>
+                <Button className="bg-green-500 hover:bg-green-600 text-black font-semibold w-fit">
+                  Buy This Course
+                </Button>
+              </CardContent>
+            </div>
+          </Card>
+        </section>
+      </div>
 
-                <div className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex items-center space-x-4">
-                    <div className="text-center">
-                      <div className="text-sm text-gray-600">Tomorrow</div>
-                      <div className="text-lg font-bold">16</div>
-                    </div>
-                    <div>
-                      <h4 className="font-semibold">JavaScript Quiz</h4>
-                      <p className="text-sm text-gray-600">10:00 AM - 11:00 AM</p>
-                    </div>
-                  </div>
-                  <Badge variant="outline">Quiz</Badge>
+      {/* Footer */}
+      <footer className="bg-green-500 py-8">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex justify-between items-start">
+            <div className="flex items-center space-x-2 mb-4">
+              <div className="w-8 h-8 bg-black rounded flex items-center justify-center">
+                <span className="text-green-500 font-bold text-sm">N</span>
+              </div>
+              <span className="text-black font-semibold">newlabel</span>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-8 flex-1 max-w-2xl">
+              <div>
+                <h4 className="text-black font-semibold mb-2">Home</h4>
+                <ul className="space-y-1">
+                  <li><a href="#" className="text-black/80 hover:text-black text-sm">Courses</a></li>
+                  <li><a href="#" className="text-black/80 hover:text-black text-sm">Our Testimonials</a></li>
+                  <li><a href="#" className="text-black/80 hover:text-black text-sm">Our FAQ</a></li>
+                </ul>
+              </div>
+              
+              <div>
+                <h4 className="text-black font-semibold mb-2">About Us</h4>
+                <ul className="space-y-1">
+                  <li><a href="#" className="text-black/80 hover:text-black text-sm">Company</a></li>
+                  <li><a href="#" className="text-black/80 hover:text-black text-sm">Achievements</a></li>
+                  <li><a href="#" className="text-black/80 hover:text-black text-sm">Our Goals</a></li>
+                </ul>
+              </div>
+              
+              <div>
+                <h4 className="text-black font-semibold mb-2">Social Profiles</h4>
+                <div className="flex space-x-2">
+                  <a href="#" className="w-8 h-8 bg-black rounded flex items-center justify-center">
+                    <span className="text-green-500 text-sm">f</span>
+                  </a>
+                  <a href="#" className="w-8 h-8 bg-black rounded flex items-center justify-center">
+                    <span className="text-green-500 text-sm">t</span>
+                  </a>
+                  <a href="#" className="w-8 h-8 bg-black rounded flex items-center justify-center">
+                    <span className="text-green-500 text-sm">in</span>
+                  </a>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        </main>
-      </div>
+              
+              <div>
+                <div className="text-black text-sm space-y-1">
+                  <p>newlabel@online.com</p>
+                  <p>+91 902 23 25 09</p>
+                  <p>Somewhere in the World</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="border-t border-black/20 mt-8 pt-4">
+            <p className="text-black text-sm text-center">© 2023 newlabel. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
