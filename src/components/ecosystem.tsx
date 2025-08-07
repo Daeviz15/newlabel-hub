@@ -1,8 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { ArrowUpRightIcon } from '@heroicons/react/24/outline'; 
-
+import { ArrowUpRightIcon } from "@heroicons/react/24/outline";
 
 export default function Ecosystem() {
   const platforms = [
@@ -32,8 +31,10 @@ export default function Ecosystem() {
   return (
     <section className="px-6 py-16 max-w-7xl mx-auto">
       <div className="mb-12">
-        <h2 className="text-4xl font-bold mb-4">Explore Our Ecosystem</h2>
-        <p className="text-gray-400">No subscriptions. No hassle</p>
+        <h2 className="text-4xl font-bold mb-2 font-vietnam">
+          Explore Our Ecosystem
+        </h2>
+        <p className="text-gray-400 font-inter">No subscriptions. No hassle</p>
       </div>
 
       <div className="grid md:grid-cols-3 gap-6">
@@ -74,14 +75,14 @@ export default function Ecosystem() {
             )}
 
             <div className="flex-grow">
-              <p className="text-white text-lg leading-relaxed mb-8">
+              <p className="text-white text-lg leading-relaxed mb-8 font-vietnam">
                 {platform.description}
               </p>
             </div>
 
             <Button
               variant="outline"
-              className="w-full border-[#E1FDC5] border-[1.67px] border-solid text-[#E1FDC5] hover:bg-gray-700 rounded-lg py-3 text-base font-medium"
+              className="w-full border-[#E1FDC5] border-[1.67px] border-solid text-[#E1FDC5] hover:bg-brand-green rounded-lg py-3 text-base font-medium"
             >
               Explore <ArrowUpRightIcon />
             </Button>

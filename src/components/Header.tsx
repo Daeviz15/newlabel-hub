@@ -17,27 +17,27 @@ const Header = () => {
         <nav className="hidden lg:flex items-center space-x-6 xl:space-x-8">
           <a
             href="#"
-            className="text-foreground hover:text-brand-green transition-colors text-sm xl:text-base"
+            className="text-white  hover:bg-[#FFFFFF1A] rounded-xl p-2 transition-colors text-sm xl:text-base font-vietnam"
           >
             Home
           </a>
           <a
             href="#"
-            className="text-muted-foreground hover:text-brand-green transition-colors text-sm xl:text-base"
+            className="text-muted-white hover:bg-[#FFFFFF1A] rounded-xl p-2 transition-colors text-sm xl:text-base font-vietnam"
           >
             About us
           </a>
           <a
             href="#"
-            className="text-muted-foreground hover:text-brand-green transition-colors text-sm xl:text-base"
+            className="text-muted-white hover:bg-[#FFFFFF1A] rounded-xl p-2 transition-colors text-sm xl:text-base font-vietnam"
           >
             Subsidiaries
           </a>
           <a
             href="#"
-            className="text-muted-foreground hover:text-brand-green transition-colors text-sm xl:text-base"
+            className="text-muted-white hover:bg-[#FFFFFF1A] rounded-xl p-2 transition-colors text-sm xl:text-base font-vietnam"
           >
-            Blog
+            Contact
           </a>
         </nav>
 
@@ -46,7 +46,7 @@ const Header = () => {
           <Button
             onClick={() => navigate("/login")}
             variant="ghost"
-            className="text-foreground hover:text-brand-green hover:text-black text-sm sm:text-base px-2 sm:px-4 hidden sm:inline-flex"
+            className="text-white hover:bg-brand-green rounded-xl p-2 hover:text-black text-sm sm:text-base px-2 sm:px-4 hidden sm:inline-flex"
           >
             Log In
           </Button>

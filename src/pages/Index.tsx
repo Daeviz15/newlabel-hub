@@ -13,15 +13,17 @@ import Newsletter from "@/components/newsletter";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <HeroSection />
-      <HowItWorks />
-      <Ecosystem />
-      <PopularContent />
-      <WhyChooseUs />
-      <FAQSection />
-      <Newsletter />
+    <div>
+      <div className="min-h-screen mx-auto max-w-6xl bg-background">
+        <Header />
+        <HeroSection />
+        <HowItWorks />
+        <Ecosystem />
+        <PopularContent />
+        <WhyChooseUs />
+        <FAQSection />
+        <Newsletter />
+      </div>
       <LandingFooter />
     </div>
   );
