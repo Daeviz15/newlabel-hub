@@ -37,7 +37,7 @@ const Header = () => {
             href="#"
             className="text-muted-white hover:bg-[#FFFFFF1A] rounded-xl p-2 transition-colors text-sm xl:text-base font-vietnam"
           >
-            Cont
+            Contact
           </a>
         </nav>
 
