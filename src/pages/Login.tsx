@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
-import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import logo from "../assets/Logo.png";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -16,14 +16,14 @@ const Login = () => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    rememberMe: false
+    rememberMe: false,
   });
-  
+
   const navigate = useNavigate();
   const { toast } = useToast();
 
   const handleInputChange = (field: string, value: string | boolean) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -65,18 +65,57 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <Header />
-      
+      <header className="w-full bg-background border-b border-border sticky top-0 z-50">
+        <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
+          {/* Logo */}
+          <div className="flex items-center space-x-2">
+            <img src={logo} alt="brand-logo" />
+          </div>
+
+          {/* Navigation */}
+          <nav className="hidden lg:flex items-center space-x-6 xl:space-x-8">
+            <a
+              href="#"
+              className="text-foreground hover:text-brand-green transition-colors text-sm xl:text-base"
+            >
+              Home
+            </a>
+            <a
+              href="#"
+              className="text-muted-foreground hover:text-brand-green transition-colors text-sm xl:text-base"
+            >
+              About us
+            </a>
+            <a
+              href="#"
+              className="text-muted-foreground hover:text-brand-green transition-colors text-sm xl:text-base"
+            >
+              Subsidiaries
+            </a>
+            <a
+              href="#"
+              className="text-muted-foreground hover:text-brand-green transition-colors text-sm xl:text-base"
+            >
+              Blog
+            </a>
+          </nav>
+        </div>
+      </header>
+
       <main className="flex-1 flex items-center justify-center px-4 py-8">
         <div className="w-full max-w-md space-y-6">
           <div className="text-center space-y-2">
             <h1 className="text-3xl font-bold text-foreground">Login</h1>
-            <p className="text-muted-foreground">Welcome back! Please log in to access your account.</p>
+            <p className="text-muted-foreground">
+              Welcome back! Please log in to access your account.
+            </p>
           </div>
 
           <form className="space-y-4" onSubmit={handleLogin}>
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-foreground">Email</Label>
+              <Label htmlFor="email" className="text-foreground">
+                Email
+              </Label>
               <Input
                 id="email"
                 type="email"
@@ -88,14 +127,18 @@ const Login = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-foreground">Password</Label>
+              <Label htmlFor="password" className="text-foreground">
+                Password
+              </Label>
               <div className="relative">
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter your Password"
                   value={formData.password}
-                  onChange={(e) => handleInputChange("password", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("password", e.target.value)
+                  }
                   className="bg-card border-border text-foreground placeholder:text-muted-foreground pr-12"
                 />
                 <button
@@ -103,12 +146,16 @@ const Login = () => {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
                 </button>
               </div>
               <div className="text-right">
-                <Link 
-                  to="/forgot-password" 
+                <Link
+                  to="/forgot-password"
                   className="text-sm text-brand hover:underline"
                 >
                   Forgot Password?
@@ -120,17 +167,19 @@ const Login = () => {
               <Checkbox
                 id="remember"
                 checked={formData.rememberMe}
-                onCheckedChange={(checked) => handleInputChange("rememberMe", checked as boolean)}
+                onCheckedChange={(checked) =>
+                  handleInputChange("rememberMe", checked as boolean)
+                }
               />
               <label htmlFor="remember" className="text-sm text-foreground">
                 Remember Me
               </label>
             </div>
 
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               disabled={loading}
-              className="w-full bg-brand hover:bg-brand/90 text-black font-medium h-12"
+              className="w-full bg-brand-green hover:bg-brand/90 text-black font-medium h-12"
             >
               {loading ? "Logging in..." : "Login"}
             </Button>
@@ -140,7 +189,9 @@ const Login = () => {
                 <span className="w-full border-t border-border" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">OR</span>
+                <span className="bg-background px-2 text-muted-foreground">
+                  OR
+                </span>
               </div>
             </div>
 
@@ -171,7 +222,9 @@ const Login = () => {
             </Button>
 
             <div className="text-center">
-              <span className="text-muted-foreground">Don't have an account? </span>
+              <span className="text-muted-foreground">
+                Don't have an account?{" "}
+              </span>
               <Link to="/signup" className="text-brand hover:underline">
                 Sign Up
               </Link>
