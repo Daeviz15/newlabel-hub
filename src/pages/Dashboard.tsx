@@ -3,7 +3,7 @@ import { ResumeCard, ProductCard, TopPick } from "@/components/course-card";
 import { HomeHeader } from "../components/home-header";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-
+import Footer from "@/components/Footer";
 const resumeItems = Array.from({ length: 4 }).map((_, i) => ({
   id: i + 1,
   image: "/assets/dashboard-images/face.jpg",
@@ -184,6 +184,7 @@ export default function Dashboard() {
 
         <div className="h-10" />
       </div>
+      <Footer/>
     </main>
   );
 }
