@@ -66,6 +66,23 @@ const Login = () => {
     }
   };
 
+  const handleGoogleLogin = async () => {
+    try {
+      await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`,
+        },
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Google sign-in failed. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <div className="bg-brand-green text-black text-sm sm:text-base m-4 py-2 text-center font-medium rounded-md">
@@ -206,9 +223,10 @@ const Login = () => {
             <Button
               type="button"
               variant="outline"
+              onClick={handleGoogleLogin}
               className="w-full h-12 bg-card border-border text-foreground hover:bg-card hover:text-foreground hover:border-border"
             >
-              <img src={icon} width={20} alt="Google icon" />
+              <img src={icon} width={20} alt="Google sign-in icon" />
               Login with Google
             </Button>
 
