@@ -1,7 +1,19 @@
 import { ChevronDown, Search, ShoppingCart, Heart } from "lucide-react"
 import { BrandMark } from "./brand-mark"
 
-export function HomeHeader() {
+export function HomeHeader({
+  search,
+  onSearchChange,
+  userName,
+  userEmail,
+  avatarUrl,
+}: {
+  search: string
+  onSearchChange: (q: string) => void
+  userName?: string
+  userEmail?: string
+  avatarUrl?: string
+}) {
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0c0c0c]/95 backdrop-blur supports-[backdrop-filter]:bg-[#0c0c0c]/75">
       <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-4 px-4 sm:px-6 md:px-8">
@@ -37,6 +49,8 @@ export function HomeHeader() {
             placeholder="Search courses, episodes, topics"
             className="w-full bg-transparent placeholder:text-zinc-500 focus:outline-none"
             aria-label="Search"
+            value={search}
+            onChange={(e) => onSearchChange(e.currentTarget.value)}
           />
         </div>
 
@@ -58,15 +72,15 @@ export function HomeHeader() {
           <div className="ml-2 flex items-center gap-3">
             <div className="relative h-9 w-9 overflow-hidden rounded-full ring-1 ring-white/10">
               <img
-                src="/images/avatar-john.png"
-                alt="John Doe avatar"
+                src={avatarUrl || "/assets/dashboard-images/face.jpg"}
+                alt={userName ? `${userName} avatar` : "User avatar"}
                 className="h-9 w-9 object-cover"
                 loading="lazy"
               />
             </div>
             <div className="hidden leading-tight md:block">
-              <div className="text-sm font-semibold text-white">John Doe</div>
-              <div className="text-[11px] text-zinc-400">Johndoe@email.com</div>
+              <div className="text-sm font-semibold text-white">{userName ?? "Guest"}</div>
+              <div className="text-[11px] text-zinc-400">{userEmail ?? ""}</div>
             </div>
           </div>
         </div>
@@ -81,6 +95,8 @@ export function HomeHeader() {
             placeholder="Search courses, episodes, topics"
             className="w-full bg-transparent placeholder:text-zinc-500 focus:outline-none"
             aria-label="Search"
+            value={search}
+            onChange={(e) => onSearchChange(e.currentTarget.value)}
           />
         </div>
       </div>
