@@ -108,12 +108,22 @@ const SignUp = () => {
 
   const handleGoogleSignUp = async () => {
     try {
-      await supabase.auth.signInWithOAuth({
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: `${window.location.origin}/dashboard`,
+          skipBrowserRedirect: true,
         },
       });
+
+      if (error) throw error;
+      if (data?.url) {
+        if (window.top) {
+          window.top.location.href = data.url;
+        } else {
+          window.location.href = data.url;
+        }
+      }
     } catch (error) {
       toast({
         title: "Error",
