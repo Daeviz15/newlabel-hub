@@ -47,20 +47,20 @@ const SignUp = () => {
       }
     };
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   // Prevent body scroll when mobile menu is open
   useEffect(() => {
     if (isMobileMenuOpen) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     }
 
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     };
   }, [isMobileMenuOpen]);
 
@@ -141,7 +141,7 @@ const SignUp = () => {
   const handleGoogleSignUp = async () => {
     try {
       const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
+        provider: "google",
         options: {
           redirectTo: `${window.location.origin}/dashboard`,
           skipBrowserRedirect: true,
@@ -169,7 +169,7 @@ const SignUp = () => {
     { name: "Home", path: "/" },
     { name: "About us", path: "/about" },
     { name: "Subsidiaries", path: "/subsidiaries" },
-    { name: "Contact", path: "/contact" }
+    { name: "Contact", path: "/contact" },
   ];
 
   return (
@@ -185,9 +185,9 @@ const SignUp = () => {
           <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
             {/* Desktop Logo */}
             <div className="hidden lg:flex items-center space-x-2">
-              <img 
-                src={logo} 
-                alt="brand-logo" 
+              <img
+                src={logo}
+                alt="brand-logo"
                 className="cursor-pointer transition-transform hover:scale-105"
                 onClick={() => handleNavigation("/")}
               />
@@ -195,40 +195,30 @@ const SignUp = () => {
 
             {/* Mobile Logo */}
             <div className="lg:hidden flex items-center">
-              <img 
-                src={logoOne} 
-                alt="brand-logo-mobile" 
+              <img
+                src={logoOne}
+                alt="brand-logo-mobile"
                 className="h-8 cursor-pointer transition-transform hover:scale-105"
                 onClick={() => handleNavigation("/")}
               />
             </div>
 
-            {/* Desktop Navigation - Unchanged */}
+            {/* Desktop Navigation - Updated with proper routing */}
             <nav className="hidden lg:flex items-center space-x-6 xl:space-x-8">
-              <a
-                href="#"
-                className="text-foreground hover:text-brand-green transition-colors text-sm xl:text-base"
-              >
-                Home
-              </a>
-              <a
-                href="#"
-                className="text-muted-foreground hover:text-brand-green transition-colors text-sm xl:text-base"
-              >
-                About us
-              </a>
-              <a
-                href="#"
-                className="text-muted-foreground hover:text-brand-green transition-colors text-sm xl:text-base"
-              >
-                Subsidiaries
-              </a>
-              <a
-                href="#"
-                className="text-muted-foreground hover:text-brand-green transition-colors text-sm xl:text-base"
-              >
-                Contact
-              </a>
+              {navigationItems.map((item, index) => (
+                <button
+                  key={item.name}
+                  onClick={() => handleNavigation(item.path)}
+                  className={`${
+                    item.path === "/" ? "text-white" : "text-muted-white"
+                  } hover:bg-[#FFFFFF1A] rounded-xl p-2 transition-all duration-300 ease-in-out text-sm xl:text-base font-vietnam bg-transparent border-none cursor-pointer hover:scale-105 hover:text-white`}
+                  style={{
+                    animationDelay: `${index * 0.1}s`,
+                  }}
+                >
+                  {item.name}
+                </button>
+              ))}
             </nav>
 
             {/* Mobile Menu Button */}
@@ -238,14 +228,18 @@ const SignUp = () => {
               aria-label="Toggle mobile menu"
             >
               <div className="relative w-6 h-6">
-                <Menu 
+                <Menu
                   className={`absolute top-0 left-0 w-6 h-6 text-white transition-all duration-300 ease-in-out ${
-                    isMobileMenuOpen ? 'rotate-90 opacity-0' : 'rotate-0 opacity-100'
+                    isMobileMenuOpen
+                      ? "rotate-90 opacity-0"
+                      : "rotate-0 opacity-100"
                   }`}
                 />
-                <X 
+                <X
                   className={`absolute top-0 left-0 w-6 h-6 text-white transition-all duration-300 ease-in-out ${
-                    isMobileMenuOpen ? 'rotate-0 opacity-100' : '-rotate-90 opacity-0'
+                    isMobileMenuOpen
+                      ? "rotate-0 opacity-100"
+                      : "-rotate-90 opacity-0"
                   }`}
                 />
               </div>
@@ -272,7 +266,9 @@ const SignUp = () => {
                   type="text"
                   placeholder="Enter your Name"
                   value={formData.fullName}
-                  onChange={(e) => handleInputChange("fullName", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("fullName", e.target.value)
+                  }
                   className="bg-card border-border text-foreground placeholder:text-muted-foreground"
                 />
               </div>
@@ -357,13 +353,22 @@ const SignUp = () => {
                     handleInputChange("agreeToTerms", checked)
                   }
                 />
-                <label htmlFor="terms" className="text-sm text-muted-foreground">
+                <label
+                  htmlFor="terms"
+                  className="text-sm text-muted-foreground"
+                >
                   I agree with{" "}
-                  <Link to="/terms" className="text-brand-green hover:underline">
+                  <Link
+                    to="/terms"
+                    className="text-brand-green hover:underline"
+                  >
                     Terms of Use
                   </Link>{" "}
                   and{" "}
-                  <Link to="/privacy" className="text-brand-green hover:underline">
+                  <Link
+                    to="/privacy"
+                    className="text-brand-green hover:underline"
+                  >
                     Privacy Policy
                   </Link>
                 </label>
@@ -405,7 +410,7 @@ const SignUp = () => {
                 <Link to="/login" className="text-[#70E002] hover:underline">
                   Login
                 </Link>
-                <ArrowUpRightIcon width={15} className="text-[#70E002]"/>
+                <ArrowUpRightIcon width={15} className="text-[#70E002]" />
               </div>
             </form>
           </div>
@@ -417,7 +422,7 @@ const SignUp = () => {
       {/* Mobile Menu Overlay */}
       <div
         className={`fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden transition-opacity duration-300 ease-in-out ${
-          isMobileMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          isMobileMenuOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
         onClick={() => setIsMobileMenuOpen(false)}
       />
@@ -425,7 +430,7 @@ const SignUp = () => {
       {/* Mobile Menu */}
       <div
         className={`fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-background border-l border-border z-50 lg:hidden transform transition-transform duration-300 ease-in-out ${
-          isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
+          isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
         {/* Mobile Menu Header */}
@@ -447,11 +452,15 @@ const SignUp = () => {
               key={item.name}
               onClick={() => handleNavigation(item.path)}
               className={`${
-                item.path === "/" ? "text-white bg-[#FFFFFF1A]" : "text-muted-white"
+                item.path === "/"
+                  ? "text-white hover:bg-[#FFFFFF1A] bg-[#FFFFFF1A]"
+                  : "text-muted-white"
               } hover:bg-[#FFFFFF1A] rounded-xl p-4 transition-all duration-300 ease-in-out text-left font-vietnam bg-transparent border-none cursor-pointer hover:text-white hover:translate-x-2 transform`}
               style={{
                 animationDelay: `${index * 0.1}s`,
-                animation: isMobileMenuOpen ? `slideInFromRight 0.3s ease-out ${index * 0.1}s both` : 'none'
+                animation: isMobileMenuOpen
+                  ? `slideInFromRight 0.3s ease-out ${index * 0.1}s both`
+                  : "none",
               }}
             >
               {item.name}
@@ -475,7 +484,6 @@ const SignUp = () => {
           </div>
         </div>
       </div>
-
     </>
   );
 };
