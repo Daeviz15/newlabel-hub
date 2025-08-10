@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { ResumeCard, ProductCard, TopPick } from "@/components/course-card";
 import { HomeHeader } from "../components/home-header";
 import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 const resumeItems = Array.from({ length: 4 }).map((_, i) => ({
   id: i + 1,
@@ -49,11 +50,16 @@ const releasesItems = trendingItems;
 const recommendedItems = trendingItems;
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [userName, setUserName] = useState<string | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate("/login");
+  };
   useEffect(() => {
     const updateFromSession = (session: any) => {
       const user = session?.user || null;
@@ -113,7 +119,7 @@ export default function Dashboard() {
 
   return (
     <main className="bg-[#0b0b0b] text-white">
-      <HomeHeader search={searchQuery} onSearchChange={setSearchQuery} userName={userName ?? undefined} userEmail={userEmail ?? undefined} avatarUrl={avatarUrl ?? undefined} />
+      <HomeHeader search={searchQuery} onSearchChange={setSearchQuery} userName={userName ?? undefined} userEmail={userEmail ?? undefined} avatarUrl={avatarUrl ?? undefined} onSignOut={handleSignOut} />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
         {/* Lime hero banner */}
         <section className="py-6">

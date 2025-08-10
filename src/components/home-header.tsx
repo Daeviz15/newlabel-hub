@@ -1,6 +1,7 @@
 import { ChevronDown, Search, ShoppingCart, Heart, Menu, X } from "lucide-react"
 import { useState } from "react"
 import { BrandMark } from "./brand-mark"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "./ui/dropdown-menu"
 
 export function HomeHeader({
   search,
@@ -8,12 +9,14 @@ export function HomeHeader({
   userName,
   userEmail,
   avatarUrl,
+  onSignOut,
 }: {
   search: string
   onSearchChange: (q: string) => void
   userName?: string
   userEmail?: string
   avatarUrl?: string
+  onSignOut?: () => void
 }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isSearchFocused, setIsSearchFocused] = useState(false)
@@ -88,14 +91,31 @@ export function HomeHeader({
 
           {/* Profile section */}
           <div className="ml-1 flex items-center gap-2 sm:ml-2 sm:gap-3">
-            <div className="relative h-8 w-8 overflow-hidden rounded-full ring-1 ring-white/10 transition-all duration-200 hover:ring-2 hover:ring-lime-500/30 sm:h-9 sm:w-9">
-              <img
-                src={avatarUrl || "/assets/dashboard-images/face.jpg"}
-                alt={userName ? `${userName} avatar` : "User avatar"}
-                className="h-full w-full object-cover transition-transform duration-200 hover:scale-110"
-                loading="lazy"
-              />
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  aria-label="Open profile menu"
+                  className="relative h-8 w-8 overflow-hidden rounded-full ring-1 ring-white/10 transition-all duration-200 hover:ring-2 hover:ring-lime-500/30 sm:h-9 sm:w-9"
+                >
+                  <img
+                    src={avatarUrl || "/assets/dashboard-images/face.jpg"}
+                    alt={userName ? `${userName} avatar` : "User avatar"}
+                    className="h-full w-full object-cover transition-transform duration-200 hover:scale-110"
+                    loading="lazy"
+                  />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>
+                  <div className="text-sm font-semibold">{userName ?? "Guest"}</div>
+                  {userEmail && <div className="text-xs text-zinc-400">{userEmail}</div>}
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => onSignOut?.()}>
+                  Sign out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             {/* User info - hidden on small screens */}
             <div className="hidden leading-tight lg:block">
               <div className="text-sm font-semibold text-white transition-colors duration-200 hover:text-lime-400">
@@ -156,6 +176,14 @@ export function HomeHeader({
             <div className="pt-3 border-t border-white/10">
               <div className="text-sm font-semibold text-white">{userName ?? "Guest"}</div>
               {userEmail && <div className="text-xs text-zinc-400">{userEmail}</div>}
+              {onSignOut && (
+                <button
+                  onClick={() => { onSignOut(); setIsMenuOpen(false); }}
+                  className="mt-3 inline-flex w-full items-center justify-center rounded-md bg-[#1a1a1a] text-white ring-1 ring-white/10 transition-all duration-200 hover:bg-[#222] py-2 text-sm"
+                >
+                  Sign out
+                </button>
+              )}
             </div>
           </div>
         </nav>
