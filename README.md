@@ -1,73 +1,27 @@
-# Welcome to your Lovable project
+NewLabel-Hub
 
-## Project info
+NewLabel-Hub is a digital platform for streaming videos, listening to podcasts, and purchasing digital courses. It provides a seamless and engaging experience for learners, creators, and entertainment enthusiasts by bringing multiple forms of content together in one place.
 
-**URL**: https://lovable.dev/projects/83ce42c1-112a-43fe-b778-26fb7e295138
+🚀 Features
 
-## How can I edit this code?
+🎬 Video Streaming – Watch high-quality video content on demand.
 
-There are several ways of editing your application.
+🎙️ Podcast Hub – Stream and discover engaging podcasts across categories.
 
-**Use Lovable**
+📚 Digital Courses – Purchase and access online courses with ease.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/83ce42c1-112a-43fe-b778-26fb7e295138) and start prompting.
+🔐 Secure Authentication – Supabase integration for safe and reliable access.
 
-Changes made via Lovable will be committed automatically to this repo.
+📱 Responsive & Intuitive UI – Built with React and TailwindCSS for a smooth cross-device experience.
 
-**Use your preferred IDE**
+⚡ Deployed on Vercel – Fast, scalable, and globally accessible hosting.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+🛠️ Tech Stack
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+Frontend: React (TypeScript / JavaScript)
 
-Follow these steps:
+Styling: TailwindCSS
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+Backend & Database: Supabase (PostgreSQL, Authentication, APIs)
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/83ce42c1-112a-43fe-b778-26fb7e295138) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+Deployment: Vercel
