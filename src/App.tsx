@@ -16,7 +16,7 @@ import CartPage from "./pages/CartPage";
 import MyLibraryPage from "./pages/MyLibraryPage";
 import {PrivacyPolicyPage} from "./pages/PrivacyPolicyPage";
 import {TermsnCondition} from "./pages/TermsnCondition";
-
+import Notification from "./pages/Notification";
 const queryClient = new QueryClient();
 
 const App = () => (
