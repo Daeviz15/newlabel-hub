@@ -1,14 +1,10 @@
-import { cn } from "@/lib/utils"
-
-type BrandMarkProps = { className?: string }
-
-export function BrandMark({ className }: BrandMarkProps) {
+export const BrandMark = () => {
   return (
-    <div className={cn("flex items-center", className)}>
-      <div className="relative h-7 w-7 rounded-md bg-lime-500">
-        <div className="absolute inset-1 rounded-[4px] bg-black" />
-        <div className="absolute left-[6px] top-[6px] h-3 w-3 rotate-45 rounded-[2px] bg-lime-500" />
+    <div className="flex items-center gap-2">
+      <div className="h-8 w-8 rounded-md bg-lime-500 flex items-center justify-center">
+        <span className="text-black font-bold text-lg">n</span>
       </div>
+      <span className="text-white font-bold text-xl">newlabel</span>
     </div>
-  )
-}
+  );
+};
