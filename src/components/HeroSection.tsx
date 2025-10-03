@@ -1,6 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import heroImage from "@/assets/hero-woman-laptop.jpg";
+import heroImage from "@/assets/frame.png";
+import { ArrowUpRightIcon } from "@heroicons/react/24/outline";
+import one from "/assets/one.png";
+import two from "/assets/two.png";
+import { Headphones, Package } from "lucide-react";
+import three from "/assets/three.png";
+import topleft from "/assets/topleft.png";
+import bottomright from "/assets/bottomright.png";
 
 const HeroSection = () => {
   const navigate = useNavigate();
@@ -12,82 +19,77 @@ const HeroSection = () => {
           {/* Badge */}
           <div className="inline-flex items-center bg-secondary rounded-full px-3 sm:px-4 py-2 mb-6 sm:mb-8">
             <div className="flex items-center space-x-2">
-              <div className="flex space-x-1">
-                <div className="w-2 h-2 bg-brand-green rounded-full"></div>
-                <div className="w-2 h-2 bg-brand-green rounded-full"></div>
-                <div className="w-2 h-2 bg-brand-green rounded-full"></div>
+              <div className="flex -space-x-2">
+                <img
+                  src={one}
+                  alt=""
+                  className="w-8 h-8 rounded-full border-2 border-white relative z-30"
+                />
+                <img
+                  src={two}
+                  alt=""
+                  className="w-8 h-8 rounded-full border-2 border-white relative z-20"
+                />
+                <img
+                  src={three}
+                  alt=""
+                  className="w-8 h-8 rounded-full border-2 border-white relative z-10"
+                />
               </div>
-              <span className="text-xs sm:text-sm text-muted-foreground">
-                Learn with industry professionals
+              <span className="text-xs sm:text-sm text-[#C8F998]">
+                Over 50,000 curious minds follow our content
               </span>
             </div>
           </div>
 
           {/* Main Headline */}
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-foreground mb-4 sm:mb-6 leading-tight">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-foreground mb-4 sm:mb-6 leading-tight font-poppins">
             Stream, Learn And Listen.
             <br />
             <span className="text-foreground">All In One Place</span>
           </h1>
 
           {/* Subheadline */}
-          <p className="text-base sm:text-lg lg:text-xl text-muted-foreground mb-6 sm:mb-8 max-w-2xl mx-auto px-4">
-            Your trusted home for courses and podcast within a vibrant community
+          <p className="text-base sm:text-lg lg:text-xl text-muted-foreground mb-6 sm:mb-8 max-w-2xl mx-auto px-4 font-inter">
+            Explore exclusive content from our growing collection of creators
+            and storytellers
           </p>
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center space-y-3 sm:space-y-0 sm:space-x-4 mb-12 sm:mb-16 px-4">
-            <Button 
-              onClick={() => navigate('/signup')}
-              className="bg-brand-green hover:bg-brand-green-hover text-background font-semibold px-6 sm:px-8 py-3 text-base sm:text-lg w-full sm:w-auto"
+            <Button
+              onClick={() => navigate("/signup")}
+              className="bg-[linear-gradient(180deg,_#70E002_0%,_#69DA02_24.46%,_#56CA01_59.82%,_#38B100_100%)] text-black font-semibold font-poppins px-6 sm:px-8 py-3 text-base sm:text-lg w-full sm:w-auto hover:opacity-90 transition flex items-center gap-2"
             >
-              Get Started
-            </Button>
-            <Button 
-              onClick={() => navigate('/login')}
-              variant="outline" 
-              className="border-border text-foreground hover:bg-secondary px-6 sm:px-8 py-3 text-base sm:text-lg w-full sm:w-auto"
-            >
-              Learn more →
+              Explore Our Content
+              <ArrowUpRightIcon className="w-4 h-4" />
             </Button>
           </div>
         </div>
 
-        {/* Hero Image */}
+        {/* Hero Image - Added padding to accommodate floating cards */}
         <div className="relative max-w-5xl mx-auto px-4">
-          <div className="relative rounded-xl sm:rounded-2xl overflow-hidden bg-gradient-to-br from-secondary to-muted">
-            <img
-              src={heroImage}
-              alt="Woman learning on laptop"
-              className="w-full h-auto object-cover"
-            />
-            
-            {/* Floating Cards - Hidden on mobile for cleaner look */}
-            <div className="hidden sm:block absolute top-4 sm:top-8 left-4 sm:left-8 bg-card rounded-lg p-3 sm:p-4 shadow-lg border border-border max-w-[200px]">
-              <div className="flex items-center space-x-2 sm:space-x-3">
-                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-brand-green rounded-full flex items-center justify-center flex-shrink-0">
-                  <svg className="w-3 h-3 sm:w-4 sm:h-4 text-background" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <div className="min-w-0">
-                  <p className="text-xs sm:text-sm font-semibold text-card-foreground truncate">Course Completed!</p>
-                  <p className="text-xs text-muted-foreground truncate">Video-1 Introduction</p>
-                </div>
+          {/* Added extra padding container to prevent clipping */}
+          <div className="relative px-8 py-8">
+            <div className="relative rounded-xl sm:rounded-2xl overflow-hidden bg-gradient-to-br from-secondary to-muted">
+              <img
+                src={heroImage}
+                alt="Woman learning on laptop"
+                className="w-full h-auto object-cover"
+              />
+            </div>
+
+            {/* Top Left Floating Card - Now positioned relative to the padded container */}
+            <div className="absolute top-20 left-[-20px] backdrop-blur-sm rounded-xl p-4 shadow-2xl border border-gray-700/50 max-w-[280px] transform hover:scale-105 transition-transform duration-200 z-10">
+              <div className="flex items-center space-x-3">
+                <img src={topleft} alt="" className="w-full h-auto" />
               </div>
             </div>
 
-            <div className="hidden sm:block absolute bottom-4 sm:bottom-8 right-4 sm:right-8 bg-card rounded-lg p-3 sm:p-4 shadow-lg border border-border max-w-[200px]">
-              <div className="flex items-center space-x-2 sm:space-x-3">
-                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-brand-green rounded-full flex items-center justify-center flex-shrink-0">
-                  <svg className="w-3 h-3 sm:w-4 sm:h-4 text-background" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                  </svg>
-                </div>
-                <div className="min-w-0">
-                  <p className="text-xs sm:text-sm font-semibold text-card-foreground truncate">95/4.5 rating scale!</p>
-                  <p className="text-xs text-muted-foreground truncate">Excellent</p>
-                </div>
+            {/* Bottom Right Floating Card - Now positioned relative to the padded container */}
+            <div className="absolute bottom-14 right-[-20px] backdrop-blur-sm rounded-xl p-4 shadow-2xl border border-gray-700/50 max-w-[280px] transform hover:scale-105 transition-transform duration-200 z-10">
+              <div className="flex items-center space-x-3">
+                <img src={bottomright} alt="" className="w-full h-auto" />
               </div>
             </div>
           </div>
