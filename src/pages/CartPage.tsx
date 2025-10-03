@@ -2,43 +2,15 @@
 
 import { CartRow } from "../components/cart-row";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
 import { HomeHeader } from "@/components/home-header";
-
-type Item = {
-  id: string;
-  title: string;
-  price: number;
-  qty: number;
-  image: string;
-};
-
-const initialItems: Item[] = [
-  {
-    id: "1",
-    title: "The Future Of AI In Everyday Products",
-    price: 19,
-    qty: 2,
-    image: "/images/product-thumb.png",
-  },
-  {
-    id: "2",
-    title: "The Future Of AI In Everyday Products",
-    price: 19,
-    qty: 2,
-    image: "/images/product-thumb.png",
-  },
-];
+import { useCart } from "@/hooks/use-cart";
 
 export default function CartPage() {
-  const [items, setItems] = useState<Item[]>(initialItems);
+  const { state, removeItem } = useCart();
 
-  function removeItem(id: string) {
-    setItems((prev) => prev.filter((i) => i.id !== id));
-  }
-
-  // Compute totals (mirrors the subtotals shown)
-  const total = items.reduce((sum, i) => sum + i.price * i.qty, 0);
+  const handleRemoveItem = (id: string) => {
+    removeItem(id);
+  };
 
   return (
     <main className="min-h-[100dvh] bg-[#0b0b0b] text-white">
@@ -75,15 +47,15 @@ export default function CartPage() {
           aria-label="Shopping cart items"
           className="divide-y divide-white/10"
         >
-          {items.map((item) => (
+          {state.items.map((item) => (
             <CartRow
               key={item.id}
               id={item.id}
               title={item.title}
-              price={item.price}
-              qty={item.qty}
+              price={parseFloat(item.price.replace('$', ''))}
+              qty={item.quantity}
               image={item.image}
-              onRemove={removeItem}
+              onRemove={handleRemoveItem}
             />
           ))}
         </section>

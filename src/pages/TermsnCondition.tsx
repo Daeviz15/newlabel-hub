@@ -10,7 +10,7 @@ export function TermsnCondition() {
     <div className="min-h-screen bg-black text-white">
       <Header />
       {/* Main Content */}
-      <main className="mx-auto max-w-7xl px-6 md:px-8">
+      <main className="mx-auto max-w-20xl px-6 md:px-8">
         {/* Page Header */}
         <div className="mt-12">
           <h1 className="text-4xl font-bold text-white mb-2">Terms & Conditions</h1>
@@ -116,12 +116,8 @@ export function TermsnCondition() {
           </section>
         </div>
         <div className="h-6 md:h-10" />
-        <div className="max-w-1xl">
-        <Footer />
-        </div>
       </main>
-
-
+     <Footer />
     </div>
   );
 }

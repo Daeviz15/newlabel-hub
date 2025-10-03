@@ -8,10 +8,12 @@ import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 // import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
+// import ServerError from "./pages/ServerError";
 import AboutPage from "./pages/AboutPage";
 import ContactPage from "./pages/ContactPage";
 import Dashboard from "./pages/Dashboard";
 import CartPage from "./pages/CartPage";
+import CataloguePage from "./pages/CataloguePage";
 import {PrivacyPolicyPage} from "./pages/PrivacyPolicyPage";
 import {TermsnCondition} from "./pages/TermsnCondition";
 
@@ -31,8 +33,10 @@ const App = () => (
           <Route path="/about" element={<AboutPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/cart" element={<CartPage />} />
+          <Route path="/catalogue" element={<CataloguePage />} />
           <Route path="/privacypolicypage" element={<PrivacyPolicyPage />} />
           <Route path="/termsncondition" element={<TermsnCondition />} />
+          {/* <Route path="/servererror" element={<ServerError />} /> */}
 
 
           <Route path="*" element={<NotFound />} />
@@ -43,3 +47,4 @@ const App = () => (
 );
 
 export default App;
+

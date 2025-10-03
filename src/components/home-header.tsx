@@ -5,6 +5,7 @@ import {
   Heart,
   Menu,
   X,
+  BellIcon,
 } from "lucide-react";
 import { useState } from "react";
 import { BrandMark } from "./brand-mark";
@@ -16,6 +17,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import { Button } from "./ui/button";
 
 export function HomeHeader({
   search,
@@ -58,7 +60,7 @@ export function HomeHeader({
             </a>
             <a
               className="relative transition-colors duration-200 hover:text-white after:absolute after:bottom-[-2px] after:left-0 after:h-0.5 after:w-0 after:bg-lime-500 after:transition-all after:duration-300 hover:after:w-full"
-              href="#"
+              href="/catalogue"
             >
               Catalogue
             </a>
@@ -116,6 +118,12 @@ export function HomeHeader({
           >
             <ShoppingCart className="h-4 w-4" />
           </a>
+
+          <button aria-label="ghost"  
+               className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-[#1a1a1a] text-white ring-1 ring-white/10 transition-all duration-200 hover:bg-[#222] hover:scale-105 sm:h-9 sm:w-9">
+              <BellIcon className="h-4 w-4" />
+            </button>
+
           <button
             aria-label="Favorites"
             className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-[#1a1a1a] text-white ring-1 ring-white/10 transition-all duration-200 hover:bg-[#222] hover:scale-105 sm:h-9 sm:w-9"
@@ -194,7 +202,7 @@ export function HomeHeader({
               Explore
             </a>
             <a
-              href="#"
+              href="/cataloguepage"
               className="block text-sm text-zinc-300 transition-all duration-200 hover:text-white hover:translate-x-1"
               onClick={() => setIsMenuOpen(false)}
             >
@@ -266,3 +274,6 @@ export function HomeHeader({
     </header>
   );
 }
+
+
+
