@@ -5,7 +5,6 @@ import {
   Heart,
   Menu,
   X,
-  BellIcon,
 } from "lucide-react";
 import { useState } from "react";
 import { BrandMark } from "./brand-mark";
@@ -118,12 +117,6 @@ export function HomeHeader({
           >
             <ShoppingCart className="h-4 w-4" />
           </a>
-
-          <button aria-label="ghost"  
-               className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-[#1a1a1a] text-white ring-1 ring-white/10 transition-all duration-200 hover:bg-[#222] hover:scale-105 sm:h-9 sm:w-9">
-              <BellIcon className="h-4 w-4" />
-            </button>
-
           <button
             aria-label="Favorites"
             className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-[#1a1a1a] text-white ring-1 ring-white/10 transition-all duration-200 hover:bg-[#222] hover:scale-105 sm:h-9 sm:w-9"
@@ -157,6 +150,9 @@ export function HomeHeader({
                   )}
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem>My Library</DropdownMenuItem>
+                <DropdownMenuItem>Account Settings</DropdownMenuItem>
+                <DropdownMenuItem>Contact Us</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => onSignOut?.()}>
                   Sign out
                 </DropdownMenuItem>
