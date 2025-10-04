@@ -198,7 +198,7 @@ export function HomeHeader({
               Explore
             </a>
             <a
-              href="/cataloguepage"
+              href="#"
               className="block text-sm text-zinc-300 transition-all duration-200 hover:text-white hover:translate-x-1"
               onClick={() => setIsMenuOpen(false)}
             >

@@ -6,16 +6,14 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
-// import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
-// import ServerError from "./pages/ServerError";
 import AboutPage from "./pages/AboutPage";
 import ContactPage from "./pages/ContactPage";
 import Dashboard from "./pages/Dashboard";
 import CartPage from "./pages/CartPage";
-import CataloguePage from "./pages/CataloguePage";
-import {PrivacyPolicyPage} from "./pages/PrivacyPolicyPage";
-import {TermsnCondition} from "./pages/TermsnCondition";
+import { PrivacyPolicyPage } from "./pages/PrivacyPolicyPage";
+import { TermsnCondition } from "./pages/TermsnCondition";
+import Catalogue from "./pages/Catalogue";
 
 const queryClient = new QueryClient();
 
@@ -33,11 +31,9 @@ const App = () => (
           <Route path="/about" element={<AboutPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/cart" element={<CartPage />} />
-          <Route path="/catalogue" element={<CataloguePage />} />
           <Route path="/privacypolicypage" element={<PrivacyPolicyPage />} />
           <Route path="/termsncondition" element={<TermsnCondition />} />
-          {/* <Route path="/servererror" element={<ServerError />} /> */}
-
+          <Route path="/catalogue" element={<Catalogue />} />
 
           <Route path="*" element={<NotFound />} />
         </Routes>
@@ -47,4 +43,3 @@ const App = () => (
 );
 
 export default App;
-
