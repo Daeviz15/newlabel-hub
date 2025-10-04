@@ -116,12 +116,8 @@ export function PrivacyPolicyPage() {
           </section>
         </div>
         <div className="h-6 md:h-10" />
-        <div className="">
-        <Footer />
-        </div>
       </main>
-
-
+      <Footer />
     </div>
   );
 }

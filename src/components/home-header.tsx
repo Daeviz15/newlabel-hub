@@ -5,7 +5,6 @@ import {
   Heart,
   Menu,
   X,
-  Bell,
 } from "lucide-react";
 import { useState } from "react";
 import { BrandMark } from "./brand-mark";
@@ -17,6 +16,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import { Button } from "./ui/button";
 
 export function HomeHeader({
   search,
@@ -117,13 +117,6 @@ export function HomeHeader({
           >
             <ShoppingCart className="h-4 w-4" />
           </a>
-          <a
-            href="/"
-            aria-label="Cart"
-            className="hidden h-8 w-8 items-center justify-center rounded-md bg-[#1a1a1a] text-white ring-1 ring-white/10 transition-all duration-200 hover:bg-[#222] hover:scale-105 sm:inline-flex sm:h-9 sm:w-9"
-          >
-            <Bell className="h-4 w-4" />
-          </a>
           <button
             aria-label="Favorites"
             className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-[#1a1a1a] text-white ring-1 ring-white/10 transition-all duration-200 hover:bg-[#222] hover:scale-105 sm:h-9 sm:w-9"
@@ -205,7 +198,7 @@ export function HomeHeader({
               Explore
             </a>
             <a
-              href="/catalogue"
+              href="#"
               className="block text-sm text-zinc-300 transition-all duration-200 hover:text-white hover:translate-x-1"
               onClick={() => setIsMenuOpen(false)}
             >
@@ -277,3 +270,6 @@ export function HomeHeader({
     </header>
   );
 }
+
+
+
