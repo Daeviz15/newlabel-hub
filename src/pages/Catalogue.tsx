@@ -56,6 +56,7 @@ const Catalogue = () => {
   const [userName, setUserName] = useState<string | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+
   useEffect(() => {
     const updateFromSession = (session: any) => {
       const user = session?.user || null;
@@ -94,7 +95,7 @@ const Catalogue = () => {
   }, []);
 
   return (
-    <main className="bg-[#0b0b0b] text-white">
+    <main className="bg-[#0b0b0b] text-white min-h-screen">
       <HomeHeader
         search={searchQuery}
         onSearchChange={setSearchQuery}
@@ -103,12 +104,14 @@ const Catalogue = () => {
         avatarUrl={avatarUrl ?? undefined}
         onSignOut={handleSignOut}
       />
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 md:px-8">
-        <div className="flex w-full gap-5 mt-20 mb-40">
-          <h1 className="text-3xl font-semibold font-vietnam w-[500px] text-[#EDEDED]">
+
+      {/* Hero Section - Fully Responsive */}
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col lg:flex-row w-full gap-6 sm:gap-8 lg:gap-12 mt-12 sm:mt-16 lg:mt-20 mb-20 sm:mb-28 lg:mb-40">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-semibold font-vietnam lg:w-[500px] text-[#EDEDED] leading-tight">
             Curated Content From Your Favorite Creators
           </h1>
-          <p className="w-1/2 font-light text-sm text-[#EDEDED] font-vietnam">
+          <p className="w-full lg:w-1/2 font-light text-sm sm:text-base text-[#EDEDED] font-vietnam leading-relaxed">
             Welcome to our online course page, where you can enhance your skills
             in design and development. Choose from our carefully curated
             selection of 10 courses designed to provide you with comprehensive
@@ -116,10 +119,20 @@ const Catalogue = () => {
             find the perfect fit for your learning journey.
           </p>
         </div>
-        <div className="flex flex-col gap-6">
-          <h1 className="text-3xl font-nunito font-bold">Browse by category</h1>
-          <Tab />
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+
+        {/* Browse Section - Fully Responsive */}
+        <div className="flex flex-col gap-6 sm:gap-8 pb-12 sm:pb-16">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-nunito font-bold">
+            Browse by category
+          </h1>
+
+          {/* Tab Component - Horizontal scroll on mobile */}
+          <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+            <Tab />
+          </div>
+
+          {/* Product Grid 1 - Responsive columns */}
+          <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-6">
             {browse.map((it) => (
               <ProductCard
                 key={it.id}
@@ -130,7 +143,9 @@ const Catalogue = () => {
               />
             ))}
           </div>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+
+          {/* Product Grid 2 */}
+          <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-6">
             {browse.map((it) => (
               <ProductCard
                 key={it.id}
@@ -141,7 +156,9 @@ const Catalogue = () => {
               />
             ))}
           </div>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+
+          {/* Product Grid 3 */}
+          <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-6">
             {browse.map((it) => (
               <ProductCard
                 key={it.id}
@@ -152,9 +169,14 @@ const Catalogue = () => {
               />
             ))}
           </div>
-          <div className="flex justify-center items-center text-[13px] w-full bg-gray-500/25 h-10 mt-3 mb-10 rounded-sm font-nunito font-bold ">Load More</div>
+
+          {/* Load More Button - Responsive with hover effect */}
+          <button className="flex justify-center items-center text-xs sm:text-sm w-full bg-gray-500/25 hover:bg-gray-500/35 transition-colors h-10 sm:h-12 mt-3 mb-6 sm:mb-10 rounded-sm font-nunito font-bold cursor-pointer active:scale-[0.98]">
+            Load More
+          </button>
         </div>
       </div>
+
       <Footer />
     </main>
   );
