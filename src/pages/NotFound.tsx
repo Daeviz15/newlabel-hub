@@ -1,5 +1,7 @@
 import { useLocation } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
+import Footer from "@/components/Footer";
 
 const NotFound = () => {
   const location = useLocation();
@@ -12,15 +14,30 @@ const NotFound = () => {
   }, [location.pathname]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+    <div className="min-h-screen flex items-center justify-center bg-g#121212">
       <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">404</h1>
-        <p className="text-xl text-gray-600 mb-4">Oops! Page not found</p>
-        <a href="/" className="text-blue-500 hover:text-blue-700 underline">
-          Return to Home
-        </a>
+        <div className="text-center mb-6 sm:mb-8">
+          <h1 className="text-[120px] sm:text-[180px] md:text-[240px] lg:text-[300px] font-bold text-gray-800 leading-none select-none">
+            404
+          </h1>
+        </div>
+        {/* Error Message */}
+        <div className="text-center mb-6 sm:mb-8 max-w-md px-4">
+          <h2 className="text-2xl sm:text-3xl font-bold text-lime-100 mb-3 sm:mb-4">Oops! Page Not Found</h2>
+          <p className="text-gray-400 text-base sm:text-lg">
+            It may have been moved or deleted. Let’s get you back on track
+          </p>
+        </div>
+         {/* Back to Home Button */}
+        <Button
+          className="bg-lime-400 hover:bg-lime-500 text-black font-semibold px-6 sm:px-8 py-2 sm:py-3 rounded-lg transition-colors text-sm sm:text-base"
+          onClick={() => (window.location.href = "/")}
+        >
+          Back to Home
+        </Button>
       </div>
     </div>
+    
   );
 };
 

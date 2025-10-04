@@ -2,7 +2,7 @@ import footerLogo from "/assets/logo.png";
 import facebook from "/assets/facebook.png";
 import twitter from "/assets/twitter.png";
 import instagram from "/assets/instagram.png";
-
+import { Link } from 'react-router-dom';
 const LandingFooter = () => {
   return (
     <footer className="w-full bg-[#70E002] text-black py-16 px-4 sm:px-6 lg:px-8">
@@ -135,20 +135,20 @@ const LandingFooter = () => {
             <h3 className="text-black font-semibold text-lg">Legal</h3>
             <ul className="space-y-8 text-[14px] font-light">
               <li>
-                <a
-                  href="#"
+                <Link
+                  to ="/termsncondition"
                   className="text-black hover:text-gray-700 transition-colors underline font-poppins"
                 >
-                  Terms of Service
-                </a>
+                  Terms & Conditions
+                </Link>
               </li>
               <li>
-                <a
-                  href="#"
+                <Link
+                  to ="/privacypolicypage"
                   className="text-black hover:text-gray-700 transition-colors underline font-poppins"
                 >
                   Privacy Policy
-                </a>
+                </Link>
               </li>
               <li>
                 <a
