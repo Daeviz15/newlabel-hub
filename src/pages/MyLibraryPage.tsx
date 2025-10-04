@@ -39,7 +39,10 @@ export default function MyLibraryPage() {
 
   return (
     <div className="min-h-screen bg-black">
-      <HomeHeader  />
+      <HomeHeader
+        search=""
+        onSearchChange={() => {}}
+      />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
         {/* Header */}
         <div className="mb-8">
