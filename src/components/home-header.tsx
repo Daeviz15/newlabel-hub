@@ -59,7 +59,7 @@ export function HomeHeader({
             </a>
             <a
               className="relative transition-colors duration-200 hover:text-white after:absolute after:bottom-[-2px] after:left-0 after:h-0.5 after:w-0 after:bg-lime-500 after:transition-all after:duration-300 hover:after:w-full"
-              href="#"
+              href="/catalogue"
             >
               Catalogue
             </a>
@@ -205,7 +205,7 @@ export function HomeHeader({
               Explore
             </a>
             <a
-              href="#"
+              href="/catalogue"
               className="block text-sm text-zinc-300 transition-all duration-200 hover:text-white hover:translate-x-1"
               onClick={() => setIsMenuOpen(false)}
             >
