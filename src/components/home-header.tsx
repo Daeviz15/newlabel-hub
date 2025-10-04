@@ -5,8 +5,10 @@ import {
   Heart,
   Menu,
   X,
+  Bell,
 } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { BrandMark } from "./brand-mark";
 import {
   DropdownMenu,
@@ -35,6 +37,7 @@ export function HomeHeader({
 }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+    const navigate = useNavigate();
 
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0c0c0c]/95 backdrop-blur supports-[backdrop-filter]:bg-[#0c0c0c]/75 transition-all duration-300">
@@ -62,12 +65,6 @@ export function HomeHeader({
               href="/catalogue"
             >
               Catalogue
-            </a>
-            <a
-              className="relative transition-colors duration-200 hover:text-white after:absolute after:bottom-[-2px] after:left-0 after:h-0.5 after:w-0 after:bg-lime-500 after:transition-all after:duration-300 hover:after:w-full"
-              href="#"
-            >
-              My Library
             </a>
             <button className="group inline-flex items-center gap-1 transition-colors duration-200 hover:text-white">
               <span>Subsidiaries</span>
@@ -117,6 +114,13 @@ export function HomeHeader({
           >
             <ShoppingCart className="h-4 w-4" />
           </a>
+          <a
+            href="/notifications"
+            aria-label="Notification"
+            className="hidden h-8 w-8 items-center justify-center rounded-md bg-[#1a1a1a] text-white ring-1 ring-white/10 transition-all duration-200 hover:bg-[#222] hover:scale-105 sm:inline-flex sm:h-9 sm:w-9"
+          >
+            <Bell className="h-4 w-4" />
+          </a>
           <button
             aria-label="Favorites"
             className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-[#1a1a1a] text-white ring-1 ring-white/10 transition-all duration-200 hover:bg-[#222] hover:scale-105 sm:h-9 sm:w-9"
@@ -150,8 +154,8 @@ export function HomeHeader({
                   )}
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>My Library</DropdownMenuItem>
-                <DropdownMenuItem>Account Settings</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/mylibrary')}>My Library</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/accountsetting')}>Account Settings</DropdownMenuItem>
                 <DropdownMenuItem>Contact Us</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => onSignOut?.()}>
                   Sign out
@@ -198,14 +202,14 @@ export function HomeHeader({
               Explore
             </a>
             <a
-              href="/cataloguepage"
+              href="/catalogue"
               className="block text-sm text-zinc-300 transition-all duration-200 hover:text-white hover:translate-x-1"
               onClick={() => setIsMenuOpen(false)}
             >
               Catalogue
             </a>
             <a
-              href="/mylibrarypage"
+              href="/mylibrary"
               className="block text-sm text-zinc-300 transition-all duration-200 hover:text-white hover:translate-x-1"
               onClick={() => setIsMenuOpen(false)}
             >
@@ -270,6 +274,3 @@ export function HomeHeader({
     </header>
   );
 }
-
-
-

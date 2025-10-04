@@ -1,4 +1,10 @@
-import React from 'react';
+import { HomeHeader } from "@/components/home-header";
+import { supabase } from "@/integrations/supabase/client";
+import React, { useEffect, useState } from "react";
+import Footer from "@/components/Footer";
+import { useNavigate } from "react-router-dom";
+
+
 
 interface NotificationItemProps {
   title: string;
@@ -8,17 +14,17 @@ interface NotificationItemProps {
   avatar: string;
 }
 
-function NotificationItem({ title, subtitle, time, hasGreenDot, avatar }: NotificationItemProps) {
+const NotificationItem: React.FC<NotificationItemProps> = ({ title, subtitle, time, hasGreenDot, avatar }) => {
   return (
-    <div className="flex items-center space-x-3 sm:space-x-4 p-3 sm:p-4 bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors">
+    <div className="flex items-center space-x-3 sm:space-x-4 p-3 sm:p-4 bg-[#1F1F1F] rounded-lg hover:bg-gray-700 transition-colors">
       <img
         src={avatar || "/placeholder.svg"}
         alt="User avatar"
         className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex-shrink-0"
       />
       <div className="flex-1 min-w-0">
-        <h3 className="text-white font-medium text-sm sm:text-base truncate">{title}</h3>
-        <p className="text-gray-400 text-xs sm:text-sm truncate">{subtitle}</p>
+        <h3 className="text-white font-medium font-Vietnam fonttext-sm sm:text-base truncate">{title}</h3>
+        <p className="text-[#EDEDED] w-[377px] h-[27px] text-xs font-Nunito sm:text-sm truncate">{subtitle}</p>
       </div>
       <div className="flex items-center space-x-2 flex-shrink-0">
         <span className="text-gray-400 text-xs sm:text-sm">{time}</span>
@@ -26,10 +32,10 @@ function NotificationItem({ title, subtitle, time, hasGreenDot, avatar }: Notifi
       </div>
     </div>
   );
-}
+};
 
-export default function NotificationsPage() {
-  const notifications = [
+const Notifications: React.FC = () => {
+  const notifications: NotificationItemProps[] = [
     {
       title: "New episode released: The House Chronicles",
       subtitle: "Your K-Drama Bestie - Ep. 12",
@@ -60,7 +66,7 @@ export default function NotificationsPage() {
     },
   ];
 
-  const earlierNotifications = [
+  const earlierNotifications: NotificationItemProps[] = [
     {
       title: "New episode released: The House Chronicles",
       subtitle: "Your K-Drama Bestie - Ep. 12",
@@ -119,20 +125,39 @@ export default function NotificationsPage() {
     },
   ];
 
+  // Add missing state for searchQuery
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Dummy user data and sign out handler for HomeHeader
+  const userName = "Guest";
+  const userEmail = "guest@example.com";
+  const avatarUrl = "";
+  const handleSignOut = () => {
+    // Implement sign out logic here
+    console.log("Sign out clicked");
+  };
+
   return (
     <div className="min-h-screen bg-black">
+
+                <HomeHeader
+                search={searchQuery}
+                onSearchChange={setSearchQuery}
+                userName={userName ?? undefined}
+                userEmail={userEmail ?? undefined}
+                avatarUrl={avatarUrl ?? undefined}
+                onSignOut={handleSignOut}
+              />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-        {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-8 space-y-2 sm:space-y-0">
-          <h1 className="text-2xl sm:text-3xl font-bold text-white">Notifications</h1>
-          <p className="text-gray-400 text-sm sm:text-base">
+          <h1 className="text-2xl sm:text-3xl  font-vietnam leading-[150%] tracking-normal font-bold text-white">Notifications</h1>
+          <p className="text-[#EDEDED] text-sm sm:text-basefont-Be font-[semi-bold] font-vietnam leading-[150%] tracking-normal  ">
             Find all your saved, purchased and in-progress content here
           </p>
         </div>
-
         {/* Today Section */}
         <div className="mb-6 sm:mb-8">
-          <h2 className="text-lg sm:text-xl font-semibold text-white mb-3 sm:mb-4">Today</h2>
+          <h2 className="text-lg sm:text-xl font-semibold font-Vietnam  font-[24px] leading-[150%] tracking-normaltext-white mb-3 sm:mb-4">Today</h2>
           <div className="space-y-2 sm:space-y-3">
             {notifications.map((notification, index) => (
               <NotificationItem
@@ -149,7 +174,7 @@ export default function NotificationsPage() {
 
         {/* Earlier Section */}
         <div>
-          <h2 className="text-lg sm:text-xl font-semibold text-white mb-3 sm:mb-4">Earlier</h2>
+          <h2 className="text-lg sm:text-xl font-semibold text-white font-Vietnam mb-3 sm:mb-4">Earlier</h2>
           <div className="space-y-2 sm:space-y-3">
             {earlierNotifications.map((notification, index) => (
               <NotificationItem
@@ -164,6 +189,9 @@ export default function NotificationsPage() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
-}
+};
+
+export default Notifications;
