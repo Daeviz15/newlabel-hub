@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import React, { useEffect, useState } from "react";
 import Footer from "@/components/Footer";
 import { useNavigate } from "react-router-dom";
-import Tab from "@/components/tab";
+import Tab from "@/components/Tab";
 import { ProductCard, ResumeCard } from "@/components/course-card";
 
 const Catalogue = () => {
