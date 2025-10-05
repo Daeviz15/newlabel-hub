@@ -119,6 +119,12 @@ export default function Dashboard() {
 
   return (
     <main className="bg-[#0b0b0b] text-white">
+      <div className="min-h-screen bg-background flex flex-col">
+  <div className="bg-brand-green text-black text-sm sm:text-base m-4 py-2 text-center font-medium rounded-md sm:hidden">
+          <a href="/free-courses" className="hover:underline">
+            Free Courses 🌟 Sale Ends Soon, Get It Now →
+          </a>
+        </div>
       <HomeHeader search={searchQuery} onSearchChange={setSearchQuery} userName={userName ?? undefined} userEmail={userEmail ?? undefined} avatarUrl={avatarUrl ?? undefined} onSignOut={handleSignOut} />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
         {/* Lime hero banner */}
@@ -185,6 +191,7 @@ export default function Dashboard() {
         <div className="h-10" />
       </div>
       <Footer/>
+      </div>
     </main>
   );
 }

@@ -9,6 +9,11 @@ import { User, CreditCard } from "lucide-react"
 const AccountSetting: React.FC = () => {
   return (
     <div>
+      <div className="bg-brand-green text-black text-sm sm:text-base m-4 py-2 text-center font-medium rounded-md sm:hidden">
+          <a href="/free-courses" className="hover:underline">
+            Free Courses 🌟 Sale Ends Soon, Get It Now →
+          </a>
+        </div>
       <HomeHeader search="" onSearchChange={() => {}} />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {/* Header */}

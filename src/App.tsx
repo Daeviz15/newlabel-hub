@@ -15,6 +15,7 @@ import { TermsnCondition } from "./pages/TermsnCondition";
 import Catalogue from "./pages/Catalogue";
 import Notifications from "./pages/Notifications";
 import CartPage from "./pages/CartPage";
+import Checkout from "./pages/Checkout";
 import MyLibrary from "./pages/MyLibrary";
 import AccountSetting from "./pages/AccountSetting";
 const queryClient = new QueryClient();
@@ -33,6 +34,7 @@ const App = () => (
           <Route path="/about" element={<AboutPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/cart" element={<CartPage />} />
+          <Route path="/checkout" element={<Checkout />} />
           <Route path="/notifications" element={<Notifications />} />
           <Route path="/privacypolicypage" element={<PrivacyPolicyPage />} />
           <Route path="/termsncondition" element={<TermsnCondition />} />

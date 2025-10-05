@@ -20,7 +20,7 @@ export function CartRow({
   title = "The Future Of AI In Everyday Products",
   price = 19,
   qty = 2,
-  image = "/images/product-thumb.png",
+  image,
   className,
   onRemove,
 }: CartRowProps) {
@@ -48,8 +48,8 @@ export function CartRow({
       <div className="flex items-center gap-4">
         <div className="relative h-14 w-20 overflow-hidden rounded-sm bg-black/20 ring-1 ring-white/10">
           <img
-            src={image || "/placeholder.svg"}
-            alt=""
+            src={image && image.trim() !== "" ? image : "/placeholder.svg"}
+            alt="Product image"
             className="h-full w-full object-cover"
             loading="lazy"
           />

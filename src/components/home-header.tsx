@@ -55,18 +55,18 @@ export function HomeHeader({
           {/* Desktop Navigation */}
           <nav className="hidden items-center gap-4 text-[13px] text-zinc-300 lg:flex xl:gap-5">
             <a
-              className="relative transition-colors duration-200 hover:text-white after:absolute after:bottom-[-2px] after:left-0 after:h-0.5 after:w-0 after:bg-lime-500 after:transition-all after:duration-300 hover:after:w-full"
+              className="relative transition-colors font-vietnam duration-200 hover:text-white after:absolute after:bottom-[-2px] after:left-0 after:h-0.5 after:w-0 after:bg-lime-500 after:transition-all after:duration-300 hover:after:w-full"
               href="#"
             >
               Explore
             </a>
             <a
-              className="relative transition-colors duration-200 hover:text-white after:absolute after:bottom-[-2px] after:left-0 after:h-0.5 after:w-0 after:bg-lime-500 after:transition-all after:duration-300 hover:after:w-full"
+              className="relative font-vietnam transition-colors duration-200 hover:text-white after:absolute after:bottom-[-2px] after:left-0 after:h-0.5 after:w-0 after:bg-lime-500 after:transition-all after:duration-300 hover:after:w-full"
               href="/catalogue"
             >
               Catalogue
             </a>
-            <button className="group inline-flex items-center gap-1 transition-colors duration-200 hover:text-white">
+            <button className="group inline-flex items-center gap-1 font-vietnam transition-colors duration-200 hover:text-white">
               <span>Subsidiaries</span>
               <ChevronDown
                 className="h-4 w-4 transition-transform duration-200 group-hover:rotate-180"
@@ -78,14 +78,14 @@ export function HomeHeader({
 
         {/* Center: Search - Desktop */}
         <div
-          className={`mx-auto hidden w-full max-w-[480px] items-center rounded-full px-4 py-2 text-[13px] text-zinc-300 transition-all duration-300 lg:flex xl:max-w-[560px] ${
+          className={`mx-auto hidden w-full max-w-[480px] items-center rounded-full font-vietnam px-4 py-2 text-[13px] text-zinc-300 transition-all duration-300 lg:flex xl:max-w-[560px] ${
             isSearchFocused
               ? "bg-[#333] ring-2 ring-lime-500/30 shadow-lg shadow-lime-500/10"
               : "bg-[#2a2a2a] hover:bg-[#2f2f2f]"
           }`}
         >
           <Search
-            className={`mr-2 h-4 w-4 transition-colors duration-200 ${
+            className={`mr-2 h-4 w-4 font-vietnam transition-colors duration-200 ${
               isSearchFocused ? "text-lime-400" : "text-zinc-400"
             }`}
             aria-hidden="true"
@@ -110,7 +110,7 @@ export function HomeHeader({
           <a
             href="/cart"
             aria-label="Cart"
-            className="hidden h-8 w-8 items-center justify-center rounded-md bg-[#1a1a1a] text-white ring-1 ring-white/10 transition-all duration-200 hover:bg-[#222] hover:scale-105 sm:inline-flex sm:h-9 sm:w-9"
+            className="hidden h-8 w-8 items-center justify-center font-vietnam rounded-md bg-[#1a1a1a] text-white ring-1 ring-white/10 transition-all duration-200 hover:bg-[#222] hover:scale-105 sm:inline-flex sm:h-9 sm:w-9"
           >
             <ShoppingCart className="h-4 w-4" />
           </a>
@@ -164,7 +164,7 @@ export function HomeHeader({
             </DropdownMenu>
             {/* User info - hidden on small screens */}
             <div className="hidden leading-tight lg:block">
-              <div className="text-sm font-semibold text-white transition-colors duration-200 hover:text-lime-400">
+              <div className="text-sm font-semibold text-white font-vietnam transition-colors duration-200 hover:text-lime-400">
                 {userName ?? "Guest"}
               </div>
               <div className="text-[11px] text-zinc-400">{userEmail ?? ""}</div>
@@ -196,26 +196,26 @@ export function HomeHeader({
           <div className="space-y-3">
             <a
               href="#"
-              className="block text-sm text-zinc-300 transition-all duration-200 hover:text-white hover:translate-x-1"
+              className="block text-sm text-zinc-300 font-vietnam transition-all duration-200 hover:text-white hover:translate-x-1"
               onClick={() => setIsMenuOpen(false)}
             >
               Explore
             </a>
             <a
               href="/catalogue"
-              className="block text-sm text-zinc-300 transition-all duration-200 hover:text-white hover:translate-x-1"
+              className="block text-sm text-zinc-300 font-vietnam transition-all duration-200 hover:text-white hover:translate-x-1"
               onClick={() => setIsMenuOpen(false)}
             >
               Catalogue
             </a>
             <a
               href="/mylibrary"
-              className="block text-sm text-zinc-300 transition-all duration-200 hover:text-white hover:translate-x-1"
+              className="block text-sm text-zinc-300 font-vietnam transition-all duration-200 hover:text-white hover:translate-x-1"
               onClick={() => setIsMenuOpen(false)}
             >
               My Library
             </a>
-            <button className="group flex w-full items-center justify-between text-left text-sm text-zinc-300 transition-colors duration-200 hover:text-white">
+            <button className="group flex w-full items-center font-vietnam justify-between text-left text-sm text-zinc-300 transition-colors duration-200 hover:text-white">
               <span>Subsidiaries</span>
               <ChevronDown className="h-4 w-4 transition-transform duration-200 group-hover:rotate-180" />
             </button>
@@ -234,7 +234,7 @@ export function HomeHeader({
                     onSignOut();
                     setIsMenuOpen(false);
                   }}
-                  className="mt-3 inline-flex w-full items-center justify-center rounded-md bg-[#1a1a1a] text-white ring-1 ring-white/10 transition-all duration-200 hover:bg-[#222] py-2 text-sm"
+                  className="mt-3 inline-flex w-full items-center font-vietnam justify-center rounded-md bg-[#1a1a1a] text-white ring-1 ring-white/10 transition-all duration-200 hover:bg-[#222] py-2 text-sm"
                 >
                   Sign out
                 </button>
@@ -247,7 +247,7 @@ export function HomeHeader({
       {/* Mobile Search Bar */}
       <div className="block w-full px-3 pb-3 sm:px-4 lg:hidden">
         <div
-          className={`flex items-center rounded-full px-4 py-2.5 text-[13px] text-zinc-300 transition-all duration-300 ${
+          className={`flex items-center rounded-full font-vietnam px-4 py-2.5 text-[13px] text-zinc-300 transition-all duration-300 ${
             isSearchFocused
               ? "bg-[#333] ring-2 ring-lime-500/30 shadow-lg shadow-lime-500/10"
               : "bg-[#2a2a2a]"

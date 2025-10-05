@@ -96,6 +96,11 @@ const Catalogue = () => {
 
   return (
     <main className="bg-[#0b0b0b] text-white min-h-screen">
+      <div className="bg-brand-green text-black text-sm sm:text-base m-4 py-2 text-center font-medium rounded-md sm:hidden">
+          <a href="/free-courses" className="hover:underline">
+            Free Courses 🌟 Sale Ends Soon, Get It Now →
+          </a>
+        </div>
       <HomeHeader
         search={searchQuery}
         onSearchChange={setSearchQuery}
