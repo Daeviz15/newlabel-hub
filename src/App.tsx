@@ -17,6 +17,7 @@ import Catalogue from "./pages/Catalogue";
 import NotificationsPage from "./pages/Notification";
 import CartPage from "./pages/CartPage";
 import VideoDetails from "./pages/VideoDetails";
+import VideoPlayer from "./pages/VideoPlayer";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +41,7 @@ const App = () => (
             <Route path="/termsncondition" element={<TermsnCondition />} />
             <Route path="/catalogue" element={<Catalogue />} />
             <Route path="/video-details" element={<VideoDetails />} />
+            <Route path="/video-player" element={<VideoPlayer />} />
 
             <Route path="*" element={<NotFound />} />
           </Routes>

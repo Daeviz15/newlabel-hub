@@ -2,10 +2,9 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { HomeHeader } from "@/components/home-header";
 import Footer from "@/components/Footer";
-import { Button } from "@/components/ui/button";
-import { ShoppingCart, Heart, Play } from "lucide-react";
 import { CourseCard } from "@/components/course-card-interactive";
 import { supabase } from "@/integrations/supabase/client";
+import { Play, Pause, SkipBack, SkipForward, Volume2, Maximize, Settings } from "lucide-react";
 
 interface CourseData {
   id: string;
@@ -18,7 +17,7 @@ interface CourseData {
   description?: string;
 }
 
-export default function VideoDetails() {
+export default function VideoPlayer() {
   const location = useLocation();
   const navigate = useNavigate();
   const courseData = location.state as CourseData;
@@ -27,7 +26,7 @@ export default function VideoDetails() {
   const [userName, setUserName] = useState<string | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const [isSaved, setIsSaved] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
     const updateFromSession = (session: any) => {
@@ -65,18 +64,6 @@ export default function VideoDetails() {
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     navigate("/login");
-  };
-
-  const handleAddToCart = () => {
-    console.log("Added to cart:", courseData);
-  };
-
-  const handleToggleSave = () => {
-    setIsSaved(!isSaved);
-  };
-
-  const handlePurchase = () => {
-    console.log("Purchase:", courseData);
   };
 
   // Sample recommended courses
@@ -130,77 +117,89 @@ export default function VideoDetails() {
         onSignOut={handleSignOut}
       />
 
-      {/* Hero Section */}
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 lg:pt-28 pb-12 sm:pb-16 lg:pb-20">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-          {/* Video Player */}
-          <div className="relative aspect-video lg:aspect-[4/5] w-full overflow-hidden rounded-xl bg-black/20 border border-white/10">
-            <img
-              src={courseData.image}
-              alt={courseData.title}
-              className="h-full w-full object-cover"
-            />
-            <button 
-              onClick={() => navigate("/video-player", { state: courseData })}
-              className="absolute inset-0 flex items-center justify-center group"
-            >
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-lime-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+      {/* Video Player Section */}
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 lg:pt-28 pb-8 sm:pb-12">
+        {/* Video Player */}
+        <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-black border border-white/10 group">
+          <img
+            src={courseData.image}
+            alt={courseData.title}
+            className="h-full w-full object-cover"
+          />
+          
+          {/* Play/Pause Overlay */}
+          <button 
+            onClick={() => setIsPlaying(!isPlaying)}
+            className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/40 transition-colors"
+          >
+            {!isPlaying && (
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white/90 flex items-center justify-center group-hover:scale-110 transition-transform">
                 <Play className="w-8 h-8 sm:w-10 sm:h-10 text-black fill-black ml-1" />
               </div>
-            </button>
-          </div>
+            )}
+          </button>
 
-          {/* Course Info */}
-          <div className="flex flex-col gap-4 sm:gap-6">
-            <div className="space-y-3 sm:space-y-4">
-              <p className="text-lime-400 text-sm sm:text-base font-semibold">
-                {courseData.creator}
-              </p>
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-lime-400 leading-tight">
-                {courseData.title}
-              </h1>
-              <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm text-gray-400">
-                <span>{userName || "John Doe"}</span>
-                <span>•</span>
-                <span>{courseData.lessons || 32} Lessons</span>
-                <span>•</span>
-                <span>{courseData.date || "12-08-2025"}</span>
-              </div>
-            </div>
-
-            <p className="text-sm sm:text-base text-gray-300 leading-relaxed">
-              {courseData.description ||
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."}
+          {/* Video Title Overlay (Bottom Left) */}
+          <div className="absolute bottom-14 sm:bottom-16 left-4 sm:left-6 text-white">
+            <p className="text-xs sm:text-sm font-medium opacity-90">
+              {courseData.title}
             </p>
+          </div>
 
-            {/* Action Buttons */}
-            <div className="flex flex-col gap-3 mt-4">
-              <div className="grid grid-cols-2 gap-3">
-                <Button
-                  onClick={handleAddToCart}
-                  className="bg-neutral-800 hover:bg-neutral-700 text-white border border-white/10"
-                >
-                  <ShoppingCart className="w-4 h-4 mr-2" />
-                  Add to cart
-                </Button>
-                <Button
-                  onClick={handleToggleSave}
-                  className="bg-neutral-800 hover:bg-neutral-700 text-white border border-white/10"
-                >
-                  <Heart
-                    className={`w-4 h-4 mr-2 ${isSaved ? "fill-lime-400 text-lime-400" : ""}`}
-                  />
-                  {isSaved ? "Saved" : "Save"}
-                </Button>
+          {/* Video Controls */}
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-3 sm:p-4 opacity-0 group-hover:opacity-100 transition-opacity">
+            {/* Progress Bar */}
+            <div className="mb-3 sm:mb-4">
+              <div className="w-full h-1 bg-white/20 rounded-full overflow-hidden">
+                <div className="h-full w-1/3 bg-lime-400 rounded-full"></div>
               </div>
-              <Button
-                onClick={handlePurchase}
-                className="bg-lime-400 hover:bg-lime-500 text-black font-bold w-full"
-              >
-                Purchase now
-              </Button>
+            </div>
+
+            {/* Control Buttons */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <button className="text-white hover:text-lime-400 transition-colors">
+                  <Pause className="w-4 h-4 sm:w-5 sm:h-5" />
+                </button>
+                <button className="text-white hover:text-lime-400 transition-colors">
+                  <SkipBack className="w-4 h-4 sm:w-5 sm:h-5" />
+                </button>
+                <button className="text-white hover:text-lime-400 transition-colors">
+                  <SkipForward className="w-4 h-4 sm:w-5 sm:h-5" />
+                </button>
+              </div>
+
+              <div className="flex items-center gap-2 sm:gap-3">
+                <button className="text-white hover:text-lime-400 transition-colors">
+                  <Volume2 className="w-4 h-4 sm:w-5 sm:h-5" />
+                </button>
+                <button className="text-white hover:text-lime-400 transition-colors">
+                  <Settings className="w-4 h-4 sm:w-5 sm:h-5" />
+                </button>
+                <button className="text-white hover:text-lime-400 transition-colors">
+                  <Maximize className="w-4 h-4 sm:w-5 sm:h-5" />
+                </button>
+              </div>
             </div>
           </div>
+        </div>
+
+        {/* Course Info Section */}
+        <div className="mt-6 sm:mt-8 space-y-3 sm:space-y-4">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white">
+            {courseData.title}
+          </h1>
+          <div className="flex flex-wrap items-center gap-2 text-sm sm:text-base text-gray-400">
+            <span className="font-semibold text-white">{userName || "John Doe"}</span>
+            <span>•</span>
+            <span>{courseData.lessons || 32} Lessons</span>
+            <span>•</span>
+            <span>{courseData.date || "12-08-2025"}</span>
+          </div>
+          <p className="text-sm sm:text-base text-gray-300 leading-relaxed max-w-4xl">
+            {courseData.description ||
+              "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."}
+          </p>
         </div>
       </div>
 
