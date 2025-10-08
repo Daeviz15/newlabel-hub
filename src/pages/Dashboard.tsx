@@ -148,6 +148,15 @@ export default function Dashboard() {
                 title={item.title}
                 percent={item.percent}
                 brand={item.brand}
+                onClick={() => navigate("/video-details", { 
+                  state: { 
+                    id: item.id.toString(), 
+                    image: item.image, 
+                    title: item.title, 
+                    creator: item.brand, 
+                    price: "$18" 
+                  } 
+                })}
               />
             ))}
           </div>
@@ -158,7 +167,7 @@ export default function Dashboard() {
           title={"What’s Trending This week"}
           description="Learn binge-worthy, career-building lessons from experts across tech media and business."
         >
-          <CardsGrid items={filteredTrendingItems} />
+          <CardsGrid items={filteredTrendingItems} navigate={navigate} />
         </Section>
 
         {/* New Releases */}
@@ -166,7 +175,7 @@ export default function Dashboard() {
           title="New Releases"
           description="Learn binge-worthy, career-building lessons from experts across tech media and business."
         >
-          <CardsGrid items={filteredReleasesItems} />
+          <CardsGrid items={filteredReleasesItems} navigate={navigate} />
         </Section>
 
         {/* Recommended For You */}
@@ -174,12 +183,22 @@ export default function Dashboard() {
           title="Recommended For You"
           description="Learn binge-worthy, career-building lessons from experts across tech media and business."
         >
-          <CardsGrid items={filteredRecommendedItems} />
+          <CardsGrid items={filteredRecommendedItems} navigate={navigate} />
         </Section>
 
         {/* This week's top pick */}
         <section className="py-8">
-          <TopPick />
+          <TopPick 
+            onClick={() => navigate("/video-details", { 
+              state: { 
+                id: "top-pick", 
+                image: "/assets/dashboard-images/only.jpg", 
+                title: "The Future Of AI In Everyday Products", 
+                creator: "Ada Nwosu", 
+                price: "$24" 
+              } 
+            })}
+          />
         </section>
 
         <div className="h-10" />
@@ -213,6 +232,7 @@ function Section({
 
 function CardsGrid({
   items,
+  navigate,
 }: {
   items: {
     id: number;
@@ -221,6 +241,7 @@ function CardsGrid({
     subtitle: string;
     price: string;
   }[];
+  navigate: any;
 }) {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -231,6 +252,15 @@ function CardsGrid({
           title={it.title}
           subtitle={it.subtitle}
           price={it.price}
+          onClick={() => navigate("/video-details", { 
+            state: { 
+              id: it.id.toString(), 
+              image: it.image, 
+              title: it.title, 
+              creator: it.subtitle, 
+              price: it.price 
+            } 
+          })}
         />
       ))}
     </div>

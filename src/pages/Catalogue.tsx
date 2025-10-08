@@ -140,6 +140,15 @@ const Catalogue = () => {
                 title={it.title}
                 subtitle={it.subtitle}
                 price={it.price}
+                onClick={() => navigate("/video-details", { 
+                  state: { 
+                    id: it.id.toString(), 
+                    image: it.image, 
+                    title: it.title, 
+                    creator: it.subtitle, 
+                    price: it.price 
+                  } 
+                })}
               />
             ))}
           </div>
@@ -153,6 +162,15 @@ const Catalogue = () => {
                 title={it.title}
                 subtitle={it.subtitle}
                 price={it.price}
+                onClick={() => navigate("/video-details", { 
+                  state: { 
+                    id: it.id.toString(), 
+                    image: it.image, 
+                    title: it.title, 
+                    creator: it.subtitle, 
+                    price: it.price 
+                  } 
+                })}
               />
             ))}
           </div>
@@ -166,6 +184,15 @@ const Catalogue = () => {
                 title={it.title}
                 subtitle={it.subtitle}
                 price={it.price}
+                onClick={() => navigate("/video-details", { 
+                  state: { 
+                    id: it.id.toString(), 
+                    image: it.image, 
+                    title: it.title, 
+                    creator: it.subtitle, 
+                    price: it.price 
+                  } 
+                })}
               />
             ))}
           </div>

@@ -15,6 +15,7 @@ import { TermsnCondition } from "./pages/TermsnCondition";
 import Catalogue from "./pages/Catalogue";
 import NotificationsPage from "./pages/Notification";
 import CartPage from "./pages/CartPage";
+import VideoDetails from "./pages/VideoDetails";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +37,7 @@ const App = () => (
           <Route path="/privacypolicypage" element={<PrivacyPolicyPage />} />
           <Route path="/termsncondition" element={<TermsnCondition />} />
           <Route path="/catalogue" element={<Catalogue />} />
+          <Route path="/video-details" element={<VideoDetails />} />
 
           <Route path="*" element={<NotFound />} />
         </Routes>
