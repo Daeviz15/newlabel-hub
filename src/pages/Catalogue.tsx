@@ -97,10 +97,10 @@ const Catalogue = () => {
   return (
     <main className="bg-[#0b0b0b] text-white min-h-screen">
       <div className="bg-brand-green text-black text-sm sm:text-base m-4 py-2 text-center font-medium rounded-md sm:hidden">
-          <a href="/free-courses" className="hover:underline">
-            Free Courses 🌟 Sale Ends Soon, Get It Now →
-          </a>
-        </div>
+        <a href="/free-courses" className="hover:underline">
+          Free Courses 🌟 Sale Ends Soon, Get It Now →
+        </a>
+      </div>
       <HomeHeader
         search={searchQuery}
         onSearchChange={setSearchQuery}
@@ -145,6 +145,15 @@ const Catalogue = () => {
                 title={it.title}
                 subtitle={it.subtitle}
                 price={it.price}
+                onClick={() => navigate("/video-details", { 
+                  state: { 
+                    id: it.id.toString(), 
+                    image: it.image, 
+                    title: it.title, 
+                    creator: it.subtitle, 
+                    price: it.price 
+                  } 
+                })}
               />
             ))}
           </div>
@@ -158,11 +167,19 @@ const Catalogue = () => {
                 title={it.title}
                 subtitle={it.subtitle}
                 price={it.price}
+                onClick={() => navigate("/video-details", { 
+                  state: { 
+                    id: it.id.toString(), 
+                    image: it.image, 
+                    title: it.title, 
+                    creator: it.subtitle, 
+                    price: it.price 
+                  } 
+                })}
               />
             ))}
           </div>
 
-          {/* Product Grid 3 */}
           <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-6">
             {browse.map((it) => (
               <ProductCard
@@ -171,11 +188,19 @@ const Catalogue = () => {
                 title={it.title}
                 subtitle={it.subtitle}
                 price={it.price}
+                onClick={() => navigate("/video-details", { 
+                  state: { 
+                    id: it.id.toString(), 
+                    image: it.image, 
+                    title: it.title, 
+                    creator: it.subtitle, 
+                    price: it.price 
+                  } 
+                })}
               />
             ))}
           </div>
 
-          {/* Load More Button - Responsive with hover effect */}
           <button className="flex justify-center items-center text-xs sm:text-sm w-full bg-gray-500/25 hover:bg-gray-500/35 transition-colors h-10 sm:h-12 mt-3 mb-6 sm:mb-10 rounded-sm font-nunito font-bold cursor-pointer active:scale-[0.98]">
             Load More
           </button>

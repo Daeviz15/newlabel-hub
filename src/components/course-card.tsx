@@ -7,6 +7,7 @@ type ResumeCardProps = {
   title?: string
   percent?: number
   brand?: string
+  onClick?: () => void
 }
 
 export function ResumeCard({
@@ -14,10 +15,14 @@ export function ResumeCard({
   title = "The Future Of AI In Everyday Products",
   percent = 72,
   brand = "jsty",
+  onClick,
 }: ResumeCardProps) {
   const clamped = Math.max(0, Math.min(100, percent))
   return (
-    <div className="group relative overflow-hidden rounded-xl border border-white/10 bg-[#151515]">
+    <div 
+      className="group relative overflow-hidden rounded-xl border border-white/10 bg-[#151515] cursor-pointer hover:ring-2 hover:ring-lime-500 transition-all"
+      onClick={onClick}
+    >
       <div className="absolute left-3 top-3 z-10 rounded-sm bg-black/70 px-1.5 py-0.5 text-[10px] font-medium text-zinc-200 ring-1 ring-white/10">
         {brand}
       </div>
@@ -63,6 +68,7 @@ type ProductCardProps = {
   price?: string
   liked?: boolean
   brand?: string
+  onClick?: () => void
 }
 
 export function ProductCard({
@@ -72,9 +78,13 @@ export function ProductCard({
   price = "$18",
   liked = false,
   brand = "jsty",
+  onClick,
 }: ProductCardProps) {
   return (
-    <div className="group relative overflow-hidden rounded-xl border border-white/10 bg-[#151515]">
+    <div 
+      className="group relative overflow-hidden rounded-xl border border-white/10 bg-[#151515] cursor-pointer hover:ring-2 hover:ring-lime-500 transition-all"
+      onClick={onClick}
+    >
       <div className="absolute left-3 top-3 z-10 flex items-center gap-2">
         <span className="rounded-sm bg-black/70 px-1.5 py-0.5 text-[11px] font-semibold text-lime-400 ring-1 ring-lime-500/40">
           {price}
@@ -83,6 +93,7 @@ export function ProductCard({
       <button
         aria-label={liked ? "Remove from favorites" : "Add to favorites"}
         className="absolute right-3 top-3 z-10 inline-flex h-8 w-8 items-center justify-center rounded-md bg-black/60 ring-1 ring-white/10 transition-colors hover:bg-black/80"
+        onClick={(e) => e.stopPropagation()}
       >
         <Heart className={cn("h-4 w-4", liked ? "fill-lime-500 text-lime-500" : "text-white")} />
       </button>
@@ -111,6 +122,7 @@ type TopPickProps = {
   author?: string
   authorRole?: string
   cta?: string
+  onClick?: () => void
 }
 
 export function TopPick({
@@ -120,9 +132,13 @@ export function TopPick({
   author = "Ada Nwosu",
   authorRole = "Machine Learning Engineer & Newlabel",
   cta = "Buy This Course",
+  onClick,
 }: TopPickProps) {
   return (
-    <section className="rounded-2xl border border-white/10 bg-[#121212] p-4 sm:p-6 md:p-8">
+    <section 
+      className="rounded-2xl border border-white/10 bg-[#121212] p-4 sm:p-6 md:p-8 cursor-pointer hover:ring-2 hover:ring-lime-500 transition-all"
+      onClick={onClick}
+    >
       <div className="grid grid-cols-1 gap-6 md:grid-cols-[420px_1fr]">
         <div className="relative aspect-[4/4.5] w-full overflow-hidden rounded-xl bg-black/20 md:aspect-[4/3]">
           <img
@@ -141,7 +157,15 @@ export function TopPick({
             <div className="text-zinc-400">{authorRole}</div>
           </div>
           <div className="mt-6">
-            <Button className="h-10 rounded-md bg-lime-500 px-5 text-black hover:bg-lime-400">{cta}</Button>
+            <Button 
+              className="h-10 rounded-md bg-lime-500 px-5 text-black hover:bg-lime-400"
+              onClick={(e) => {
+                e.stopPropagation();
+                onClick?.();
+              }}
+            >
+              {cta}
+            </Button>
           </div>
         </div>
       </div>
