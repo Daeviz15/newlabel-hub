@@ -131,10 +131,10 @@ export default function Dashboard() {
         <section className="py-6">
           <div className="overflow-hidden rounded-2xl bg-gradient-to-r from-lime-500 to-green-600">
             <div className="px-6 py-8 sm:px-8 md:px-10 md:py-10">
-              <h1 className="text-2xl font-semibold text-black sm:text-3xl">
+              <h1 className="text-2xl font-semibold font-vietnam text-black sm:text-3xl">
                 Good Morning, {userName || "there"}
               </h1>
-              <p className="mt-2 text-sm text-black/70">
+              <p className="mt-2 text-sm font-vietnam  text-black/70">
                 Great to have you back. Ready to pick up where you left off?
               </p>
             </div>
@@ -184,7 +184,7 @@ export default function Dashboard() {
         </Section>
 
         {/* This week's top pick */}
-        <section className="py-8">
+        <section className="py-8 ">
           <TopPick />
         </section>
 

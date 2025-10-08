@@ -10,6 +10,7 @@ import {
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { BrandMark } from "./brand-mark";
+import logo from "../assets/Logo.png";
 import {
   DropdownMenu,
   DropdownMenuContent,
