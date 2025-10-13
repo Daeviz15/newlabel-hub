@@ -24,6 +24,8 @@ export function PrivacyPolicyPage() {
           <h1 className="text-4xl font-bold font-vietnam leading-[150%] text-white mb-2">Privacy Policy</h1>
           <p className="text-[#EDEDED] font-vietnam font-normal font-400">Find all your saved, purchased and in-progress content here</p>
         </div>
+        <div className="w-full h-[1px] bg-[#A3A3A3]/20 mt-12 mb-8"></div>
+
 
         {/* Privacy Policy Sections */}
         <div className="space-y-12 mt-12">
@@ -129,3 +131,5 @@ export function PrivacyPolicyPage() {
     </div>
   );
 }
+
+export default PrivacyPolicyPage;

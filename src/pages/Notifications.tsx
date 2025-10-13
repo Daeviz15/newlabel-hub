@@ -160,6 +160,8 @@ const Notifications: React.FC = () => {
             Find all your saved, purchased and in-progress content here
           </p>
         </div>
+        <div className="w-full h-[1px] bg-[#A3A3A3]/20 mt-12 mb-8"></div>
+
         {/* Today Section */}
         <div className="mb-6 sm:mb-8">
           <h2 className="text-lg sm:text-xl font-semibold font-Vietnam  font-[24px] leading-[150%] tracking-normaltext-white mb-3 sm:mb-4">Today</h2>

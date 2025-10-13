@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ShoppingCart, Heart, Play } from "lucide-react";
 import { CourseCard } from "@/components/course-card-interactive";
 import { supabase } from "@/integrations/supabase/client";
+import { useCart } from "@/hooks/use-cart";
 
 interface CourseData {
   id: string;
@@ -22,6 +23,7 @@ export default function VideoDetails() {
   const location = useLocation();
   const navigate = useNavigate();
   const courseData = location.state as CourseData;
+  const { addItem } = useCart();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [userName, setUserName] = useState<string | null>(null);
@@ -68,7 +70,14 @@ export default function VideoDetails() {
   };
 
   const handleAddToCart = () => {
-    console.log("Added to cart:", courseData);
+    addItem({
+      id: courseData.id,
+      title: courseData.title,
+      price: courseData.price,
+      image: courseData.image,
+      creator: courseData.creator,
+    });
+    navigate("/cart");
   };
 
   const handleToggleSave = () => {
@@ -218,7 +227,16 @@ export default function VideoDetails() {
               title={course.title}
               creator={course.creator}
               price={course.price}
-              onAddToCart={() => console.log("Add to cart:", course)}
+              onAddToCart={() => {
+                addItem({
+                  id: course.id,
+                  title: course.title,
+                  price: course.price,
+                  image: course.image,
+                  creator: course.creator,
+                });
+                navigate("/cart");
+              }}
               onViewDetails={() => navigate("/video-details", { state: course })}
             />
           ))}
@@ -232,7 +250,16 @@ export default function VideoDetails() {
               title={course.title}
               creator={course.creator}
               price={course.price}
-              onAddToCart={() => console.log("Add to cart:", course)}
+              onAddToCart={() => {
+                addItem({
+                  id: `${course.id}-${idx}`,
+                  title: course.title,
+                  price: course.price,
+                  image: course.image,
+                  creator: course.creator,
+                });
+                navigate("/cart");
+              }}
               onViewDetails={() => navigate("/video-details", { state: course })}
             />
           ))}

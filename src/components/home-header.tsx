@@ -9,7 +9,6 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { BrandMark } from "./brand-mark";
 import logo from "../assets/Logo.png";
 import {
   DropdownMenu,
@@ -45,13 +44,14 @@ export function HomeHeader({
       <div className="mx-auto flex h-14 w-full max-w-7xl items-center justify-between gap-2 px-3 sm:h-16 sm:gap-4 sm:px-4 md:px-6 lg:px-8">
         {/* Left: Logo + Desktop Nav */}
         <div className="flex items-center gap-4 md:gap-6">
-          <a
-            href="/"
+          <button
+            aria-label="Newlabel Home"
+            onClick={() => navigate('/')}
             className="flex items-center gap-2 transition-transform duration-200 hover:scale-105"
           >
-            <BrandMark />
+            <img src={logo} alt="newlabel" className="h-6 sm:h-7 lg:h-8 xl:h-9 w-auto cursor-pointer" />
             <span className="sr-only">Newlabel Home</span>
-          </a>
+          </button>
 
           {/* Desktop Navigation */}
           <nav className="hidden items-center gap-4 text-[13px] text-zinc-300 lg:flex xl:gap-5">

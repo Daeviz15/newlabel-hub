@@ -5,6 +5,7 @@ import Footer from "@/components/Footer";
 import { CourseCard } from "@/components/course-card-interactive";
 import { supabase } from "@/integrations/supabase/client";
 import { Play, Pause, SkipBack, SkipForward, Volume2, Maximize, Settings } from "lucide-react";
+import { useCart } from "@/hooks/use-cart";
 
 interface CourseData {
   id: string;
@@ -21,6 +22,7 @@ export default function VideoPlayer() {
   const location = useLocation();
   const navigate = useNavigate();
   const courseData = location.state as CourseData;
+  const { addItem } = useCart();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [userName, setUserName] = useState<string | null>(null);
@@ -217,7 +219,16 @@ export default function VideoPlayer() {
               title={course.title}
               creator={course.creator}
               price={course.price}
-              onAddToCart={() => console.log("Add to cart:", course)}
+              onAddToCart={() => {
+                addItem({
+                  id: course.id,
+                  title: course.title,
+                  price: course.price,
+                  image: course.image,
+                  creator: course.creator,
+                });
+                navigate("/cart");
+              }}
               onViewDetails={() => navigate("/video-details", { state: course })}
             />
           ))}
@@ -231,7 +242,16 @@ export default function VideoPlayer() {
               title={course.title}
               creator={course.creator}
               price={course.price}
-              onAddToCart={() => console.log("Add to cart:", course)}
+              onAddToCart={() => {
+                addItem({
+                  id: `${course.id}-${idx}`,
+                  title: course.title,
+                  price: course.price,
+                  image: course.image,
+                  creator: course.creator,
+                });
+                navigate("/cart");
+              }}
               onViewDetails={() => navigate("/video-details", { state: course })}
             />
           ))}

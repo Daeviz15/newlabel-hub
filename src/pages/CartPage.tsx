@@ -1,72 +1,227 @@
-"use client";
+"use client"
 
-import { CartRow } from "../components/cart-row";
-import { Button } from "@/components/ui/button";
-import { HomeHeader } from "@/components/home-header";
-import { useCart } from "@/hooks/use-cart";
+import { memo, useCallback, useState } from "react"
+import { X, Minus, Plus } from "lucide-react"
+import { HomeHeader } from "@/components/home-header"
+import Footer from "@/components/Footer"
+import { Button } from "@/components/ui/button"
 
-export default function CartPage() {
-  const { state, removeItem } = useCart();
+interface CartItem {
+  id: string
+  title: string
+  price: number
+  quantity: number
+  image: string
+}
 
-  const handleRemoveItem = (id: string) => {
-    removeItem(id);
-  };
+export function CartPage() {
+  const [cartItems, setCartItems] = useState<CartItem[]>([
+    {
+      id: "1",
+      title: "The Future Of AI In Everyday Products",
+      price: 19.0,
+      quantity: 2,
+      image: "/assets/dashboard-images/Cart1.jpg",
+    },
+    {
+      id: "2",
+      title: "The Future Of AI In Everyday Products",
+      price: 19.0,
+      quantity: 2,
+      image: "/assets/dashboard-images/Cart1.jpg",
+    },
+  ])
+  const [search, setSearch] = useState("")
+
+  const updateQuantity = useCallback((id: string, delta: number) => {
+    setCartItems((items) =>
+      items.map((item) => (item.id === id ? { ...item, quantity: Math.max(1, item.quantity + delta) } : item)),
+    )
+  }, [])
+
+  const removeItem = useCallback((id: string) => {
+    setCartItems((items) => items.filter((item) => item.id !== id))
+  }, [])
+
+  const calculateSubtotal = useCallback((price: number, quantity: number) => {
+    return (price * quantity).toFixed(2)
+  }, [])
+  
+  function handleSignOut(): void {
+    // Implement sign-out logic here if available (e.g., clear auth state, redirect)
+    console.log("User signed out")
+  }
 
   return (
-    <main className="min-h-[100dvh] bg-[#0b0b0b] text-white">
+    <div className="min-h-screen bg-black">
       <HomeHeader
-        search=""
-        onSearchChange={null}
-        userEmail=""
-        avatarUrl=""
-        onSignOut={null}
+        search={search}
+        onSearchChange={(q: string) => setSearch(q)}
+        onSignOut={handleSignOut}
       />
-      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 md:px-8">
-        <section className="py-10 md:py-14">
-          <h1 className="text-2xl font-semibold font-vietnam tracking-tight sm:text-3xl">
-            Cart
-          </h1>
-        </section>
+      <main className="container mx-auto px-4 py-8 md:py-12">
+        <div className="space-y-6 md:space-y-8">
+      {/* Table Header - Desktop Only */}
+      <div className="hidden lg:grid grid-cols-12 gap-4 pb-4 border-b border-zinc-800 text-zinc-400 text-sm font-medium">
+        <div className="col-span-6">Product</div>
+        <div className="col-span-2 text-center">Price</div>
+        <div className="col-span-2 text-center">Quantity</div>
+        <div className="col-span-2 text-right">Subtotal</div>
+      </div>
 
-        <section aria-labelledby="cart-heading" className="pb-6">
-          <div className="grid grid-cols-[auto_1fr_auto_auto_auto] font-vietnam items-end gap-4 px-0 text-sm text-zinc-300 sm:gap-6">
-            <div />
-            <div>Product</div>
-            <div>Price</div>
-            <div>Quantity</div>
-            <div>Subtotal</div>
+      {/* Cart Items */}
+      <div className="space-y-4 md:space-y-6">
+        {cartItems.map((item) => (
+          <CartRow
+            key={item.id}
+            item={item}
+            updateQuantity={updateQuantity}
+            removeItem={removeItem}
+            calculateSubtotal={calculateSubtotal}
+          />
+        ))}
+      </div>
+
+          {/* Checkout Button */}
+          <div className="flex justify-end pt-6 md:pt-8">
+            <Button
+              size="lg"
+              className="w-full sm:w-auto bg-[#7FFF00] text-black hover:bg-[#6FEF00] font-medium px-8 md:px-12"
+            >
+              Proceed to checkout
+            </Button>
           </div>
-          <div className="mt-3 h-px w-full bg-white/10" />
-        </section>
+        </div>
+      </main>
+      <Footer />
+    </div>
+  )
+}
 
-        <section
-          role="table"
-          aria-label="Shopping cart items"
-          className="divide-y divide-white/10"
-        >
-          {state.items.map((item) => (
-            <CartRow
-              key={item.id}
-              id={item.id}
-              title={item.title}
-              price={parseFloat(item.price.replace('$', ''))}
-              qty={item.quantity}
-              image={item.image}
-              onRemove={handleRemoveItem}
+// Memoized cart row to reduce re-renders when unrelated state changes
+const CartRow = memo(function CartRow({
+  item,
+  updateQuantity,
+  removeItem,
+  calculateSubtotal,
+}: {
+  item: CartItem
+  updateQuantity: (id: string, delta: number) => void
+  removeItem: (id: string) => void
+  calculateSubtotal: (price: number, quantity: number) => string
+}) {
+  return (
+    <div>
+      <div className="hidden lg:grid grid-cols-12 gap-4 items-center py-4 border-b border-zinc-800/50">
+        {/* Product */}
+        <div className="col-span-6 flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => removeItem(item.id)}
+            className="text-zinc-400 hover:text-white hover:bg-zinc-800 shrink-0"
+          >
+            <X className="w-5 h-5" />
+          </Button>
+          <div className="relative w-20 h-20 bg-zinc-800 rounded-lg overflow-hidden shrink-0">
+            <img
+              src={item.image || "/placeholder.svg"}
+              alt={item.title}
+              className="object-cover w-full h-full"
             />
-          ))}
-        </section>
+          </div>
+          <h3 className="text-white font-medium">{item.title}</h3>
+        </div>
 
-        <div className="h-px w-full bg-white/10" />
+        {/* Price */}
+        <div className="col-span-2 text-center text-white font-medium">${item.price.toFixed(2)}</div>
 
-        <div className="flex items-center justify-end py-10">
-          <Button className="h-10 rounded-md font-vietnam bg-[#70E002] px-6 text-[#121212] hover:bg-lime-400">
-            Proceed to checkout
+        {/* Quantity Controls */}
+        <div className="col-span-2 flex items-center justify-center gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => updateQuantity(item.id, -1)}
+            className="w-8 h-8 text-zinc-400 hover:text-white hover:bg-zinc-800"
+          >
+            <Minus className="w-4 h-4" />
+          </Button>
+          <span className="w-8 text-center text-white font-medium">{item.quantity}</span>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => updateQuantity(item.id, 1)}
+            className="w-8 h-8 text-zinc-400 hover:text-white hover:bg-zinc-800"
+          >
+            <Plus className="w-4 h-4" />
           </Button>
         </div>
 
-        <div className="h-6 md:h-10" />
+        {/* Subtotal */}
+        <div className="col-span-2 text-right text-white font-medium">
+          ${calculateSubtotal(item.price, item.quantity)}
+        </div>
       </div>
-    </main>
-  );
-}
+
+      <div className="lg:hidden bg-zinc-900/50 rounded-lg p-4 border border-zinc-800">
+        <div className="flex gap-4">
+          {/* Product Image */}
+          <div className="relative w-20 h-20 sm:w-24 sm:h-24 bg-zinc-800 rounded-lg overflow-hidden shrink-0">
+            <img
+              src={item.image || "/placeholder.svg"}
+              alt={item.title}
+              className="object-cover w-full h-full"
+            />
+          </div>
+
+          {/* Product Details */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start justify-between gap-2 mb-3">
+              <h3 className="text-white font-medium text-sm sm:text-base line-clamp-2">{item.title}</h3>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => removeItem(item.id)}
+                className="text-zinc-400 hover:text-white hover:bg-zinc-800 shrink-0 w-8 h-8"
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+
+            {/* Price and Quantity Row */}
+            <div className="flex items-center justify-between gap-4">
+              <div className="text-white font-medium">${item.price.toFixed(2)}</div>
+
+              {/* Quantity Controls */}
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => updateQuantity(item.id, -1)}
+                  className="w-8 h-8 text-zinc-400 hover:text-white hover:bg-zinc-800"
+                >
+                  <Minus className="w-3 h-3" />
+                </Button>
+                <span className="w-8 text-center text-white font-medium text-sm">{item.quantity}</span>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => updateQuantity(item.id, 1)}
+                  className="w-8 h-8 text-zinc-400 hover:text-white hover:bg-zinc-800"
+                >
+                  <Plus className="w-3 h-3" />
+                </Button>
+              </div>
+            </div>
+
+            {/* Subtotal */}
+            <div className="mt-3 pt-3 border-t border-zinc-800 flex items-center justify-between">
+              <span className="text-zinc-400 text-sm">Subtotal</span>
+              <span className="text-white font-medium">${calculateSubtotal(item.price, item.quantity)}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+})

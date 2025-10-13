@@ -124,6 +124,8 @@ const Catalogue = () => {
             find the perfect fit for your learning journey.
           </p>
         </div>
+        <div className="w-full h-[1px] bg-[#A3A3A3]/20 mt-12 mb-8"></div>
+
 
         {/* Browse Section - Fully Responsive */}
         <div className="flex flex-col gap-6 sm:gap-8 pb-12 sm:pb-16">

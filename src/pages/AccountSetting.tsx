@@ -23,6 +23,8 @@ const AccountSetting: React.FC = () => {
             Find all your saved, purchased and in-progress content here
           </p>
         </div>
+        <div className="w-full h-[1px] bg-[#A3A3A3]/20 mt-12 mb-8"></div>
+
 
         <div className="space-y-6 sm:space-y-8">
           {/* Profile Info Section */}

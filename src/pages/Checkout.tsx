@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,6 +18,7 @@ interface CartItem {
 }
 
 export default function CheckoutPage() {
+  const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -47,6 +49,18 @@ export default function CheckoutPage() {
   function handlePayment(event: React.MouseEvent<HTMLButtonElement>) {
     event.preventDefault();
     setShowPaymentModal(true);
+  }
+
+  function handleConfirmPayment(event: React.MouseEvent<HTMLButtonElement>) {
+    event.preventDefault();
+    setShowPaymentModal(false);
+    setShowSuccessModal(true);
+  }
+
+  function handleTakeMeThere(event: React.MouseEvent<HTMLButtonElement>) {
+    event.preventDefault();
+    setShowSuccessModal(false);
+    navigate("/mylibrary");
   }
 
   return (
@@ -303,7 +317,7 @@ export default function CheckoutPage() {
                     </div>
 
                     <Button
-                      onClick={handlePayment}
+                      onClick={handleConfirmPayment}
                       className="w-full bg-[#84cc16] hover:bg-[#73b812] text-black font-semibold py-5 md:py-6 text-sm md:text-base rounded-lg"
                     >
                       Pay NGN 100
@@ -314,9 +328,56 @@ export default function CheckoutPage() {
             </div>
           </div>
         )}
-      </main>
+          {/* Success Modal */}
+          {showSuccessModal && (
+            <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+              <div className="bg-white rounded-lg w-full max-w-md p-6 md:p-8 relative">
+                <button
+                  onClick={() => setShowSuccessModal(false)}
+                  className="absolute top-2 right-2 md:-top-3 md:-right-3 bg-white rounded-full p-2 shadow-lg hover:bg-gray-100 transition-colors"
+                >
+                  <X className="h-5 w-5 text-gray-700" />
+                </button>
 
-      <Footer />
+                {/* Success Icon */}
+                <div className="flex justify-center mb-4 md:mb-6">
+                  <div className="h-16 w-16 md:h-20 md:w-20 bg-[#84cc16]/20 rounded-full flex items-center justify-center">
+                    <div className="h-14 w-14 md:h-16 md:w-16 bg-[#84cc16] rounded-full flex items-center justify-center">
+                      <Check className="h-8 w-8 md:h-10 md:w-10 text-white stroke-[3]" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Success Message */}
+                <h2 className="text-xl md:text-2xl font-bold text-gray-900 text-center mb-3 md:mb-4">Payment Successful</h2>
+                <p className="text-sm md:text-base text-center text-gray-600 mb-6 md:mb-8 px-2">
+                  <span className="font-semibold">The Future Of AI In Everyday Products</span> has been added to your
+                  library
+                </p>
+
+                {/* Action Button */}
+                <Button
+                  onClick={handleTakeMeThere}
+                  className="w-full bg-[#84cc16] hover:bg-[#73b812] text-black font-semibold py-5 md:py-6 text-sm md:text-base rounded-lg"
+                >
+                  Take me there
+                </Button>
+
+                {/* Powered by Paystack */}
+                <div className="mt-4 md:mt-6 text-center">
+                  <p className="text-[10px] md:text-xs text-gray-500 flex items-center justify-center gap-1">
+                    <svg className="h-3 w-3" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                    </svg>
+                    Powered by Paystack
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+    </main>
+
+    <Footer />
     </>
   );
 }

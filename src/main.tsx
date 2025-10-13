@@ -5,7 +5,5 @@ import "./index.css";
 import { CartProvider } from "@/hooks/use-cart";
 
 createRoot(document.getElementById("root")!).render(
-	<CartProvider>
-		<App />
-	</CartProvider>
+	<App />
 );

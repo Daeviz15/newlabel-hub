@@ -1,26 +1,28 @@
+import { Suspense, lazy } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CartProvider } from "@/hooks/use-cart";
-import Index from "./pages/Index";
-import Login from "./pages/Login";
-import SignUp from "./pages/SignUp";
-import NotFound from "./pages/NotFound";
-import AboutPage from "./pages/AboutPage";
-import ContactPage from "./pages/ContactPage";
-import Dashboard from "./pages/Dashboard";
-import { PrivacyPolicyPage } from "./pages/PrivacyPolicyPage";
-import { TermsnCondition } from "./pages/TermsnCondition";
-import Catalogue from "./pages/Catalogue";
-import Notifications from "./pages/Notifications";
-import CartPage from "./pages/CartPage";
-import Checkout from "./pages/Checkout";
-import MyLibrary from "./pages/MyLibrary";
-import AccountSetting from "./pages/AccountSetting";
-import VideoDetails from "./pages/VideoDetails";
-import VideoPlayer from "./pages/VideoPlayer";
+
+const Index = lazy(() => import("./pages/Index"));
+const Login = lazy(() => import("./pages/Login"));
+const SignUp = lazy(() => import("./pages/SignUp"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const AboutPage = lazy(() => import("./pages/AboutPage"));
+const ContactPage = lazy(() => import("./pages/ContactPage"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const PrivacyPolicyPageLazy = lazy(() => import("./pages/PrivacyPolicyPage"));
+const TermsnConditionLazy = lazy(() => import("./pages/TermsnCondition"));
+const Catalogue = lazy(() => import("./pages/Catalogue"));
+const Notifications = lazy(() => import("./pages/Notifications"));
+const CartPage = lazy(() => import("./pages/CartPage").then(m => ({ default: m.CartPage })));
+const Checkout = lazy(() => import("./pages/Checkout"));
+const MyLibrary = lazy(() => import("./pages/MyLibrary"));
+const AccountSetting = lazy(() => import("./pages/AccountSetting"));
+const VideoDetails = lazy(() => import("./pages/VideoDetails"));
+const VideoPlayer = lazy(() => import("./pages/VideoPlayer"));
 
 const queryClient = new QueryClient();
 
@@ -31,26 +33,29 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<SignUp />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="/contact" element={<ContactPage />} />
-            <Route path="/cart" element={<CartPage />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/notifications" element={<Notifications />} />
-            <Route path="/privacypolicypage" element={<PrivacyPolicyPage />} />
-            <Route path="/termsncondition" element={<TermsnCondition />} />
-            <Route path="/catalogue" element={<Catalogue />} />
-            <Route path="/mylibrary" element={<MyLibrary />} />
-            <Route path="/accountsetting" element={<AccountSetting />} />
-            <Route path="/video-details" element={<VideoDetails />} />
-            <Route path="/video-player" element={<VideoPlayer />} />
+          <Suspense fallback={null}>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<SignUp />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="/contact" element={<ContactPage />} />
+              <Route path="/cartpage" element={<CartPage />} />
+              <Route path="/cart" element={<CartPage />} />
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/notifications" element={<Notifications />} />
+              <Route path="/privacypolicypage" element={<PrivacyPolicyPageLazy />} />
+              <Route path="/termsncondition" element={<TermsnConditionLazy />} />
+              <Route path="/catalogue" element={<Catalogue />} />
+              <Route path="/mylibrary" element={<MyLibrary />} />
+              <Route path="/accountsetting" element={<AccountSetting />} />
+              <Route path="/video-details" element={<VideoDetails />} />
+              <Route path="/video-player" element={<VideoPlayer />} />
 
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
         </BrowserRouter>
       </CartProvider>
     </TooltipProvider>

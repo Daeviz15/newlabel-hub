@@ -58,6 +58,8 @@ export default function MyLibrary() {
           <h1 className="text-white text-4xl font-vietnam font-bold mb-2 leading-[150%] tracking-normal">My Library</h1>
           <p className="text-[#EDEDED] text-sm font-normal font-vietnam leading-[150%] tracking-normal">Find all of your saved, purchased and in-progress content here</p>
         </div>
+        <div className="w-full h-[1px] bg-[#A3A3A3]/20 mt-12 mb-8"></div>
+
 
         {/* Tabs */}
   <div className="flex flex-wrap gap-3 mb-8">
