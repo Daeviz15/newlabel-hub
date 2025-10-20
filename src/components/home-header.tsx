@@ -7,7 +7,8 @@ import {
   X,
   Bell,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getSaved, onSavedChange } from "@/hooks/use-saved";
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/Logo.png";
 import {
@@ -37,7 +38,14 @@ export function HomeHeader({
 }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [isMobileChannelsOpen, setIsMobileChannelsOpen] = useState(false);
+  const [savedCount, setSavedCount] = useState<number>(getSaved().length);
     const navigate = useNavigate();
+
+  useEffect(() => {
+    setSavedCount(getSaved().length);
+    return onSavedChange(() => setSavedCount(getSaved().length));
+  }, []);
 
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0c0c0c]/95 backdrop-blur supports-[backdrop-filter]:bg-[#0c0c0c]/75 transition-all duration-300">
@@ -67,13 +75,22 @@ export function HomeHeader({
             >
               Catalogue
             </a>
-            <button className="group inline-flex items-center gap-1 font-vietnam transition-colors duration-200 hover:text-white">
-              <span>Subsidiaries</span>
-              <ChevronDown
-                className="h-4 w-4 transition-transform duration-200 group-hover:rotate-180"
-                aria-hidden="true"
-              />
-            </button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="group inline-flex items-center gap-1 font-vietnam transition-colors duration-200 hover:text-white">
+                  <span>Channels</span>
+                  <ChevronDown
+                    className="h-4 w-4 transition-transform duration-200 group-hover:rotate-180"
+                    aria-hidden="true"
+                  />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="bg-[#E1FDC5] text-black">
+                <DropdownMenuItem onClick={() => navigate('/channels/jsity')}>Jsity</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/channels/thc')}>Thc</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/channels/gospeline')}>Gospeline</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </nav>
         </div>
 
@@ -121,12 +138,19 @@ export function HomeHeader({
             className="hidden h-8 w-8 items-center justify-center rounded-md bg-[#1a1a1a] text-white ring-1 ring-white/10 transition-all duration-200 hover:bg-[#222] hover:scale-105 sm:inline-flex sm:h-9 sm:w-9"
           >
             <Bell className="h-4 w-4" />
-          </a>
+          </a> 
           <button
             aria-label="Favorites"
             className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-[#1a1a1a] text-white ring-1 ring-white/10 transition-all duration-200 hover:bg-[#222] hover:scale-105 sm:h-9 sm:w-9"
           >
-            <Heart className="h-4 w-4" />
+            <div className="relative">
+              <Heart className={savedCount > 0 ? "h-4 w-4 fill-lime-400 text-lime-400" : "h-4 w-4"} />
+              {savedCount > 0 && (
+                <span className="absolute -top-1 -right-1 inline-flex items-center justify-center rounded-full bg-lime-400 text-black text-[10px] font-bold h-4 min-w-4 px-1">
+                  {savedCount > 99 ? "99+" : savedCount}
+                </span>
+              )}
+            </div>
           </button>
 
           {/* Profile section */}
@@ -216,10 +240,56 @@ export function HomeHeader({
             >
               My Library
             </a>
-            <button className="group flex w-full items-center font-vietnam justify-between text-left text-sm text-zinc-300 transition-colors duration-200 hover:text-white">
-              <span>Subsidiaries</span>
-              <ChevronDown className="h-4 w-4 transition-transform duration-200 group-hover:rotate-180" />
+            <button
+              className="group flex w-full items-center font-vietnam justify-between text-left text-sm text-zinc-300 transition-colors duration-200 hover:text-white"
+              onClick={() => setIsMobileChannelsOpen(!isMobileChannelsOpen)}
+              aria-expanded={isMobileChannelsOpen}
+              aria-controls="mobile-channels-submenu"
+            >
+              <span>Channels</span>
+              <ChevronDown
+                className={`h-4 w-4 transition-transform duration-200 ${
+                  isMobileChannelsOpen ? "rotate-180" : "group-hover:rotate-180"
+                }`}
+              />
             </button>
+            <div
+              id="mobile-channels-submenu"
+              className={`overflow-hidden pl-3 ${
+                isMobileChannelsOpen ? "mt-2 max-h-40" : "max-h-0"
+              } transition-[max-height] duration-300 ease-in-out`}
+            >
+              <button
+                className="block w-full text-left py-2 text-sm text-zinc-300 hover:text-white"
+                onClick={() => {
+                  navigate('/channels/jsity');
+                  setIsMenuOpen(false);
+                  setIsMobileChannelsOpen(false);
+                }}
+              >
+                Jsity
+              </button>
+              <button
+                className="block w-full text-left py-2 text-sm text-zinc-300 hover:text-white"
+                onClick={() => {
+                  navigate('/channels/thc');
+                  setIsMenuOpen(false);
+                  setIsMobileChannelsOpen(false);
+                }}
+              >
+                Thc
+              </button>
+              <button
+                className="block w-full text-left py-2 text-sm text-zinc-300 hover:text-white"
+                onClick={() => {
+                  navigate('/channels/gospeline');
+                  setIsMenuOpen(false);
+                  setIsMobileChannelsOpen(false);
+                }}
+              >
+                Gospeline
+              </button>
+            </div>
 
             {/* User info for mobile */}
             <div className="pt-3 border-t border-white/10">

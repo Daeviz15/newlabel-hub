@@ -56,6 +56,38 @@ export default function Dashboard() {
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
+  // Format a string into Title Case for display names
+  const toTitleCase = (value: string): string => {
+    return value
+      .split(/\s+/)
+      .filter(Boolean)
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(" ");
+  };
+
+  // Derive a best-effort full name from an email address
+  const deriveNameFromEmail = (email: string | null): string | null => {
+    if (!email) return null;
+    const local = email.split("@")[0];
+    if (!local) return null;
+    // replace separators with spaces and remove extra digits-only tokens
+    const cleaned = local.replace(/[._-]+/g, " ").replace(/\s+/g, " ").trim();
+    if (!cleaned) return null;
+    return toTitleCase(cleaned);
+  };
+
+  // Function to get time-based greeting
+  const getTimeBasedGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) {
+      return "Good Morning";
+    } else if (hour < 17) {
+      return "Good Afternoon";
+    } else {
+      return "Good Evening";
+    }
+  };
+
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     navigate("/login");
@@ -65,8 +97,13 @@ export default function Dashboard() {
       const user = session?.user || null;
       if (user) {
         const meta = user.user_metadata || {};
-        setUserEmail(user.email ?? null);
-        setUserName(meta.full_name || meta.name || user.email || null);
+        const email: string | null = user.email ?? null;
+        const metaName: string | null = meta.full_name || meta.name || null;
+        const derivedFromEmail: string | null = deriveNameFromEmail(email);
+        const bestInitialName: string | null = metaName || derivedFromEmail || email || null;
+
+        setUserEmail(email);
+        setUserName(bestInitialName);
         setAvatarUrl(meta.avatar_url || meta.picture || null);
         setTimeout(async () => {
           const { data, error } = await supabase
@@ -132,7 +169,7 @@ export default function Dashboard() {
           <div className="overflow-hidden rounded-2xl bg-gradient-to-r from-lime-500 to-green-600">
             <div className="px-6 py-8 sm:px-8 md:px-10 md:py-10">
               <h1 className="text-2xl font-semibold font-vietnam text-black sm:text-3xl">
-                Good Morning, {userName || "there"}
+                {getTimeBasedGreeting()}, {userName || "there"}
               </h1>
               <p className="mt-2 text-sm font-vietnam  text-black/70">
                 Great to have you back. Ready to pick up where you left off?
