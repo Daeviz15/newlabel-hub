@@ -1,13 +1,21 @@
-import React, { useEffect, useState } from "react";
-import { ResumeCard, ProductCard, TopPick } from "@/components/course-card";
+import React, { useState } from "react";
+import { ResumeCard, ProductCard } from "@/components/course-card";
 import { HomeHeader } from "../components/home-header";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
+import { useUserProfile } from "@/hooks/use-user-profile";
 
 export default function MyLibrary() {
-  const [activeTab, setActiveTab] = useState("all")
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("all");
+  const { userName, userEmail, avatarUrl } = useUserProfile();
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate("/login");
+  };
 
   
 
@@ -51,6 +59,10 @@ export default function MyLibrary() {
       <HomeHeader
         search=""
         onSearchChange={() => {}}
+        userName={userName ?? undefined}
+        userEmail={userEmail ?? undefined}
+        avatarUrl={avatarUrl ?? undefined}
+        onSignOut={handleSignOut}
       />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
         {/* Header */}

@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { ResumeCard, ProductCard, TopPick } from "@/components/course-card";
 import { HomeHeader } from "../components/home-header";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import Footer from "@/components/Footer";
+import { useUserProfile } from "@/hooks/use-user-profile";
 const resumeItems = Array.from({ length: 4 }).map((_, i) => ({
   id: i + 1,
   image: "/assets/dashboard-images/face.jpg",
@@ -52,29 +53,7 @@ const recommendedItems = trendingItems;
 export default function Dashboard() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
-  const [userName, setUserName] = useState<string | null>(null);
-  const [userEmail, setUserEmail] = useState<string | null>(null);
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-
-  // Format a string into Title Case for display names
-  const toTitleCase = (value: string): string => {
-    return value
-      .split(/\s+/)
-      .filter(Boolean)
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(" ");
-  };
-
-  // Derive a best-effort full name from an email address
-  const deriveNameFromEmail = (email: string | null): string | null => {
-    if (!email) return null;
-    const local = email.split("@")[0];
-    if (!local) return null;
-    // replace separators with spaces and remove extra digits-only tokens
-    const cleaned = local.replace(/[._-]+/g, " ").replace(/\s+/g, " ").trim();
-    if (!cleaned) return null;
-    return toTitleCase(cleaned);
-  };
+  const { userName, userEmail, avatarUrl } = useUserProfile();
 
   // Function to get time-based greeting
   const getTimeBasedGreeting = () => {
@@ -92,45 +71,6 @@ export default function Dashboard() {
     await supabase.auth.signOut();
     navigate("/login");
   };
-  useEffect(() => {
-    const updateFromSession = (session: any) => {
-      const user = session?.user || null;
-      if (user) {
-        const meta = user.user_metadata || {};
-        const email: string | null = user.email ?? null;
-        const metaName: string | null = meta.full_name || meta.name || null;
-        const derivedFromEmail: string | null = deriveNameFromEmail(email);
-        const bestInitialName: string | null = metaName || derivedFromEmail || email || null;
-
-        setUserEmail(email);
-        setUserName(bestInitialName);
-        setAvatarUrl(meta.avatar_url || meta.picture || null);
-        setTimeout(async () => {
-          const { data, error } = await supabase
-            .from("profiles")
-            .select("full_name, avatar_url")
-            .eq("user_id", user.id)
-            .maybeSingle();
-          if (!error && data) {
-            if (data.full_name) setUserName(data.full_name);
-            if (data.avatar_url) setAvatarUrl(data.avatar_url);
-          }
-        }, 0);
-      }
-    };
-
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      updateFromSession(session);
-    });
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      updateFromSession(session);
-    });
-
-    return () => {
-      listener.subscription.unsubscribe();
-    };
-  }, []);
 
   const q = searchQuery.trim().toLowerCase();
   const filteredResumeItems = resumeItems.filter(

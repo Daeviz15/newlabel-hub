@@ -5,6 +5,9 @@ import { X, Minus, Plus } from "lucide-react"
 import { HomeHeader } from "@/components/home-header"
 import Footer from "@/components/Footer"
 import { Button } from "@/components/ui/button"
+import { useUserProfile } from "@/hooks/use-user-profile"
+import { supabase } from "@/integrations/supabase/client"
+import { useNavigate } from "react-router-dom"
 
 interface CartItem {
   id: string
@@ -15,6 +18,8 @@ interface CartItem {
 }
 
 export function CartPage() {
+  const navigate = useNavigate();
+  const { userName, userEmail, avatarUrl } = useUserProfile();
   const [cartItems, setCartItems] = useState<CartItem[]>([
     {
       id: "1",
@@ -47,16 +52,19 @@ export function CartPage() {
     return (price * quantity).toFixed(2)
   }, [])
   
-  function handleSignOut(): void {
-    // Implement sign-out logic here if available (e.g., clear auth state, redirect)
-    console.log("User signed out")
-  }
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate("/login");
+  };
 
   return (
     <div className="min-h-screen bg-black">
       <HomeHeader
         search={search}
         onSearchChange={(q: string) => setSearch(q)}
+        userName={userName ?? undefined}
+        userEmail={userEmail ?? undefined}
+        avatarUrl={avatarUrl ?? undefined}
         onSignOut={handleSignOut}
       />
       <main className="container mx-auto px-4 py-8 md:py-12">
