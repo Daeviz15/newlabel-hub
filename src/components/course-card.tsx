@@ -82,20 +82,20 @@ export function ProductCard({
 }: ProductCardProps) {
   return (
     <div 
-      className="group relative overflow-hidden rounded-xl border border-white/10 bg-[#151515] cursor-pointer hover:ring-2 hover:ring-lime-500 transition-all"
+      className="group relative overflow-hidden rounded-xl border border-white/10 bg-[#151515] cursor-pointer hover:ring-2 hover:ring-purple-500 transition-all"
       onClick={onClick}
     >
       <div className="absolute left-3 top-3 z-10 flex items-center gap-2">
-        <span className="rounded-sm bg-black/70 px-1.5 py-0.5 text-[11px] font-semibold text-lime-400 ring-1 ring-lime-500/40">
+        <span className="rounded-md bg-[#84CC16] px-2 py-1 text-xs font-bold text-black">
           {price}
         </span>
       </div>
       <button
         aria-label={liked ? "Remove from favorites" : "Add to favorites"}
-        className="absolute right-3 top-3 z-10 inline-flex h-8 w-8 items-center justify-center rounded-md bg-black/60 ring-1 ring-white/10 transition-colors hover:bg-black/80"
+        className="absolute right-3 top-3 z-10 inline-flex h-8 w-8 items-center justify-center rounded-full bg-black/60 ring-1 ring-white/10 transition-colors hover:bg-black/80"
         onClick={(e) => e.stopPropagation()}
       >
-        <Heart className={cn("h-4 w-4", liked ? "fill-lime-500 text-lime-500" : "text-white")} />
+        <Heart className={cn("h-4 w-4", liked ? "fill-white text-white" : "text-white")} />
       </button>
 
       <div className="relative aspect-[4/5] w-full overflow-hidden bg-black/20">
@@ -107,9 +107,9 @@ export function ProductCard({
         />
       </div>
       <div className="space-y-1 p-4">
-        <div className="line-clamp-2 text-[13px] font-semibold leading-snug text-white">{title}</div>
-        <div className="text-[11px] text-zinc-400">{subtitle}</div>
-        <div className="mt-2 text-[11px] text-zinc-400">{brand}</div>
+        <div className="line-clamp-2 text-sm font-semibold leading-snug text-white font-vietnam">{title}</div>
+        <div className="text-xs text-zinc-400 font-vietnam">{subtitle}</div>
+        <div className="mt-1 text-xs text-zinc-500 font-vietnam">{brand}</div>
       </div>
     </div>
   )
