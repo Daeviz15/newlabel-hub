@@ -107,7 +107,7 @@ export default function Jdashboard() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
           {/* Lime hero banner */}
           <section className="py-6">
-            <div className="overflow-hidden rounded-2xl bg-gradient-to-r from-lime-500 to-green-600">
+            <div className="overflow-hidden rounded-2xl bg-[linear-gradient(269.56deg,_rgba(161,54,255,0.7)_0.05%,_rgba(149,44,242,0.7)_20.26%,_rgba(123,37,199,0.7)_49.47%,_rgba(98,17,169,0.7)_82.66%)]">
               <div className="px-6 py-8 sm:px-8 md:px-10 md:py-10">
                 <h1 className="text-2xl font-semibold font-vietnam text-black sm:text-3xl">
                   {getTimeBasedGreeting()}, {userName || "there"}
