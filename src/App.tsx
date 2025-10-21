@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CartProvider } from "@/hooks/use-cart";
+import Jdashboard from "./JsityPages/JsityDashboard";
 
 const Index = lazy(() => import("./pages/Index"));
 const Login = lazy(() => import("./pages/Login"));
@@ -17,7 +18,9 @@ const PrivacyPolicyPageLazy = lazy(() => import("./pages/PrivacyPolicyPage"));
 const TermsnConditionLazy = lazy(() => import("./pages/TermsnCondition"));
 const Catalogue = lazy(() => import("./pages/Catalogue"));
 const Notifications = lazy(() => import("./pages/Notifications"));
-const CartPage = lazy(() => import("./pages/CartPage").then(m => ({ default: m.CartPage })));
+const CartPage = lazy(() =>
+  import("./pages/CartPage").then((m) => ({ default: m.CartPage }))
+);
 const Checkout = lazy(() => import("./pages/Checkout"));
 const MyLibrary = lazy(() => import("./pages/MyLibrary"));
 const AccountSetting = lazy(() => import("./pages/AccountSetting"));
@@ -45,13 +48,37 @@ const App = () => (
               <Route path="/cart" element={<CartPage />} />
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/notifications" element={<Notifications />} />
-              <Route path="/privacypolicypage" element={<PrivacyPolicyPageLazy />} />
-              <Route path="/termsncondition" element={<TermsnConditionLazy />} />
+              <Route
+                path="/privacypolicypage"
+                element={<PrivacyPolicyPageLazy />}
+              />
+              <Route
+                path="/termsncondition"
+                element={<TermsnConditionLazy />}
+              />
               <Route path="/catalogue" element={<Catalogue />} />
               <Route path="/mylibrary" element={<MyLibrary />} />
               <Route path="/accountsetting" element={<AccountSetting />} />
               <Route path="/video-details" element={<VideoDetails />} />
               <Route path="/video-player" element={<VideoPlayer />} />
+
+              {/* Routes for jsity pages */}
+              <Route path="/jdashboard" element={<Jdashboard />} />
+              <Route path="/courses" element={<Jdashboard />} />
+              <Route path="/about" element={<Jdashboard />} />
+              <Route path="/contact" element={<Jdashboard />} />
+
+              {/* Routes for thc pages */}
+              <Route path="/tdashboard" element={<Jdashboard />} />
+              <Route path="/courses" element={<Jdashboard />} />
+              <Route path="/about" element={<Jdashboard />} />
+              <Route path="/contact" element={<Jdashboard />} />
+
+              {/* Routes for gospel-line pages */}
+              <Route path="/gdashboard" element={<Jdashboard />} />
+              <Route path="/courses" element={<Jdashboard />} />
+              <Route path="/about" element={<Jdashboard />} />
+              <Route path="/contact" element={<Jdashboard />} />
 
               <Route path="*" element={<NotFound />} />
             </Routes>
