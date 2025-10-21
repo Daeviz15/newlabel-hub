@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CartProvider } from "@/hooks/use-cart";
 import Jdashboard from "./JsityPages/JsityDashboard";
+import JsityCourses from "./JsityPages/JsityCourses";
 
 const Index = lazy(() => import("./pages/Index"));
 const Login = lazy(() => import("./pages/Login"));
@@ -64,9 +65,7 @@ const App = () => (
 
               {/* Routes for jsity pages */}
               <Route path="/jdashboard" element={<Jdashboard />} />
-              <Route path="/courses" element={<Jdashboard />} />
-              <Route path="/about" element={<Jdashboard />} />
-              <Route path="/contact" element={<Jdashboard />} />
+              <Route path="/jcourses" element={<JsityCourses />} />
 
               {/* Routes for thc pages */}
               <Route path="/tdashboard" element={<Jdashboard />} />

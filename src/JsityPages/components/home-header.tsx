@@ -68,25 +68,25 @@ export function JHomeHeader({
           <nav className="hidden items-center gap-4 text-[13px] text-zinc-300 lg:flex xl:gap-5">
             <a
               className="relative transition-colors font-vietnam duration-200 hover:text-white after:absolute after:bottom-[-2px] after:left-0 after:h-0.5 after:w-0 after:bg-[#6211A9] after:transition-all after:duration-300 hover:after:w-full"
-              href="#"
+              href="/jdashboard"
             >
               Home
             </a>
             <a
               className="relative font-vietnam transition-colors duration-200 hover:text-white after:absolute after:bottom-[-2px] after:left-0 after:h-0.5 after:w-0 after:bg-[#6211A9]  after:transition-all after:duration-300 hover:after:w-full"
-              href="/catalogue"
+              href="/jcourses"
             >
               Courses
             </a>
             <a
               className="relative font-vietnam transition-colors duration-200 hover:text-white after:absolute after:bottom-[-2px] after:left-0 after:h-0.5 after:w-0 after:bg-[#6211A9]  after:transition-all after:duration-300 hover:after:w-full"
-              href="/catalogue"
+              href="/about"
             >
               About Us
             </a>
             <a
               className="relative font-vietnam transition-colors duration-200 hover:text-white after:absolute after:bottom-[-2px] after:left-0 after:h-0.5 after:w-0 after:bg-[#6211A9]  after:transition-all after:duration-300 hover:after:w-full"
-              href="/catalogue"
+              href="/contact"
             >
               Contact
             </a>
@@ -194,21 +194,21 @@ export function JHomeHeader({
         <nav className="border-t border-white/10 bg-[#0c0c0c] px-4 py-4">
           <div className="space-y-3">
             <a
-              href="#"
+              href="/jdashboard"
               className="block text-sm text-zinc-300 font-vietnam transition-all duration-200 hover:text-white hover:translate-x-1"
               onClick={() => setIsMenuOpen(false)}
             >
               Home
             </a>
             <a
-              href="/catalogue"
+              href="/jcourses"
               className="block text-sm text-zinc-300 font-vietnam transition-all duration-200 hover:text-white hover:translate-x-1"
               onClick={() => setIsMenuOpen(false)}
             >
               Courses
             </a>
             <a
-              href="/mylibrary"
+              href="/about"
               className="block text-sm text-zinc-300 font-vietnam transition-all duration-200 hover:text-white hover:translate-x-1"
               onClick={() => setIsMenuOpen(false)}
             >
@@ -216,7 +216,7 @@ export function JHomeHeader({
             </a>
 
             <a
-              href="/mylibrary"
+              href="/contact"
               className="block text-sm text-zinc-300 font-vietnam transition-all duration-200 hover:text-white hover:translate-x-1"
               onClick={() => setIsMenuOpen(false)}
             >
