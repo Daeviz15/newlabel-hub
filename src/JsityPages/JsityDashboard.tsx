@@ -88,7 +88,7 @@ export default function Jdashboard() {
         <div className="hidden sm:block bg-[linear-gradient(269.56deg,_rgba(161,54,255,1)_0.05%,_rgba(149,44,242,1)_20.26%,_rgba(123,37,199,1)_49.47%,_rgba(98,17,169,1)_82.66%)] text-white text-sm py-3 text-center font-vietnam font-medium">
           Free Courses 🌟 Sora Ends Soon. Get It Now →
         </div>
-        
+
         <JHomeHeader
           search={searchQuery}
           onSearchChange={setSearchQuery}
@@ -97,7 +97,7 @@ export default function Jdashboard() {
           avatarUrl={avatarUrl ?? undefined}
           onSignOut={handleSignOut}
         />
-        
+
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 md:px-8">
           {/* Hero Banner */}
           <section className="py-6 sm:py-8">
@@ -138,16 +138,13 @@ export default function Jdashboard() {
           </Section>
 
           {/* This week's top pick */}
-          <Section
-            title="This week's top pick"
-            description=""
-          >
+          <Section title="This week's top pick" description="">
             <TopPick />
           </Section>
 
           <div className="h-16" />
         </div>
-        <Footer />
+        <Footer backgroundColor="bg-[linear-gradient(269.56deg,_rgba(161,54,255,1)_0.05%,_rgba(149,44,242,1)_20.26%,_rgba(123,37,199,1)_49.47%,_rgba(98,17,169,1)_82.66%)]" />
       </div>
     </main>
   );
@@ -199,6 +196,7 @@ function CardsGrid({
           title={it.title}
           subtitle={it.subtitle}
           price={it.price}
+          bgColor="red-500"
           onClick={() =>
             navigate("/video-details", {
               state: {

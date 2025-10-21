@@ -1,14 +1,14 @@
-import { cn } from "@/lib/utils"
-import { Heart, Play } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils";
+import { Heart, Play } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 type ResumeCardProps = {
-  imageSrc?: string
-  title?: string
-  percent?: number
-  brand?: string
-  onClick?: () => void
-}
+  imageSrc?: string;
+  title?: string;
+  percent?: number;
+  brand?: string;
+  onClick?: () => void;
+};
 
 export function ResumeCard({
   imageSrc = "/portrait-course-poster.png",
@@ -17,9 +17,9 @@ export function ResumeCard({
   brand = "jsty",
   onClick,
 }: ResumeCardProps) {
-  const clamped = Math.max(0, Math.min(100, percent))
+  const clamped = Math.max(0, Math.min(100, percent));
   return (
-    <div 
+    <div
       className="group relative overflow-hidden rounded-xl border border-white/10 bg-[#151515] cursor-pointer hover:ring-2 hover:ring-lime-500 transition-all"
       onClick={onClick}
     >
@@ -35,7 +35,9 @@ export function ResumeCard({
         />
       </div>
       <div className="space-y-2 p-4">
-        <h3 className="line-clamp-2 text-[13px] font-semibold leading-snug text-white">{title}</h3>
+        <h3 className="line-clamp-2 text-[13px] font-semibold leading-snug text-white">
+          {title}
+        </h3>
         <div className="mt-2 h-2 w-full rounded-full bg-zinc-800">
           <div
             className="h-2 rounded-full bg-lime-500"
@@ -58,18 +60,19 @@ export function ResumeCard({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 type ProductCardProps = {
-  imageSrc?: string
-  title?: string
-  subtitle?: string
-  price?: string
-  liked?: boolean
-  brand?: string
-  onClick?: () => void
-}
+  imageSrc?: string;
+  title?: string;
+  subtitle?: string;
+  price?: string;
+  liked?: boolean;
+  brand?: string;
+  bgColor?: string;
+  onClick?: () => void;
+};
 
 export function ProductCard({
   imageSrc = "/studio-set-course-poster.png",
@@ -78,11 +81,12 @@ export function ProductCard({
   price = "$18",
   liked = false,
   brand = "jsty",
+  bgColor = "ring-lime-500",
   onClick,
 }: ProductCardProps) {
   return (
-    <div 
-      className="group relative overflow-hidden rounded-xl border border-white/10 bg-[#151515] cursor-pointer hover:ring-2 hover:ring-purple-500 transition-all"
+    <div
+      className={`group relative overflow-hidden rounded-xl border border-white/10 bg-[#151515] hover:ring-4 hover:${bgColor} transition-all`}
       onClick={onClick}
     >
       <div className="absolute left-3 top-3 z-10 flex items-center gap-2">
@@ -95,7 +99,12 @@ export function ProductCard({
         className="absolute right-3 top-3 z-10 inline-flex h-8 w-8 items-center justify-center rounded-full bg-black/60 ring-1 ring-white/10 transition-colors hover:bg-black/80"
         onClick={(e) => e.stopPropagation()}
       >
-        <Heart className={cn("h-4 w-4", liked ? "fill-white text-white" : "text-white")} />
+        <Heart
+          className={cn(
+            "h-4 w-4",
+            liked ? "fill-white text-white" : "text-white"
+          )}
+        />
       </button>
 
       <div className="relative aspect-[4/5] w-full overflow-hidden bg-black/20">
@@ -107,23 +116,25 @@ export function ProductCard({
         />
       </div>
       <div className="space-y-1 p-4">
-        <div className="line-clamp-2 text-sm font-semibold leading-snug text-white font-vietnam">{title}</div>
+        <div className="line-clamp-2 text-sm font-semibold leading-snug text-white font-vietnam">
+          {title}
+        </div>
         <div className="text-xs text-zinc-400 font-vietnam">{subtitle}</div>
         <div className="mt-1 text-xs text-zinc-500 font-vietnam">{brand}</div>
       </div>
     </div>
-  )
+  );
 }
 
 type TopPickProps = {
-  imageSrc?: string
-  eyebrow?: string
-  title?: string
-  author?: string
-  authorRole?: string
-  cta?: string
-  onClick?: () => void
-}
+  imageSrc?: string;
+  eyebrow?: string;
+  title?: string;
+  author?: string;
+  authorRole?: string;
+  cta?: string;
+  onClick?: () => void;
+};
 
 export function TopPick({
   imageSrc = "/assets/dashboard-images/only.jpg",
@@ -135,7 +146,7 @@ export function TopPick({
   onClick,
 }: TopPickProps) {
   return (
-    <section 
+    <section
       className="rounded-2xl border border-white/10 bg-[#121212] p-4 sm:p-6 md:p-8 cursor-pointer hover:ring-2 hover:ring-lime-500 transition-all"
       onClick={onClick}
     >
@@ -149,15 +160,19 @@ export function TopPick({
           />
         </div>
         <div className="flex flex-col justify-center">
-          <div className="text-xs font-medium uppercase tracking-wide text-zinc-400">{eyebrow}</div>
-          <h3 className="mt-2 text-2xl font-semibold leading-tight text-white sm:text-3xl">{title}</h3>
+          <div className="text-xs font-medium uppercase tracking-wide text-zinc-400">
+            {eyebrow}
+          </div>
+          <h3 className="mt-2 text-2xl font-semibold leading-tight text-white sm:text-3xl">
+            {title}
+          </h3>
           <div className="mt-4 h-px w-full bg-white/10" />
           <div className="mt-4 space-y-1 text-sm">
             <div className="font-semibold text-white">{author}</div>
             <div className="text-zinc-400">{authorRole}</div>
           </div>
           <div className="mt-6">
-            <Button 
+            <Button
               className="h-10 rounded-md bg-lime-500 px-5 text-black hover:bg-lime-400"
               onClick={(e) => {
                 e.stopPropagation();
@@ -170,5 +185,5 @@ export function TopPick({
         </div>
       </div>
     </section>
-  )
+  );
 }

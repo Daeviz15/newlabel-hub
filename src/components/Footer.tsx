@@ -1,8 +1,12 @@
 import logo from "/assets/logo.png";
 
-const Footer = () => {
+interface FooterProps {
+  backgroundColor?: string;
+}
+
+const Footer = ({ backgroundColor = "bg-brand-green" }: FooterProps) => {
   return (
-    <footer className="w-full bg-brand-green py-16 px-4 sm:px-6 lg:px-8">
+    <footer className={`${backgroundColor} w-full py-16 px-4 sm:px-6 lg:px-8`}>
       <div className="container mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 lg:gap-12">
           {/* Left Section - Logo and Contact */}
@@ -188,10 +192,10 @@ const Footer = () => {
             </div>
           </div>
         </div>
-        
+
         {/* Divider Line */}
         <div className="w-full h-[1px] bg-black mt-12 mb-8"></div>
-        
+
         {/* Copyright */}
         <div className="text-center">
           <p className="text-black">© 2025 Newlabel. All rights reserved.</p>
