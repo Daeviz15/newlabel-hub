@@ -1,52 +1,49 @@
 import React, { useState } from "react";
-import { ResumeCard, ProductCard, TopPick } from "@/components/course-card";
-import { HomeHeader } from "@/components/home-header";
+import { ProductCard, TopPick } from "@/components/course-card";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import Footer from "@/components/Footer";
 import { useUserProfile } from "@/hooks/use-user-profile";
 import { JHomeHeader } from "./components/home-header";
-const resumeItems = Array.from({ length: 4 }).map((_, i) => ({
-  id: i + 1,
-  image: "/assets/dashboard-images/face.jpg",
-  title: "The Future Of AI In Everyday Products",
-  percent: 72,
-  brand: "jsty",
-}));
 
-const trendingItems = [
+const courseData = [
   {
     id: 1,
     price: "$18",
     title: "The Future Of AI In Everyday Products",
-    subtitle: "jsty",
+    subtitle: "Ada Nwosu",
+    role: "Machine Learning Engineer At NewsTech",
     image: "/assets/dashboard-images/face.jpg",
   },
   {
     id: 2,
     price: "$18",
-    title: "Firm Foundation",
-    subtitle: "—",
+    title: "The Future Of AI In Everyday Products",
+    subtitle: "Ada Nwosu",
+    role: "Machine Learning Engineer At NewsTech",
     image: "/assets/dashboard-images/firm.jpg",
   },
   {
     id: 3,
     price: "$18",
-    title: "The Silent Trauma Of Millennials",
-    subtitle: "The House Chronicles",
+    title: "The Future Of AI In Everyday Products",
+    subtitle: "Ada Nwosu",
+    role: "Machine Learning Engineer At NewsTech",
     image: "/assets/dashboard-images/lady.jpg",
   },
   {
     id: 4,
     price: "$18",
     title: "The Future Of AI In Everyday Products",
-    subtitle: "jsty",
-    image: "/assets/dashboard-images/face.jpg",
+    subtitle: "Ada Nwosu",
+    role: "Machine Learning Engineer At NewsTech",
+    image: "/assets/dashboard-images/only.jpg",
   },
 ];
 
-const releasesItems = trendingItems;
-const recommendedItems = trendingItems;
+const trendingItems = courseData;
+const releasesItems = courseData;
+const recommendedItems = courseData;
 
 export default function Jdashboard() {
   const navigate = useNavigate();
@@ -71,10 +68,6 @@ export default function Jdashboard() {
   };
 
   const q = searchQuery.trim().toLowerCase();
-  const filteredResumeItems = resumeItems.filter(
-    (i) =>
-      i.title.toLowerCase().includes(q) || i.brand.toLowerCase().includes(q)
-  );
   const filteredTrendingItems = trendingItems.filter(
     (i) =>
       i.title.toLowerCase().includes(q) || i.subtitle.toLowerCase().includes(q)
@@ -89,13 +82,13 @@ export default function Jdashboard() {
   );
 
   return (
-    <main className="bg-[#0b0b0b] text-white">
-      <div className="min-h-screen bg-background flex flex-col">
-        <div className="bg-brand-green text-black text-sm sm:text-base m-4 py-2 text-center font-medium rounded-md sm:hidden">
-          <a href="/free-courses" className="hover:underline">
-            Free Courses 🌟 Sale Ends Soon, Get It Now →
-          </a>
+    <main className="bg-[#0b0b0b] text-white min-h-screen">
+      <div className="flex flex-col">
+        {/* Top Banner - Desktop only */}
+        <div className="hidden sm:block bg-[linear-gradient(269.56deg,_rgba(161,54,255,1)_0.05%,_rgba(149,44,242,1)_20.26%,_rgba(123,37,199,1)_49.47%,_rgba(98,17,169,1)_82.66%)] text-white text-sm py-3 text-center font-vietnam font-medium">
+          Free Courses 🌟 Sora Ends Soon. Get It Now →
         </div>
+        
         <JHomeHeader
           search={searchQuery}
           onSearchChange={setSearchQuery}
@@ -104,53 +97,25 @@ export default function Jdashboard() {
           avatarUrl={avatarUrl ?? undefined}
           onSignOut={handleSignOut}
         />
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
-          {/* Lime hero banner */}
-          <section className="py-6">
-            <div className="overflow-hidden rounded-2xl bg-[linear-gradient(269.56deg,_rgba(161,54,255,0.7)_0.05%,_rgba(149,44,242,0.7)_20.26%,_rgba(123,37,199,0.7)_49.47%,_rgba(98,17,169,0.7)_82.66%)]">
-              <div className="px-6 py-8 sm:px-8 md:px-10 md:py-10">
-                <h1 className="text-2xl font-semibold font-vietnam text-black sm:text-3xl">
-                  {getTimeBasedGreeting()}, {userName || "there"}
+        
+        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 md:px-8">
+          {/* Hero Banner */}
+          <section className="py-6 sm:py-8">
+            <div className="overflow-hidden rounded-2xl bg-[linear-gradient(269.56deg,_rgba(161,54,255,1)_0.05%,_rgba(149,44,242,1)_20.26%,_rgba(123,37,199,1)_49.47%,_rgba(98,17,169,1)_82.66%)]">
+              <div className="px-6 py-12 sm:px-8 md:px-12 md:py-16 lg:py-20">
+                <h1 className="text-3xl font-bold font-vietnam text-white sm:text-4xl md:text-5xl">
+                  {getTimeBasedGreeting()}, {userName || "John"}
                 </h1>
-                <p className="mt-2 text-sm font-vietnam  text-black/70">
+                <p className="mt-3 text-sm font-vietnam text-white/90 md:text-base">
                   Great to have you back. Ready to pick up where you left off?
                 </p>
               </div>
             </div>
           </section>
 
-          {/* Continue Listening */}
-          <Section
-            title="Continue Listening"
-            description="Learn binge-worthy, career-building lessons from experts across tech media and business."
-          >
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {filteredResumeItems.map((item) => (
-                <ResumeCard
-                  key={item.id}
-                  imageSrc={item.image}
-                  title={item.title}
-                  percent={item.percent}
-                  brand={item.brand}
-                  onClick={() =>
-                    navigate("/video-details", {
-                      state: {
-                        id: item.id.toString(),
-                        image: item.image,
-                        title: item.title,
-                        creator: item.brand,
-                        price: "$18",
-                      },
-                    })
-                  }
-                />
-              ))}
-            </div>
-          </Section>
-
           {/* What's Trending This week */}
           <Section
-            title={"What’s Trending This week"}
+            title="What's Trending This week"
             description="Learn binge-worthy, career-building lessons from experts across tech media and business."
           >
             <CardsGrid items={filteredTrendingItems} navigate={navigate} />
@@ -173,11 +138,14 @@ export default function Jdashboard() {
           </Section>
 
           {/* This week's top pick */}
-          <section className="py-8">
+          <Section
+            title="This week's top pick"
+            description=""
+          >
             <TopPick />
-          </section>
+          </Section>
 
-          <div className="h-10" />
+          <div className="h-16" />
         </div>
         <Footer />
       </div>
@@ -196,11 +164,13 @@ function Section({
 }) {
   return (
     <section className="py-6 sm:py-8">
-      <div className="mb-4 space-y-1 sm:mb-6">
-        <h2 className="text-xl font-semibold tracking-tight sm:text-2xl">
+      <div className="mb-6 space-y-2">
+        <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl font-vietnam">
           {title}
         </h2>
-        <p className="text-[12px] text-zinc-400 sm:text-sm">{description}</p>
+        {description && (
+          <p className="text-sm text-zinc-400 sm:text-base">{description}</p>
+        )}
       </div>
       {children}
     </section>
