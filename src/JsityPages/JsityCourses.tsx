@@ -125,13 +125,15 @@ export default function JsityCourses() {
                   key={`${course.id}-${index}`}
                   course={course}
                   onClick={() =>
-                    navigate("/video-details", {
+                    navigate("/jsity-course-details", {
                       state: {
                         id: course.id.toString(),
                         image: course.image,
                         title: course.title,
                         creator: course.instructor,
                         price: course.price,
+                        instructor: course.instructor,
+                        role: course.role,
                       },
                     })
                   }
