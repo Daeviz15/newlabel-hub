@@ -7,7 +7,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CartProvider } from "@/hooks/use-cart";
 import Jdashboard from "./JsityPages/JsityDashboard";
 import JsityCourses from "./JsityPages/JsityCourses";
-import JsityCourseDetails from "./JsityPages/JsityCourseDetails";
 
 const Index = lazy(() => import("./pages/Index"));
 const Login = lazy(() => import("./pages/Login"));
@@ -67,7 +66,6 @@ const App = () => (
               {/* Routes for jsity pages */}
               <Route path="/jdashboard" element={<Jdashboard />} />
               <Route path="/jcourses" element={<JsityCourses />} />
-              <Route path="/jsity-course-details" element={<JsityCourseDetails />} />
 
               {/* Routes for thc pages */}
               <Route path="/tdashboard" element={<Jdashboard />} />

@@ -198,14 +198,13 @@ function CardsGrid({
           price={it.price}
           bgColor="red-500"
           onClick={() =>
-            navigate("/jsity-course-details", {
+            navigate("/video-details", {
               state: {
                 id: it.id.toString(),
                 image: it.image,
                 title: it.title,
                 creator: it.subtitle,
                 price: it.price,
-                instructor: it.subtitle,
               },
             })
           }
