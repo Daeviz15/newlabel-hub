@@ -1,4 +1,5 @@
-import { createContext, useContext, useReducer, ReactNode } from 'react';
+import { createContext, useContext, useReducer, ReactNode, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface CartItem {
   id: string;
@@ -89,20 +90,122 @@ const CartContext = createContext<{
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(cartReducer, { items: [], total: 0 });
 
-  const addItem = (item: Omit<CartItem, 'quantity'>) => {
+  // Sync cart with database for authenticated users
+  useEffect(() => {
+    const syncCartWithDatabase = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Fetch cart from database
+      const { data: cartData } = await supabase
+        .from('cart_items')
+        .select(`
+          id,
+          quantity,
+          products (
+            id,
+            title,
+            price,
+            image_url,
+            instructor
+          )
+        `)
+        .eq('user_id', user.id);
+
+      if (cartData) {
+        // Clear current cart and load from database
+        dispatch({ type: 'CLEAR_CART' });
+        cartData.forEach((item: any) => {
+          if (item.products) {
+            dispatch({
+              type: 'ADD_ITEM',
+              payload: {
+                id: item.products.id,
+                title: item.products.title,
+                price: `$${item.products.price}`,
+                image: item.products.image_url,
+                creator: item.products.instructor || 'Unknown',
+              },
+            });
+            if (item.quantity > 1) {
+              dispatch({
+                type: 'UPDATE_QUANTITY',
+                payload: { id: item.products.id, quantity: item.quantity },
+              });
+            }
+          }
+        });
+      }
+    };
+
+    syncCartWithDatabase();
+  }, []);
+
+  const addItem = async (item: Omit<CartItem, 'quantity'>) => {
     dispatch({ type: 'ADD_ITEM', payload: item });
+
+    // Sync to database if user is authenticated
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await supabase
+        .from('cart_items')
+        .upsert({
+          user_id: user.id,
+          product_id: item.id,
+          quantity: 1,
+        }, {
+          onConflict: 'user_id,product_id',
+        });
+    }
   };
 
-  const removeItem = (id: string) => {
+  const removeItem = async (id: string) => {
     dispatch({ type: 'REMOVE_ITEM', payload: id });
+
+    // Sync to database if user is authenticated
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await supabase
+        .from('cart_items')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('product_id', id);
+    }
   };
 
-  const updateQuantity = (id: string, quantity: number) => {
+  const updateQuantity = async (id: string, quantity: number) => {
     dispatch({ type: 'UPDATE_QUANTITY', payload: { id, quantity } });
+
+    // Sync to database if user is authenticated
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      if (quantity <= 0) {
+        await supabase
+          .from('cart_items')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('product_id', id);
+      } else {
+        await supabase
+          .from('cart_items')
+          .update({ quantity })
+          .eq('user_id', user.id)
+          .eq('product_id', id);
+      }
+    }
   };
 
-  const clearCart = () => {
+  const clearCart = async () => {
     dispatch({ type: 'CLEAR_CART' });
+
+    // Clear database cart if user is authenticated
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await supabase
+        .from('cart_items')
+        .delete()
+        .eq('user_id', user.id);
+    }
   };
 
   return (

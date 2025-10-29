@@ -1,7 +1,10 @@
 "use client"
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { useCart } from "@/hooks/use-cart";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -19,49 +22,82 @@ interface CartItem {
 
 export default function CheckoutPage() {
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const { state: cartState, clearCart } = useCart();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [cartItems, setCartItems] = useState<CartItem[]>([
-    {
-      id: 1,
-      title: "The Future Of AI In Everyday Products",
-      image: "/assets/dashboard-images/Cart1.jpg",
-      quantity: 1,
-      price: 19.0,
-    },
-    {
-      id: 2,
-      title: "The Future Of AI In Everyday Products",
-      image: "/assets/dashboard-images/Cart1.jpg",
-      quantity: 1,
-      price: 19.0,
-    },
-  ]);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
-  const removeItem = (id: number) => {
-    setCartItems(cartItems.filter((item) => item.id !== id));
-  };
+  const total = cartState.total;
 
-  const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-
-  // ✅ Correct event type
-  function handlePayment(event: React.MouseEvent<HTMLButtonElement>) {
+  async function handlePayment(event: React.MouseEvent<HTMLButtonElement>) {
     event.preventDefault();
-    setShowPaymentModal(true);
+    
+    if (cartState.items.length === 0) {
+      toast({
+        title: "Cart is empty",
+        description: "Add items to your cart before checking out",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsProcessingPayment(true);
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: "Authentication required",
+          description: "Please sign in to complete your purchase",
+          variant: "destructive",
+        });
+        navigate("/login");
+        return;
+      }
+
+      // Call edge function to initialize payment
+      const { data, error } = await supabase.functions.invoke('initialize-payment', {
+        body: {
+          cart_items: cartState.items.map(item => ({
+            id: item.id,
+            quantity: item.quantity,
+          })),
+        },
+      });
+
+      if (error) throw error;
+
+      if (data.authorization_url) {
+        // Redirect to Paystack payment page
+        window.location.href = data.authorization_url;
+      } else {
+        throw new Error('No payment URL received');
+      }
+    } catch (error: any) {
+      console.error('Payment initialization error:', error);
+      toast({
+        title: "Payment failed",
+        description: error.message || "Failed to initialize payment. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessingPayment(false);
+    }
   }
 
-  function handleConfirmPayment(event: React.MouseEvent<HTMLButtonElement>) {
-    event.preventDefault();
-    setShowPaymentModal(false);
-    setShowSuccessModal(true);
-  }
-
-  function handleTakeMeThere(event: React.MouseEvent<HTMLButtonElement>) {
-    event.preventDefault();
-    setShowSuccessModal(false);
-    navigate("/mylibrary");
-  }
+  // Check for payment success callback
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('payment') === 'success') {
+      clearCart();
+      toast({
+        title: "Payment successful!",
+        description: "Your courses have been added to your library",
+      });
+      // Clean up URL
+      window.history.replaceState({}, '', '/mylibrary');
+    }
+  }, []);
 
   return (
     <>
@@ -178,26 +214,24 @@ export default function CheckoutPage() {
             </div>
 
             <div className="space-y-4 mb-6">
-              {cartItems.map((item) => (
-                <div key={item.id} className="flex gap-4">
-                  <button
-                    onClick={() => removeItem(item.id)}
-                    className="flex-shrink-0 font-vietnam p-1 hover:bg-zinc-900 rounded transition-colors"
-                  >
-                    <X className="h-4 w-4 text-zinc-500" />
-                  </button>
-                  <img
-                    src={item.image || "/placeholder.svg"}
-                    alt={item.title}
-                    className="w-16 h-16 object-cover rounded"
-                  />
-                  <div className="flex-1">
-                    <h3 className="text-sm font-vietnam font-medium mb-1">{item.title}</h3>
-                    <p className="text-xs font-vietnam text-zinc-500">Qty: {item.quantity}</p>
+              {cartState.items.length === 0 ? (
+                <p className="text-zinc-500 text-center py-8">Your cart is empty</p>
+              ) : (
+                cartState.items.map((item) => (
+                  <div key={item.id} className="flex gap-4">
+                    <img
+                      src={item.image || "/placeholder.svg"}
+                      alt={item.title}
+                      className="w-16 h-16 object-cover rounded"
+                    />
+                    <div className="flex-1">
+                      <h3 className="text-sm font-vietnam font-medium mb-1">{item.title}</h3>
+                      <p className="text-xs font-vietnam text-zinc-500">Qty: {item.quantity}</p>
+                    </div>
+                    <div className="text-sm font-vietnam font-semibold">{item.price}</div>
                   </div>
-                  <div className="text-sm font-vietnam font-semibold">${item.price.toFixed(2)}</div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
 
             <div className="flex justify-between text-lg font-vietnam font-semibold pt-4 border-t border-zinc-800 mb-6">
@@ -207,174 +241,14 @@ export default function CheckoutPage() {
 
             <Button
               onClick={handlePayment}
-              className="w-full bg-[#70E002] hover:bg-[#73b812] font-vietnam text-black font-semibold py-6 text-base"
+              disabled={isProcessingPayment || cartState.items.length === 0}
+              className="w-full bg-[#70E002] hover:bg-[#73b812] font-vietnam text-black font-semibold py-6 text-base disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Pay with Paystack
+              {isProcessingPayment ? "Processing..." : "Pay with Paystack"}
             </Button>
           </div>
         </div>
 
-        {/* Paystack Payment Modal */}
-        {showPaymentModal && (
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg w-full max-w-2xl relative max-h-[90vh] overflow-y-auto">
-              <button
-                onClick={() => setShowPaymentModal(false)}
-                className="absolute top-2 right-2 md:-top-3 md:-right-3 bg-white rounded-full p-2 shadow-lg hover:bg-gray-100 transition-colors z-10"
-              >
-                <X className="h-5 w-5 text-gray-700" />
-              </button>
-
-              <div className="flex flex-col md:flex-row">
-                {/* Sidebar */}
-                <div className="w-full md:w-1/3 bg-gray-50 p-4 md:p-6 rounded-t-lg md:rounded-l-lg md:rounded-tr-none border-b md:border-b-0 md:border-r border-gray-200">
-                  <h3 className="text-xs md:text-sm font-semibold text-gray-700 mb-3 md:mb-4">PAY WITH</h3>
-                  <div className="flex md:flex-col gap-2 overflow-x-auto md:overflow-x-visible pb-2 md:pb-0">
-                    <button className="flex-shrink-0 md:w-full flex items-center gap-2 md:gap-3 p-2 md:p-3 bg-white rounded-lg border-2 border-[#84cc16] text-left">
-                      <div className="h-4 w-4 md:h-5 md:w-5 bg-[#84cc16] rounded flex items-center justify-center flex-shrink-0">
-                        <Check className="h-2.5 w-2.5 md:h-3 md:w-3 text-white" />
-                      </div>
-                      <span className="text-xs md:text-sm font-medium text-gray-900 whitespace-nowrap">
-                        Card
-                      </span>
-                    </button>
-                    <button className="flex-shrink-0 md:w-full flex items-center gap-2 md:gap-3 p-2 md:p-3 bg-white rounded-lg border border-gray-200 text-left hover:border-gray-300 transition-colors">
-                      <div className="h-4 w-4 md:h-5 md:w-5 border-2 border-gray-300 rounded flex-shrink-0"></div>
-                      <span className="text-xs md:text-sm text-gray-700 whitespace-nowrap">Bank</span>
-                    </button>
-                    <button className="flex-shrink-0 md:w-full flex items-center gap-2 md:gap-3 p-2 md:p-3 bg-white rounded-lg border border-gray-200 text-left hover:border-gray-300 transition-colors">
-                      <div className="h-4 w-4 md:h-5 md:w-5 border-2 border-gray-300 rounded flex-shrink-0"></div>
-                      <span className="text-xs md:text-sm text-gray-700 whitespace-nowrap">GTB 737</span>
-                    </button>
-                    <button className="flex-shrink-0 md:w-full flex items-center gap-2 md:gap-3 p-2 md:p-3 bg-white rounded-lg border border-gray-200 text-left hover:border-gray-300 transition-colors">
-                      <div className="h-4 w-4 md:h-5 md:w-5 border-2 border-gray-300 rounded flex-shrink-0"></div>
-                      <span className="text-xs md:text-sm text-gray-700 whitespace-nowrap">Mobile money</span>
-                    </button>
-                    <button className="flex-shrink-0 md:w-full flex items-center gap-2 md:gap-3 p-2 md:p-3 bg-white rounded-lg border border-gray-200 text-left hover:border-gray-300 transition-colors">
-                      <div className="h-4 w-4 md:h-5 md:w-5 border-2 border-gray-300 rounded flex-shrink-0"></div>
-                      <span className="text-xs md:text-sm text-gray-700 whitespace-nowrap">Visa QR</span>
-                    </button>
-                  </div>
-                </div>
-
-                {/* Main Payment Form */}
-                <div className="w-full md:w-2/3 p-4 md:p-6 lg:p-8">
-                  <div className="flex items-center justify-between mb-4 md:mb-6">
-                    <div className="flex items-center gap-2">
-                      <svg className="h-5 w-5 md:h-6 md:w-6" viewBox="0 0 24 24" fill="none">
-                        <rect x="4" y="8" width="16" height="2" fill="#00C3F7" />
-                        <rect x="4" y="12" width="16" height="2" fill="#00C3F7" />
-                        <rect x="4" y="16" width="10" height="2" fill="#00C3F7" />
-                      </svg>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-[10px] md:text-xs text-gray-600">demo@paystack.com</p>
-                      <p className="text-xs md:text-sm font-semibold text-[#84cc16]">Pay NGN 100</p>
-                    </div>
-                  </div>
-
-                  <div className="space-y-4 md:space-y-6">
-                    <h2 className="text-base md:text-lg font-semibold text-gray-900 text-center mb-4 md:mb-6">
-                      Enter your card details to pay
-                    </h2>
-
-                    <div>
-                      <label className="block text-[10px] md:text-xs font-medium text-gray-600 mb-1.5 md:mb-2">
-                        CARD NUMBER
-                      </label>
-                      <Input
-                        type="text"
-                        placeholder="0000 0000 0000 0000"
-                        className="w-full bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 h-10 md:h-11 text-sm"
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3 md:gap-4">
-                      <div>
-                        <label className="block text-[10px] md:text-xs font-medium text-gray-600 mb-1.5 md:mb-2">
-                          CARD EXPIRY
-                        </label>
-                        <Input
-                          type="text"
-                          placeholder="MM / YY"
-                          className="w-full bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 h-10 md:h-11 text-sm"
-                        />
-                      </div>
-
-                      <div>
-                        <div className="flex items-center justify-between mb-1.5 md:mb-2">
-                          <label className="block text-[10px] md:text-xs font-medium text-gray-600">
-                            CVV
-                          </label>
-                          <button className="text-[10px] md:text-xs text-blue-600 hover:underline">HELP?</button>
-                        </div>
-                        <Input
-                          type="text"
-                          placeholder="123"
-                          className="w-full bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 h-10 md:h-11 text-sm"
-                        />
-                      </div>
-                    </div>
-
-                    <Button
-                      onClick={handleConfirmPayment}
-                      className="w-full bg-[#84cc16] hover:bg-[#73b812] text-black font-semibold py-5 md:py-6 text-sm md:text-base rounded-lg"
-                    >
-                      Pay NGN 100
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-          {/* Success Modal */}
-          {showSuccessModal && (
-            <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-              <div className="bg-white rounded-lg w-full max-w-md p-6 md:p-8 relative">
-                <button
-                  onClick={() => setShowSuccessModal(false)}
-                  className="absolute top-2 right-2 md:-top-3 md:-right-3 bg-white rounded-full p-2 shadow-lg hover:bg-gray-100 transition-colors"
-                >
-                  <X className="h-5 w-5 text-gray-700" />
-                </button>
-
-                {/* Success Icon */}
-                <div className="flex justify-center mb-4 md:mb-6">
-                  <div className="h-16 w-16 md:h-20 md:w-20 bg-[#84cc16]/20 rounded-full flex items-center justify-center">
-                    <div className="h-14 w-14 md:h-16 md:w-16 bg-[#84cc16] rounded-full flex items-center justify-center">
-                      <Check className="h-8 w-8 md:h-10 md:w-10 text-white stroke-[3]" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Success Message */}
-                <h2 className="text-xl md:text-2xl font-bold text-gray-900 text-center mb-3 md:mb-4">Payment Successful</h2>
-                <p className="text-sm md:text-base text-center text-gray-600 mb-6 md:mb-8 px-2">
-                  <span className="font-semibold">The Future Of AI In Everyday Products</span> has been added to your
-                  library
-                </p>
-
-                {/* Action Button */}
-                <Button
-                  onClick={handleTakeMeThere}
-                  className="w-full bg-[#84cc16] hover:bg-[#73b812] text-black font-semibold py-5 md:py-6 text-sm md:text-base rounded-lg"
-                >
-                  Take me there
-                </Button>
-
-                {/* Powered by Paystack */}
-                <div className="mt-4 md:mt-6 text-center">
-                  <p className="text-[10px] md:text-xs text-gray-500 flex items-center justify-center gap-1">
-                    <svg className="h-3 w-3" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-                    </svg>
-                    Powered by Paystack
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
     </main>
 
     <Footer />
