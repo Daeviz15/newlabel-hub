@@ -37,7 +37,19 @@ const JsityCourseDetails = () => {
     toast.success("Added to cart successfully!");
   };
 
-  const handleStartLearning = () => navigate("/video-player", { state: courseData });
+  const handleStartLearning = () =>
+    navigate("/jsity-video-player", {
+      state: {
+        id: String(courseData.id),
+        image: courseData.image,
+        title: courseData.title,
+        creator: courseData.creator || courseData.instructor,
+        price: courseData.price,
+        lessons: courseData.lessons,
+        date: courseData.date,
+        description: courseData.description,
+      },
+    });
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -60,7 +72,34 @@ const JsityCourseDetails = () => {
       lessons: [
         { title: "Conducting User Research and Interviews", duration: "1 Hour" },
         { title: "Analyzing User Needs and Behavior", duration: "1 Hour" },
-        { title: "Creating User Personas and Scenarios", duration: "45 Minutes" },
+        { title: "Creating User Personas and Scenarios", duration: " 45Minutes" },
+      ],
+    },
+    {
+      section: "03",
+      title: "Wireframing and Prototyping",
+      lessons: [
+        { title: "Introduction to Wireframing Tools and Techniques", duration: "1 Hour" },
+        { title: "Creating Low-Fidelity Wireframes", duration: "1 Hour" },
+        { title: "Prototyping and Interactive Mockupss", duration: "1 Hour" },
+      ],
+    },
+    {
+      section: "04",
+      title: "Visual Design and Branding",
+      lessons: [
+        { title: "Color Theory and Typography in UI Design", duration: "1 Hour" },
+        { title: "Visual Hierarchy and Layout Design", duration: "1 Hour" },
+        { title: "Creating a Strong Brand Identity", duration: "45 Minutes" },
+      ],
+    },
+    {
+      section: "05",
+      title: "Usability Testing and Iteration",
+      lessons: [
+        { title: "Usability Testing Methods and Techniques", duration: "1 Hour" },
+        { title: "Analyzing Usability Test Resultsr", duration: "45 Hour" },
+        { title: "Iterating and Improving UX Designs", duration: "45 Minutes" },
       ],
     },
   ];

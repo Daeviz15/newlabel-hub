@@ -8,6 +8,7 @@ import { CartProvider } from "@/hooks/use-cart";
 import Jdashboard from "./JsityPages/JsityDashboard";
 import JsityCourses from "./JsityPages/JsityCourses";
 import JsityCourseDetails from "./JsityPages/JsityCourseDetails";
+import JsityVideoPlayer from "./JsityPages/JsityVideoPlayer"
 
 const Index = lazy(() => import("./pages/Index"));
 const Login = lazy(() => import("./pages/Login"));
@@ -68,6 +69,7 @@ const App = () => (
               <Route path="/jdashboard" element={<Jdashboard />} />
               <Route path="/jcourses" element={<JsityCourses />} />
               <Route path="/jsity-course-details" element={<JsityCourseDetails />} />
+              <Route path="/jsity-video-player" element={<JsityVideoPlayer />} />
 
               {/* Routes for thc pages */}
               <Route path="/tdashboard" element={<Jdashboard />} />

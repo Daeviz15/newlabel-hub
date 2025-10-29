@@ -92,7 +92,7 @@ export function JHomeHeader({
         <div
           className={`mx-auto hidden w-[500px] max-w-[480px] items-center rounded-full font-vietnam px-4 py-2 text-[13px] text-zinc-300 transition-all duration-300 lg:flex xl:max-w-[560px] ${
             isSearchFocused
-              ? "bg-[#333] ring-2 ring-lime-500/30 shadow-lg shadow-lime-500/10"
+              ? "bg-[#333] ring-2 ring-purple-500/30 shadow-lg shadow-purple-500/10"
               : "bg-[#2a2a2a] hover:bg-[#2f2f2f]"
           }`}
         >
@@ -156,7 +156,7 @@ export function JHomeHeader({
               <DropdownMenuTrigger asChild>
                 <button
                   aria-label="Open profile menu"
-                  className="relative h-8 w-8 overflow-hidden rounded-full ring-1 ring-white/10 transition-all duration-200 hover:ring-2 hover:ring-lime-500/30 sm:h-9 sm:w-9"
+                  className="relative h-8 w-8 overflow-hidden rounded-full ring-1 ring-white/10 transition-all duration-200 hover:ring-2 hover:ring-purple-500/30 sm:h-9 sm:w-9"
                 >
                   <img
                     src={avatarUrl || "/assets/dashboard-images/face.jpg"}
@@ -189,7 +189,7 @@ export function JHomeHeader({
             </DropdownMenu>
             {/* User info - hidden on small screens */}
             <div className="hidden leading-tight lg:block">
-              <div className="text-sm font-semibold text-white font-vietnam transition-colors duration-200 hover:text-lime-400">
+              <div className="text-sm font-semibold text-white font-vietnam transition-colors duration-200 hover:text-purple-400">
                 {userName ?? "Guest"}
               </div>
               <div className="text-[11px] text-zinc-400">{userEmail ?? ""}</div>
@@ -272,13 +272,13 @@ export function JHomeHeader({
         <div
           className={`flex items-center rounded-full font-vietnam px-4 py-2.5 text-[13px] text-zinc-300 transition-all duration-300 ${
             isSearchFocused
-              ? "bg-[#333] ring-2 ring-lime-500/30 shadow-lg shadow-lime-500/10"
+              ? "bg-[#333] ring-2 ring-purple-500/30 shadow-lg shadow-purple-500/10"
               : "bg-[#2a2a2a]"
           }`}
         >
           <Search
             className={`mr-2 h-4 w-4 transition-colors duration-200 ${
-              isSearchFocused ? "text-lime-400" : "text-zinc-400"
+              isSearchFocused ? "text-purple-400" : "text-zinc-400"
             }`}
             aria-hidden="true"
           />

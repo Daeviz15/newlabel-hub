@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { ProductCard, TopPick } from "@/components/course-card";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import Footer from "@/components/Footer";
+import JsityFooter from "./components/JsityFooter";
 import { useUserProfile } from "@/hooks/use-user-profile";
 import { JHomeHeader } from "./components/home-header";
 
@@ -139,12 +139,12 @@ export default function Jdashboard() {
 
           {/* This week's top pick */}
           <Section title="This week's top pick" description="">
-            <TopPick />
+            <TopPick accent="purple" imageFit="cover" />
           </Section>
 
           <div className="h-16" />
         </div>
-        <Footer backgroundColor="bg-[linear-gradient(269.56deg,_rgba(161,54,255,1)_0.05%,_rgba(149,44,242,1)_20.26%,_rgba(123,37,199,1)_49.47%,_rgba(98,17,169,1)_82.66%)]" />
+        <JsityFooter />
       </div>
     </main>
   );
@@ -196,7 +196,8 @@ function CardsGrid({
           title={it.title}
           subtitle={it.subtitle}
           price={it.price}
-          bgColor="red-500"
+          bgColor="ring-purple-500"
+          priceAccent="purple"
           onClick={() =>
             navigate("/jsity-course-details", {
               state: {

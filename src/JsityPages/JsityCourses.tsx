@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserProfile } from "@/hooks/use-user-profile";
 import { JHomeHeader } from "./components/home-header";
-import Footer from "@/components/Footer";
+import JsityFooter from "./components/JsityFooter";
 import { Badge } from "@/components/ui/badge";
 
 const courseData = [
@@ -152,7 +152,7 @@ export default function JsityCourses() {
           <div className="h-16" />
         </div>
 
-        <Footer />
+        <JsityFooter />
       </div>
     </main>
   );

@@ -71,6 +71,7 @@ type ProductCardProps = {
   liked?: boolean;
   brand?: string;
   bgColor?: string;
+  priceAccent?: 'lime' | 'purple';
   onClick?: () => void;
 };
 
@@ -82,15 +83,18 @@ export function ProductCard({
   liked = false,
   brand = "jsty",
   bgColor = "ring-lime-500",
+  priceAccent = 'lime',
   onClick,
 }: ProductCardProps) {
+  const priceBgClass = priceAccent === 'purple' ? 'bg-purple-500' : 'bg-[#84CC16]'
+  const priceTextClass = priceAccent === 'purple' ? 'text-white' : 'text-black'
   return (
     <div
       className={`group relative overflow-hidden rounded-xl border border-white/10 bg-[#151515] hover:ring-4 hover:${bgColor} transition-all`}
       onClick={onClick}
     >
       <div className="absolute left-3 top-3 z-10 flex items-center gap-2">
-        <span className="rounded-md bg-[#84CC16] px-2 py-1 text-xs font-bold text-black">
+        <span className={`rounded-md ${priceBgClass} px-2 py-1 text-xs font-bold ${priceTextClass}`}>
           {price}
         </span>
       </div>
@@ -133,6 +137,8 @@ type TopPickProps = {
   author?: string;
   authorRole?: string;
   cta?: string;
+  accent?: 'lime' | 'purple';
+  imageFit?: 'contain' | 'cover';
   onClick?: () => void;
 };
 
@@ -143,11 +149,16 @@ export function TopPick({
   author = "Ada Nwosu",
   authorRole = "Machine Learning Engineer & Newlabel",
   cta = "Buy This Course",
+  accent = 'lime',
+  imageFit = 'contain',
   onClick,
 }: TopPickProps) {
+  const ringClass = accent === 'purple' ? 'hover:ring-purple-500' : 'hover:ring-lime-500'
+  const buttonBgClass = accent === 'purple' ? 'bg-purple-500 hover:bg-purple-400' : 'bg-lime-500 hover:bg-lime-400'
+  const imageObjectClass = imageFit === 'cover' ? 'object-cover' : 'object-contain'
   return (
     <section
-      className="rounded-2xl border border-white/10 bg-[#121212] p-4 sm:p-6 md:p-8 cursor-pointer hover:ring-2 hover:ring-lime-500 transition-all"
+      className={`rounded-2xl border border-white/10 bg-[#121212] p-4 sm:p-6 md:p-8 cursor-pointer hover:ring-2 ${ringClass} transition-all`}
       onClick={onClick}
     >
       <div className="grid grid-cols-1 gap-6 md:grid-cols-[420px_1fr]">
@@ -155,7 +166,7 @@ export function TopPick({
           <img
             src={imageSrc || "/placeholder.svg"}
             alt="Top pick portrait"
-            className="h-full w-full object-contain"
+            className={`h-full w-full ${imageObjectClass} object-center`}
             loading="lazy"
           />
         </div>
@@ -173,7 +184,7 @@ export function TopPick({
           </div>
           <div className="mt-6">
             <Button
-              className="h-10 rounded-md bg-lime-500 px-5 text-black hover:bg-lime-400"
+            className={`h-10 rounded-md px-5 text-black ${buttonBgClass}`}
               onClick={(e) => {
                 e.stopPropagation();
                 onClick?.();
