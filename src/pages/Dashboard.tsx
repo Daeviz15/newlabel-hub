@@ -131,7 +131,7 @@ export default function Dashboard() {
                 title={item.title}
                 percent={item.percent}
                 brand={item.brand}
-                onClick={() => navigate("/video-details", { 
+                onClick={() => navigate("", { 
                   state: { 
                     id: item.id.toString(), 
                     image: item.image, 

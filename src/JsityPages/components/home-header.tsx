@@ -80,16 +80,11 @@ export function JHomeHeader({
             </a>
             <a
               className="relative font-vietnam transition-colors duration-200 hover:text-white after:absolute after:bottom-[-2px] after:left-0 after:h-0.5 after:w-0 after:bg-[#6211A9]  after:transition-all after:duration-300 hover:after:w-full"
-              href="/about"
+              href=""
             >
-              About Us
+              About jsity
             </a>
-            <a
-              className="relative font-vietnam transition-colors duration-200 hover:text-white after:absolute after:bottom-[-2px] after:left-0 after:h-0.5 after:w-0 after:bg-[#6211A9]  after:transition-all after:duration-300 hover:after:w-full"
-              href="/contact"
-            >
-              Contact
-            </a>
+ 
           </nav>
         </div>
 
@@ -103,7 +98,7 @@ export function JHomeHeader({
         >
           <Search
             className={`mr-2 h-4 w-4 font-vietnam transition-colors duration-200 ${
-              isSearchFocused ? "text-lime-400" : "text-zinc-400"
+              isSearchFocused ? "text-purple-400" : "text-zinc-400"
             }`}
             aria-hidden="true"
           />
@@ -118,7 +113,39 @@ export function JHomeHeader({
             onBlur={() => setIsSearchFocused(false)}
           />
         </div>
-
+<a
+            href="/cart"
+            aria-label="Cart"
+            className="hidden h-8 w-8 items-center justify-center font-vietnam rounded-md bg-[#1a1a1a] text-white ring-1 ring-white/10 transition-all duration-200 hover:bg-[#222] hover:scale-105 sm:inline-flex sm:h-9 sm:w-9"
+          >
+            <ShoppingCart className="h-4 w-4" />
+          </a>
+          <a
+            href="/notifications"
+            aria-label="Notification"
+            className="hidden h-8 w-8 items-center justify-center rounded-md bg-[#1a1a1a] text-white ring-1 ring-white/10 transition-all duration-200 hover:bg-[#222] hover:scale-105 sm:inline-flex sm:h-9 sm:w-9"
+          >
+            <Bell className="h-4 w-4" />
+          </a>
+          <button
+            aria-label="Favorites"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-[#1a1a1a] text-white ring-1 ring-white/10 transition-all duration-200 hover:bg-[#222] hover:scale-105 sm:h-9 sm:w-9"
+          >
+            <div className="relative">
+              <Heart
+                className={
+                  savedCount > 0
+                    ? "h-4 w-4 fill-purple-400 text-purple-600"
+                    : "h-4 w-4"
+                }
+              />
+              {savedCount > 0 && (
+                <span className="absolute -top-1 -right-1 inline-flex items-center justify-center rounded-full bg-purple-400 text-black text-[10px] font-bold h-4 min-w-4 px-1">
+                  {savedCount > 99 ? "99+" : savedCount}
+                </span>
+              )}
+            </div>
+          </button>
         {/* Right: Icons + Profile */}
         <div className="flex items-center  gap-1 sm:gap-2">
           {/* Search icon for tablet */}
@@ -155,7 +182,6 @@ export function JHomeHeader({
                 <DropdownMenuItem onClick={() => navigate("/accountsetting")}>
                   Account Settings
                 </DropdownMenuItem>
-                <DropdownMenuItem>Contact Us</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => onSignOut?.()}>
                   Sign out
                 </DropdownMenuItem>
@@ -208,20 +234,14 @@ export function JHomeHeader({
               Courses
             </a>
             <a
-              href="/about"
+              href=""
               className="block text-sm text-zinc-300 font-vietnam transition-all duration-200 hover:text-white hover:translate-x-1"
               onClick={() => setIsMenuOpen(false)}
             >
-              About Us
+              About jsity
             </a>
 
-            <a
-              href="/contact"
-              className="block text-sm text-zinc-300 font-vietnam transition-all duration-200 hover:text-white hover:translate-x-1"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Contact
-            </a>
+
 
             {/* User info for mobile */}
             <div className="pt-3 border-t border-white/10">
