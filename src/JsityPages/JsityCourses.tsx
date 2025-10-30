@@ -83,12 +83,12 @@ export default function JsityCourses() {
           <section className="py-12 sm:py-16 md:py-20">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-start">
               <div>
-                <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white font-vietnam leading-tight">
+                <h1 className="text-3xl sm:text-4xl sm:leading-[1.5] md:text-[36px] font-semibold text-white font-vietnam leading-[1.5]">
                   Curated Courses From Your Favorite Instructors
                 </h1>
               </div>
               <div>
-                <p className="text-sm sm:text-base text-zinc-300 font-vietnam leading-relaxed">
+                <p className="text-[15px] sm:text-[15px] text-zinc-300  font-normal font-vietnam leading-[1.5]">
                   Welcome to our online course page, where you can enhance your skills in design and development. Choose from our carefully curated selection of 10 courses designed to provide you with comprehensive knowledge and practical experience. Explore the courses below and find the perfect fit for your learning journey.
                 </p>
               </div>
@@ -97,7 +97,7 @@ export default function JsityCourses() {
 
           {/* Browse by category */}
           <section className="pb-12">
-            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-6 font-vietnam">
+            <h2 className="text-[18px] sm:text-[28px] font-bold text-white mb-6 font-nunito">
               Browse by category
             </h2>
 
@@ -107,7 +107,7 @@ export default function JsityCourses() {
                 <button
                   key={category}
                   onClick={() => setActiveCategory(category)}
-                  className={`px-5 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all font-vietnam ${
+                  className={`px-5 py-2 rounded-sm text-sm font-medium whitespace-nowrap transition-all font-vietnam ${
                     activeCategory === category
                       ? "bg-[linear-gradient(269.56deg,_rgba(161,54,255,1)_0.05%,_rgba(149,44,242,1)_20.26%,_rgba(123,37,199,1)_49.47%,_rgba(98,17,169,1)_82.66%)] text-white"
                       : "bg-[#1a1a1a] text-zinc-300 hover:bg-[#222]"
@@ -143,7 +143,7 @@ export default function JsityCourses() {
 
             {/* Load More Button */}
             <div className="mt-10 flex justify-center">
-              <button className="w-full max-w-2xl bg-[#1a1a1a] hover:bg-[#222] text-white font-vietnam font-semibold py-3 px-6 rounded-md transition-colors">
+              <button className="w-full max-w-7xl bg-[#1a1a1a] hover:bg-[#222] text-white font-vietnam font-semibold py-3 px-6 rounded-md transition-colors">
                 Load More
               </button>
             </div>

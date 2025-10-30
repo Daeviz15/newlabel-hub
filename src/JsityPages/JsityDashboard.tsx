@@ -86,7 +86,7 @@ export default function Jdashboard() {
       <div className="flex flex-col">
         {/* Top Banner - Desktop only */}
         <div className="hidden sm:block bg-[linear-gradient(269.56deg,_rgba(161,54,255,1)_0.05%,_rgba(149,44,242,1)_20.26%,_rgba(123,37,199,1)_49.47%,_rgba(98,17,169,1)_82.66%)] text-white text-sm py-3 text-center font-vietnam font-medium">
-          Free Courses 🌟 Sora Ends Soon. Get It Now →
+          Free Courses 🌟 Sale Ends Soon. Get It Now →
         </div>
 
         <JHomeHeader
@@ -103,10 +103,10 @@ export default function Jdashboard() {
           <section className="py-6 sm:py-8">
             <div className="overflow-hidden rounded-2xl bg-[linear-gradient(269.56deg,_rgba(161,54,255,1)_0.05%,_rgba(149,44,242,1)_20.26%,_rgba(123,37,199,1)_49.47%,_rgba(98,17,169,1)_82.66%)]">
               <div className="px-6 py-12 sm:px-8 md:px-12 md:py-16 lg:py-20">
-                <h1 className="text-3xl font-bold font-vietnam text-white sm:text-4xl md:text-5xl">
+                <h1 className="text-3xl font-bold font-nunito text-white sm:text-4xl md:text-5xl">
                   {getTimeBasedGreeting()}, {userName || "John"}
                 </h1>
-                <p className="mt-3 text-sm font-vietnam text-white/90 md:text-base">
+                <p className="mt-3 text-[20px] font-vietnam text-white/90 md:text-[20px]">
                   Great to have you back. Ready to pick up where you left off?
                 </p>
               </div>
