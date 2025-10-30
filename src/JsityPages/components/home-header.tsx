@@ -114,18 +114,11 @@ export function JHomeHeader({
           />
         </div>
 <a
-            href="/cart"
+            href="/jcart"
             aria-label="Cart"
             className="hidden h-8 w-8 items-center justify-center font-vietnam rounded-md bg-[#1a1a1a] text-white ring-1 ring-white/10 transition-all duration-200 hover:bg-[#222] hover:scale-105 sm:inline-flex sm:h-9 sm:w-9"
           >
             <ShoppingCart className="h-4 w-4" />
-          </a>
-          <a
-            href="/notifications"
-            aria-label="Notification"
-            className="hidden h-8 w-8 items-center justify-center rounded-md bg-[#1a1a1a] text-white ring-1 ring-white/10 transition-all duration-200 hover:bg-[#222] hover:scale-105 sm:inline-flex sm:h-9 sm:w-9"
-          >
-            <Bell className="h-4 w-4" />
           </a>
           <button
             aria-label="Favorites"
