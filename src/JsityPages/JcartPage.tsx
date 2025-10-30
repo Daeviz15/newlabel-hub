@@ -1,7 +1,7 @@
 "use client"
 
 import { memo, useCallback, useState } from "react"
-import { X, Minus, Plus } from "lucide-react"
+import { X, Minus, Plus, Loader2 } from "lucide-react"
 import { HomeHeader } from "@/components/home-header"
 import Footer from "@/components/Footer"
 import { Button } from "@/components/ui/button"
@@ -10,6 +10,8 @@ import { supabase } from "@/integrations/supabase/client"
 import { useNavigate } from "react-router-dom"
 import JsityFooter from "./components/JsityFooter"
 import { JHomeHeader } from "./components/home-header"
+import { useCart } from "@/hooks/use-cart"
+import { useToast } from "@/hooks/use-toast"
 
 interface CartItem {
   id: string
@@ -22,37 +24,66 @@ interface CartItem {
 export function JcartPage() {
   const navigate = useNavigate();
   const { userName, userEmail, avatarUrl } = useUserProfile();
-  const [cartItems, setCartItems] = useState<CartItem[]>([
-    {
-      id: "1",
-      title: "The Future Of AI In Everyday Products",
-      price: 19.0,
-      quantity: 2,
-      image: "/assets/dashboard-images/Cart1.jpg",
-    },
-    {
-      id: "2",
-      title: "The Future Of AI In Everyday Products",
-      price: 19.0,
-      quantity: 2,
-      image: "/assets/dashboard-images/Cart1.jpg",
-    },
-  ])
-  const [search, setSearch] = useState("")
+  const { state, updateQuantity: updateCartQuantity, removeItem: removeCartItem } = useCart();
+  const { toast } = useToast();
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const updateQuantity = useCallback((id: string, delta: number) => {
-    setCartItems((items) =>
-      items.map((item) => (item.id === id ? { ...item, quantity: Math.max(1, item.quantity + delta) } : item)),
-    )
-  }, [])
+  const cartItems = state.items.map(item => ({
+    id: item.id,
+    title: item.title,
+    price: parseFloat(item.price.replace('$', '')),
+    quantity: item.quantity,
+    image: item.image
+  }));
 
-  const removeItem = useCallback((id: string) => {
-    setCartItems((items) => items.filter((item) => item.id !== id))
-  }, [])
+  const updateQuantity = useCallback(async (id: string, delta: number) => {
+    const item = state.items.find(i => i.id === id);
+    if (!item) return;
+
+    const newQuantity = item.quantity + delta;
+    if (newQuantity < 1) return;
+
+    setLoading(true);
+    try {
+      await updateCartQuantity(id, newQuantity);
+      toast({
+        title: "Cart updated",
+        description: "Quantity updated successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update quantity",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [state.items, updateCartQuantity, toast]);
+
+  const removeItem = useCallback(async (id: string) => {
+    setLoading(true);
+    try {
+      await removeCartItem(id);
+      toast({
+        title: "Item removed",
+        description: "Product removed from cart",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to remove item",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [removeCartItem, toast]);
 
   const calculateSubtotal = useCallback((price: number, quantity: number) => {
-    return (price * quantity).toFixed(2)
-  }, [])
+    return (price * quantity).toFixed(2);
+  }, []);
   
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -61,6 +92,14 @@ export function JcartPage() {
 
   return (
     <div className="min-h-screen bg-black">
+      {loading && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="bg-zinc-900 rounded-lg p-6 flex flex-col items-center gap-3">
+            <Loader2 className="w-8 h-8 text-purple-400 animate-spin" />
+            <p className="text-white text-sm">Updating cart...</p>
+          </div>
+        </div>
+      )}
       <JHomeHeader
         search={search}
         onSearchChange={(q: string) => setSearch(q)}
@@ -81,26 +120,41 @@ export function JcartPage() {
 
       {/* Cart Items */}
       <div className="space-y-4 md:space-y-6">
-        {cartItems.map((item) => (
-          <CartRow
-            key={item.id}
-            item={item}
-            updateQuantity={updateQuantity}
-            removeItem={removeItem}
-            calculateSubtotal={calculateSubtotal}
-          />
-        ))}
+        {cartItems.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-zinc-400 text-lg">Your cart is empty</p>
+            <Button
+              onClick={() => navigate("/jsity-courses")}
+              className="mt-4 bg-purple-400 text-black hover:bg-purple-600"
+            >
+              Browse Courses
+            </Button>
+          </div>
+        ) : (
+          cartItems.map((item) => (
+            <CartRow
+              key={item.id}
+              item={item}
+              updateQuantity={updateQuantity}
+              removeItem={removeItem}
+              calculateSubtotal={calculateSubtotal}
+            />
+          ))
+        )}
       </div>
 
           {/* Checkout Button */}
-          <div className="flex justify-end pt-6 md:pt-8">
-            <Button
-              size="lg"
-              className="w-full sm:w-auto bg-purple-400 text-black hover:bg-purple-600 font-medium px-8 md:px-12"
-            >
-              Proceed to checkout
-            </Button>
-          </div>
+          {cartItems.length > 0 && (
+            <div className="flex justify-end pt-6 md:pt-8">
+              <Button
+                size="lg"
+                onClick={() => navigate("/checkout")}
+                className="w-full sm:w-auto bg-purple-400 text-black hover:bg-purple-600 font-medium px-8 md:px-12"
+              >
+                Proceed to checkout
+              </Button>
+            </div>
+          )}
         </div>
       </main>
       <JsityFooter />
