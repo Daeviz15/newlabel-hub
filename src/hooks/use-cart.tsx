@@ -142,21 +142,38 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const addItem = async (item: Omit<CartItem, 'quantity'>) => {
-    dispatch({ type: 'ADD_ITEM', payload: item });
-
     // Sync to database if user is authenticated
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-      await supabase
+      // Check if item already exists
+      const { data: existingItem } = await supabase
         .from('cart_items')
-        .upsert({
-          user_id: user.id,
-          product_id: item.id,
-          quantity: 1,
-        }, {
-          onConflict: 'user_id,product_id',
-        });
+        .select('quantity')
+        .eq('user_id', user.id)
+        .eq('product_id', item.id)
+        .maybeSingle();
+
+      if (existingItem) {
+        // Update quantity if exists
+        await supabase
+          .from('cart_items')
+          .update({ quantity: existingItem.quantity + 1 })
+          .eq('user_id', user.id)
+          .eq('product_id', item.id);
+      } else {
+        // Insert new item
+        await supabase
+          .from('cart_items')
+          .insert({
+            user_id: user.id,
+            product_id: item.id,
+            quantity: 1,
+          });
+      }
     }
+
+    // Update local state after database operation
+    dispatch({ type: 'ADD_ITEM', payload: item });
   };
 
   const removeItem = async (id: string) => {
