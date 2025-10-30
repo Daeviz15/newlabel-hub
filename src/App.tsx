@@ -9,6 +9,7 @@ import Jdashboard from "./JsityPages/JsityDashboard";
 import JsityCourses from "./JsityPages/JsityCourses";
 import JsityCourseDetails from "./JsityPages/JsityCourseDetails";
 import JsityVideoPlayer from "./JsityPages/JsityVideoPlayer"
+import { JcartPage } from "./JsityPages/JcartPage";
 
 const Index = lazy(() => import("./pages/Index"));
 const Login = lazy(() => import("./pages/Login"));
@@ -70,6 +71,8 @@ const App = () => (
               <Route path="/jcourses" element={<JsityCourses />} />
               <Route path="/jsity-course-details" element={<JsityCourseDetails />} />
               <Route path="/jsity-video-player" element={<JsityVideoPlayer />} />
+              <Route path="/jcart" element={<JcartPage />} />
+
 
               {/* Routes for thc pages */}
               <Route path="/tdashboard" element={<Jdashboard />} />

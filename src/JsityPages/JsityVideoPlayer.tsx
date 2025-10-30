@@ -153,32 +153,32 @@ export default function VideoPlayer() {
             {/* Progress Bar */}
             <div className="mb-3 sm:mb-4">
               <div className="w-full h-1 bg-white/20 rounded-full overflow-hidden">
-                <div className="h-full w-1/3 bg-lime-400 rounded-full"></div>
+                <div className="h-full w-1/3 bg-purple-400 rounded-full"></div>
               </div>
             </div>
 
             {/* Control Buttons */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 sm:gap-3">
-                <button className="text-white hover:text-lime-400 transition-colors">
+                <button className="text-white hover:text-purple-400 transition-colors">
                   <Pause className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
-                <button className="text-white hover:text-lime-400 transition-colors">
+                <button className="text-white hover:text-purple-400 transition-colors">
                   <SkipBack className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
-                <button className="text-white hover:text-lime-400 transition-colors">
+                <button className="text-white hover:text-purple-400 transition-colors">
                   <SkipForward className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
               </div>
 
               <div className="flex items-center gap-2 sm:gap-3">
-                <button className="text-white hover:text-lime-400 transition-colors">
+                <button className="text-white hover:text-purple-400 transition-colors">
                   <Volume2 className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
-                <button className="text-white hover:text-lime-400 transition-colors">
+                <button className="text-white hover:text-purple-400 transition-colors">
                   <Settings className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
-                <button className="text-white hover:text-lime-400 transition-colors">
+                <button className="text-white hover:text-purple-400 transition-colors">
                   <Maximize className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
               </div>
@@ -230,7 +230,7 @@ export default function VideoPlayer() {
                 });
                 navigate("/cart");
               }}
-              onViewDetails={() => navigate("/video-details", { state: course })}
+              onViewDetails={() => navigate("/jsity-course-details", { state: course })}
             />
           ))}
         </div>
