@@ -142,38 +142,64 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const addItem = async (item: Omit<CartItem, 'quantity'>) => {
+    // Update local state first for immediate UI feedback
+    dispatch({ type: 'ADD_ITEM', payload: item });
+
     // Sync to database if user is authenticated
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    
+    if (authError) {
+      console.error('Auth error:', authError);
+      return;
+    }
+
+    if (!user) {
+      console.log('No authenticated user - cart will not persist to database');
+      return;
+    }
+
+    try {
       // Check if item already exists
-      const { data: existingItem } = await supabase
+      const { data: existingItem, error: fetchError } = await supabase
         .from('cart_items')
         .select('quantity')
         .eq('user_id', user.id)
         .eq('product_id', item.id)
         .maybeSingle();
 
+      if (fetchError) {
+        console.error('Error fetching cart item:', fetchError);
+        return;
+      }
+
       if (existingItem) {
         // Update quantity if exists
-        await supabase
+        const { error: updateError } = await supabase
           .from('cart_items')
           .update({ quantity: existingItem.quantity + 1 })
           .eq('user_id', user.id)
           .eq('product_id', item.id);
+
+        if (updateError) {
+          console.error('Error updating cart item:', updateError);
+        }
       } else {
         // Insert new item
-        await supabase
+        const { error: insertError } = await supabase
           .from('cart_items')
           .insert({
             user_id: user.id,
             product_id: item.id,
             quantity: 1,
           });
-      }
-    }
 
-    // Update local state after database operation
-    dispatch({ type: 'ADD_ITEM', payload: item });
+        if (insertError) {
+          console.error('Error inserting cart item:', insertError);
+        }
+      }
+    } catch (error) {
+      console.error('Unexpected error in addItem:', error);
+    }
   };
 
   const removeItem = async (id: string) => {
