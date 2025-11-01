@@ -7,41 +7,70 @@ import JsityFooter from "./components/JsityFooter";
 import { JHomeHeader } from "./components/home-header";
 import { useUserProfile } from "@/hooks/use-user-profile";
 import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useState } from "react";
 
 const JsityCourseDetails = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { addItem } = useCart();
   const profile = useUserProfile();
+  
+  const [courseData, setCourseData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const courseData = location.state || {
-    id: "1",
-    image: "/assets/dashboard-images/Cart1.jpg",
-    title: "The Future Of AI In Everyday Products",
-    creator: "Instructor Name",
-    price: "₦5,000",
-    instructor: "Instructor Name",
-    role: "Expert Instructor",
-    students: 240,
-    rating: 4.8,
-  };
+  useEffect(() => {
+    const fetchCourse = async () => {
+      // If we have data from navigation, use it
+      if (location.state) {
+        setCourseData(location.state);
+        setLoading(false);
+        return;
+      }
 
-  const handleAddToCart = async () => {
-    // Parse price to number, removing currency symbols
-    const numericPrice = typeof courseData.price === 'string' 
-      ? parseFloat(courseData.price.replace(/[^\d.]/g, ''))
-      : courseData.price;
-    
-    await addItem({
+      // Otherwise fetch from database
+      // You'd need to pass the product ID in the URL somehow
+      const { data } = await supabase
+        .from('products')
+        .select('*')
+        .limit(1)
+        .single();
+      
+      if (data) {
+        setCourseData({
+          id: data.id,
+          image: data.image_url,
+          title: data.title,
+          creator: data.instructor,
+          price: `₦${data.price}`,
+          instructor: data.instructor,
+          students: 240,
+          rating: 4.8,
+        });
+      }
+      setLoading(false);
+    };
+
+    fetchCourse();
+  }, [location.state]);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!courseData) {
+    return <div>Course not found</div>;
+  }
+
+  const handleAddToCart = () => {
+    addItem({
       id: courseData.id,
       title: courseData.title,
-      price: numericPrice,
+      price: parseFloat(courseData.price.replace(/[^\d.]/g, '')),
       image: courseData.image,
-      creator: courseData.instructor || courseData.creator,
+      creator: courseData.creator,
     });
-    toast.success("Added to cart successfully!");
+    navigate("/jcart");
   };
-
   const handleStartLearning = () =>
     navigate("/jsity-video-player", {
       state: {

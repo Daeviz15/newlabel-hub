@@ -90,55 +90,56 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(cartReducer, { items: [], total: 0 });
 
   // Sync cart with database for authenticated users
-  useEffect(() => {
-    const syncCartWithDatabase = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+useEffect(() => {
+  const syncCartWithDatabase = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
 
-      // Fetch cart from database
-      const { data: cartData } = await supabase
-        .from('cart_items')
-        .select(`
+    const { data: cartData } = await supabase
+      .from('cart_items')
+      .select(`
+        id,
+        quantity,
+        products (
           id,
-          quantity,
-          products (
-            id,
-            title,
-            price,
-            image_url,
-            instructor
-          )
-        `)
-        .eq('user_id', user.id);
+          title,
+          price,
+          image_url,
+          instructor
+        )
+      `)
+      .eq('user_id', user.id);
 
-      if (cartData) {
-        // Clear current cart and load from database
-        dispatch({ type: 'CLEAR_CART' });
-        cartData.forEach((item: any) => {
-          if (item.products) {
-            dispatch({
-              type: 'ADD_ITEM',
-              payload: {
-                id: item.products.id,
-                title: item.products.title,
-                price: Number(item.products.price),
-                image: item.products.image_url,
-                creator: item.products.instructor || 'Unknown',
-              },
-            });
-            if (item.quantity > 1) {
-              dispatch({
-                type: 'UPDATE_QUANTITY',
-                payload: { id: item.products.id, quantity: item.quantity },
-              });
-            }
-          }
-        });
-      }
-    };
+    if (cartData && cartData.length > 0) {
+      // Load all items with correct quantities at once
+      dispatch({ type: 'CLEAR_CART' });
+      
+      cartData.forEach((item: any) => {
+        if (item.products) {
+          // Add with quantity 1 first
+          dispatch({
+            type: 'ADD_ITEM',
+            payload: {
+              id: item.products.id,
+              title: item.products.title,
+              price: Number(item.products.price),
+              image: item.products.image_url,
+              creator: item.products.instructor || 'Unknown',
+            },
+          });
+          
+          // Then update to correct quantity (including if it's 1)
+          dispatch({
+            type: 'UPDATE_QUANTITY',
+            payload: { id: item.products.id, quantity: item.quantity },
+          });
+        }
+      });
+    }
+  };
 
-    syncCartWithDatabase();
-  }, []);
+  syncCartWithDatabase();
+}, []);
 
   const addItem = async (item: Omit<CartItem, 'quantity'>) => {
     // Update local state first for immediate UI feedback
