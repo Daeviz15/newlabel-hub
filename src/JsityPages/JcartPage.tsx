@@ -124,7 +124,7 @@ export function JcartPage() {
           <div className="text-center py-12">
             <p className="text-zinc-400 text-lg">Your cart is empty</p>
             <Button
-              onClick={() => navigate("/jsity-courses")}
+              onClick={() => navigate("/jcourses")}
               className="mt-4 bg-purple-400 text-black hover:bg-purple-600"
             >
               Browse Courses
