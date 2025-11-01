@@ -26,13 +26,18 @@ const JsityCourseDetails = () => {
     rating: 4.8,
   };
 
-  const handleAddToCart = () => {
-    addItem({
+  const handleAddToCart = async () => {
+    // Parse price to number, removing currency symbols
+    const numericPrice = typeof courseData.price === 'string' 
+      ? parseFloat(courseData.price.replace(/[^\d.]/g, ''))
+      : courseData.price;
+    
+    await addItem({
       id: courseData.id,
       title: courseData.title,
-      price: courseData.price,
+      price: numericPrice,
       image: courseData.image,
-      creator: courseData.instructor,
+      creator: courseData.instructor || courseData.creator,
     });
     toast.success("Added to cart successfully!");
   };
