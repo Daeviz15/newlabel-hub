@@ -12,7 +12,6 @@ type ResumeCardProps = {
   brand?: string;
   onClick?: () => void;
 };
-    const navigate = useNavigate();
 
 export function ResumeCard({
 
@@ -23,6 +22,7 @@ export function ResumeCard({
   brand = "jsty",
   onClick,
 }: ResumeCardProps) {
+
   const clamped = Math.max(0, Math.min(100, percent));
   return (
     <div
@@ -159,6 +159,8 @@ export function TopPick({
   imageFit = 'contain',
   onClick,
 }: TopPickProps) {
+    const navigate = useNavigate();
+
   const ringClass = accent === 'purple' ? 'hover:ring-purple-500' : 'hover:ring-lime-500'
   const buttonBgClass = accent === 'purple' ? 'bg-purple-500 hover:bg-purple-400' : 'bg-lime-500 hover:bg-lime-400'
   const imageObjectClass = imageFit === 'cover' ? 'object-cover' : 'object-contain'
@@ -192,7 +194,7 @@ export function TopPick({
             <Button
             className={`h-10 rounded-md px-5 text-black ${buttonBgClass}`}
               onClick={(e) => {
-              
+                   e.stopPropagation();
               navigate("/video-details");
               }}
             >
