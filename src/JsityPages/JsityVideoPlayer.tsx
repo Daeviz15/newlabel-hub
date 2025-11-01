@@ -224,7 +224,7 @@ export default function VideoPlayer() {
                 addItem({
                   id: course.id,
                   title: course.title,
-                  price: course.price,
+                  price: parseFloat(course.price.replace(/[^\d.]/g, '')),
                   image: course.image,
                   creator: course.creator,
                 });
@@ -248,7 +248,7 @@ export default function VideoPlayer() {
                 addItem({
                   id: `${course.id}-${idx}`,
                   title: course.title,
-                  price: course.price,
+                  price: parseFloat(course.price.replace(/[^\d.]/g, '')),
                   image: course.image,
                   creator: course.creator,
                 });
