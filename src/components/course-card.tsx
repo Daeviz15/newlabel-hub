@@ -1,6 +1,9 @@
 import { cn } from "@/lib/utils";
 import { Heart, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Navigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+
 
 type ResumeCardProps = {
   imageSrc?: string;
@@ -9,8 +12,11 @@ type ResumeCardProps = {
   brand?: string;
   onClick?: () => void;
 };
+    const navigate = useNavigate();
 
 export function ResumeCard({
+
+
   imageSrc = "/portrait-course-poster.png",
   title = "The Future Of AI In Everyday Products",
   percent = 72,
@@ -186,8 +192,8 @@ export function TopPick({
             <Button
             className={`h-10 rounded-md px-5 text-black ${buttonBgClass}`}
               onClick={(e) => {
-                e.stopPropagation();
-                onClick?.();
+              
+              navigate("/video-details");
               }}
             >
               {cta}
