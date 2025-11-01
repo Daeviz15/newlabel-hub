@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 export interface CartItem {
   id: string;
   title: string;
-  price: string;
+  price: number;
   image: string;
   creator: string;
   quantity: number;
@@ -73,8 +73,7 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
 
 const calculateTotal = (items: CartItem[]): number => {
   return items.reduce((total, item) => {
-    const price = parseFloat(item.price.replace('$', ''));
-    return total + (price * item.quantity);
+    return total + (item.price * item.quantity);
   }, 0);
 };
 
@@ -122,7 +121,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
               payload: {
                 id: item.products.id,
                 title: item.products.title,
-                price: `$${item.products.price}`,
+                price: Number(item.products.price),
                 image: item.products.image_url,
                 creator: item.products.instructor || 'Unknown',
               },

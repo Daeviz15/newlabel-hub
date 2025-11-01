@@ -30,7 +30,7 @@ export function CartPage() {
   const cartItems = state.items.map(item => ({
     id: item.id,
     title: item.title,
-    price: parseFloat(item.price.replace('$', '')),
+    price: item.price,
     quantity: item.quantity,
     image: item.image
   }));
