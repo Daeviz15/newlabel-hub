@@ -148,7 +148,7 @@ export function JcartPage() {
             <div className="flex justify-end pt-6 md:pt-8">
               <Button
                 size="lg"
-                onClick={() => navigate("/checkout")}
+                onClick={() => navigate("/Jcheckout")}
                 className="w-full sm:w-auto bg-purple-400 text-black hover:bg-purple-600 font-medium px-8 md:px-12"
               >
                 Proceed to checkout

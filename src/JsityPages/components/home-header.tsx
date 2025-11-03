@@ -80,7 +80,7 @@ export function JHomeHeader({
             </a>
             <a
               className="relative font-vietnam transition-colors duration-200 hover:text-white after:absolute after:bottom-[-2px] after:left-0 after:h-0.5 after:w-0 after:bg-[#6211A9]  after:transition-all after:duration-300 hover:after:w-full"
-              href=""
+              href="/about-jsity"
             >
               About jsity
             </a>
@@ -169,12 +169,10 @@ export function JHomeHeader({
                   )}
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate("/mylibrary")}>
+                <DropdownMenuItem onClick={() => navigate("/")}>
                   My Library
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/accountsetting")}>
-                  Account Settings
-                </DropdownMenuItem>
+       
                 <DropdownMenuItem onClick={() => onSignOut?.()}>
                   Sign out
                 </DropdownMenuItem>
@@ -227,7 +225,7 @@ export function JHomeHeader({
               Courses
             </a>
             <a
-              href=""
+              href="/about-jsity"
               className="block text-sm text-zinc-300 font-vietnam transition-all duration-200 hover:text-white hover:translate-x-1"
               onClick={() => setIsMenuOpen(false)}
             >
