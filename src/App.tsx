@@ -10,8 +10,15 @@ import JsityCourses from "./JsityPages/JsityCourses";
 import JsityCourseDetails from "./JsityPages/JsityCourseDetails";
 import JsityVideoPlayer from "./JsityPages/JsityVideoPlayer";
 import { JcartPage } from "./JsityPages/JcartPage";
-import Jabout from "./JsityPages/jabout";
+import Jabout from "./JsityPages/Jabout";
 import Jcheckout from "./JsityPages/Jcheckout";
+import ThcDashboard from "./ThcPages/ThcDashboard";
+import ThcCourses from "./ThcPages/ThcCourses";
+import ThcCourseDetails from "./ThcPages/ThcCourseDetails";
+import ThcVideoPlayer from "./ThcPages/ThcVideoPlayer";
+import { JcartPage as ThcCartPage } from "./ThcPages/TcartPage";
+import Tcheckout from "./ThcPages/Tcheckout";
+import Tabout from "./ThcPages/Tabout";
 
 const Index = lazy(() => import("./pages/Index"));
 const Login = lazy(() => import("./pages/Login"));
@@ -85,10 +92,13 @@ const App = () => (
               <Route path="/about-jsity" element={<Jabout />} />
 
               {/* Routes for thc pages */}
-              <Route path="/tdashboard" element={<Jdashboard />} />
-              <Route path="/courses" element={<Jdashboard />} />
-              <Route path="/about" element={<Jdashboard />} />
-              <Route path="/contact" element={<Jdashboard />} />
+              <Route path="/thc-dashboard" element={<ThcDashboard />} />
+              <Route path="/thc-courses" element={<ThcCourses />} />
+              <Route path="/thc-course-details" element={<ThcCourseDetails />} />
+              <Route path="/thc-video-player" element={<ThcVideoPlayer />} />
+              <Route path="/thc-cart" element={<ThcCartPage />} />
+              <Route path="/thc-checkout" element={<Tcheckout />} />
+              <Route path="/thc-about" element={<Tabout />} />
 
               {/* Routes for gospel-line pages */}
               <Route path="/gdashboard" element={<Jdashboard />} />

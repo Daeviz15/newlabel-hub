@@ -77,7 +77,7 @@ type ProductCardProps = {
   liked?: boolean;
   brand?: string;
   bgColor?: string;
-  priceAccent?: 'lime' | 'purple';
+  priceAccent?: 'lime' | 'purple' | 'thc';
   onClick?: () => void;
 };
 
@@ -92,11 +92,22 @@ export function ProductCard({
   priceAccent = 'lime',
   onClick,
 }: ProductCardProps) {
-  const priceBgClass = priceAccent === 'purple' ? 'bg-purple-500' : 'bg-[#84CC16]'
-  const priceTextClass = priceAccent === 'purple' ? 'text-white' : 'text-black'
+  const priceBgClass =
+    priceAccent === 'purple'
+      ? 'bg-purple-500'
+      : priceAccent === 'thc'
+      ? 'bg-[#70E002]'
+      : 'bg-[#84CC16]';
+  const priceTextClass = priceAccent === 'purple' ? 'text-white' : 'text-black';
+  const ringHoverClass =
+    bgColor === 'ring-[#70E002]'
+      ? 'hover:ring-[#70E002]'
+      : bgColor === 'ring-purple-500'
+      ? 'hover:ring-purple-500'
+      : 'hover:ring-lime-500';
   return (
     <div
-      className={`group relative overflow-hidden rounded-xl border border-white/10 bg-[#151515] hover:ring-4 hover:${bgColor} transition-all`}
+      className={`group relative overflow-hidden rounded-xl border border-white/10 bg-[#151515] hover:ring-4 ${ringHoverClass} transition-all`}
       onClick={onClick}
     >
       <div className="absolute left-3 top-3 z-10 flex items-center gap-2">

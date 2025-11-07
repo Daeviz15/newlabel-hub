@@ -10,9 +10,9 @@ import {
 import { useEffect, useState } from "react";
 import { getSaved, onSavedChange } from "@/hooks/use-saved";
 import { useNavigate } from "react-router-dom";
-import logo from "../assets/Logo.png";
+import logo from "/assets/Thc.png";
 import {
-  DropdownMenu,
+    DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
@@ -20,8 +20,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-
-export function HomeHeader({
+export function THomeHeader({
   search,
   onSearchChange,
   userName,
@@ -68,58 +67,38 @@ export function HomeHeader({
           {/* Desktop Navigation */}
           <nav className="hidden items-center gap-4 text-[13px] text-zinc-300 lg:flex xl:gap-5">
             <a
-              className="relative transition-colors font-vietnam duration-200 hover:text-white after:absolute after:bottom-[-2px] after:left-0 after:h-0.5 after:w-0 after:bg-lime-500 after:transition-all after:duration-300 hover:after:w-full"
-              href="#"
+              className="relative transition-colors font-vietnam duration-200 hover:text-white after:absolute after:bottom-[-2px] after:left-0 after:h-0.5 after:w-0 after:bg-[#70E002] after:transition-all after:duration-300 hover:after:w-full"
+              href="/thc-dashboard"
             >
-              Explore
+              Home
             </a>
             <a
-              className="relative font-vietnam transition-colors duration-200 hover:text-white after:absolute after:bottom-[-2px] after:left-0 after:h-0.5 after:w-0 after:bg-lime-500 after:transition-all after:duration-300 hover:after:w-full"
-              href="/catalogue"
+              className="relative font-vietnam transition-colors duration-200 hover:text-white after:absolute after:bottom-[-2px] after:left-0 after:h-0.5 after:w-0 after:bg-[#70E002]  after:transition-all after:duration-300 hover:after:w-full"
+              href="/thc-courses"
             >
-              Catalogue
+              Courses
             </a>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="group inline-flex items-center gap-1 font-vietnam transition-colors duration-200 hover:text-white">
-                  <span>Channels</span>
-                  <ChevronDown
-                    className="h-4 w-4 transition-transform duration-200 group-hover:rotate-180"
-                    aria-hidden="true"
-                  />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="start"
-                className="bg-[#E1FDC5] text-black"
-              >
-                <DropdownMenuItem onClick={() => navigate("/jdashboard")}>
-                  Jsity
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/thc-dashboard")}>
-                  Thc
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => navigate("/gdashboard")}
-                >
-                  Gospeline
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <a
+              className="relative font-vietnam transition-colors duration-200 hover:text-white after:absolute after:bottom-[-2px] after:left-0 after:h-0.5 after:w-0 after:bg-[#70E002]  after:transition-all after:duration-300 hover:after:w-full"
+              href="/thc-about"
+            >
+              About Thc
+            </a>
+ 
           </nav>
         </div>
 
         {/* Center: Search - Desktop */}
         <div
-          className={`mx-auto hidden w-full max-w-[480px] items-center rounded-full font-vietnam px-4 py-2 text-[13px] text-zinc-300 transition-all duration-300 lg:flex xl:max-w-[560px] ${
+          className={`mx-auto hidden w-[500px] max-w-[480px] items-center rounded-full font-vietnam px-4 py-2 text-[13px] text-zinc-300 transition-all duration-300 lg:flex xl:max-w-[560px] ${
             isSearchFocused
-              ? "bg-[#333] ring-2 ring-lime-500/30 shadow-lg shadow-lime-500/10"
+              ? "bg-[#333] ring-2 ring-[#70E002]/30 shadow-lg shadow-[rgba(112,224,2,0.1)]"
               : "bg-[#2a2a2a] hover:bg-[#2f2f2f]"
           }`}
         >
           <Search
             className={`mr-2 h-4 w-4 font-vietnam transition-colors duration-200 ${
-              isSearchFocused ? "text-lime-400" : "text-zinc-400"
+              isSearchFocused ? "text-[#70E002]" : "text-zinc-400"
             }`}
             aria-hidden="true"
           />
@@ -134,25 +113,12 @@ export function HomeHeader({
             onBlur={() => setIsSearchFocused(false)}
           />
         </div>
-
-        {/* Right: Icons + Profile */}
-        <div className="flex items-center  gap-1 sm:gap-2">
-          {/* Search icon for tablet */}
-
-          {/* Cart and Heart icons */}
-          <a
-            href="/cart"
+<a
+            href="/thc-cart"
             aria-label="Cart"
             className="hidden h-8 w-8 items-center justify-center font-vietnam rounded-md bg-[#1a1a1a] text-white ring-1 ring-white/10 transition-all duration-200 hover:bg-[#222] hover:scale-105 sm:inline-flex sm:h-9 sm:w-9"
           >
             <ShoppingCart className="h-4 w-4" />
-          </a>
-          <a
-            href="/notifications"
-            aria-label="Notification"
-            className="hidden h-8 w-8 items-center justify-center rounded-md bg-[#1a1a1a] text-white ring-1 ring-white/10 transition-all duration-200 hover:bg-[#222] hover:scale-105 sm:inline-flex sm:h-9 sm:w-9"
-          >
-            <Bell className="h-4 w-4" />
           </a>
           <button
             aria-label="Favorites"
@@ -162,17 +128,20 @@ export function HomeHeader({
               <Heart
                 className={
                   savedCount > 0
-                    ? "h-4 w-4 fill-lime-400 text-lime-400"
+                    ? "h-4 w-4 fill-[#70E002] text-[#70E002]"
                     : "h-4 w-4"
                 }
               />
               {savedCount > 0 && (
-                <span className="absolute -top-1 -right-1 inline-flex items-center justify-center rounded-full bg-lime-400 text-black text-[10px] font-bold h-4 min-w-4 px-1">
+                <span className="absolute -top-1 -right-1 inline-flex items-center justify-center rounded-full bg-[#70E002] text-black text-[10px] font-bold h-4 min-w-4 px-1">
                   {savedCount > 99 ? "99+" : savedCount}
                 </span>
               )}
             </div>
           </button>
+        {/* Right: Icons + Profile */}
+        <div className="flex items-center  gap-1 sm:gap-2">
+          {/* Search icon for tablet */}
 
           {/* Profile section */}
           <div className="ml-1 flex items-center gap-2 sm:ml-2 sm:gap-3">
@@ -180,7 +149,7 @@ export function HomeHeader({
               <DropdownMenuTrigger asChild>
                 <button
                   aria-label="Open profile menu"
-                  className="relative h-8 w-8 overflow-hidden rounded-full ring-1 ring-white/10 transition-all duration-200 hover:ring-2 hover:ring-lime-500/30 sm:h-9 sm:w-9"
+                  className="relative h-8 w-8 overflow-hidden rounded-full ring-1 ring-white/10 transition-all duration-200 hover:ring-2 hover:ring-[#70E002]/30 sm:h-9 sm:w-9"
                 >
                   <img
                     src={avatarUrl || "/assets/dashboard-images/face.jpg"}
@@ -200,13 +169,10 @@ export function HomeHeader({
                   )}
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate("/mylibrary")}>
+                <DropdownMenuItem onClick={() => navigate("/")}>
                   My Library
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/accountsetting")}>
-                  Account Settings
-                </DropdownMenuItem>
-                <DropdownMenuItem>Contact Us</DropdownMenuItem>
+       
                 <DropdownMenuItem onClick={() => onSignOut?.()}>
                   Sign out
                 </DropdownMenuItem>
@@ -214,7 +180,7 @@ export function HomeHeader({
             </DropdownMenu>
             {/* User info - hidden on small screens */}
             <div className="hidden leading-tight lg:block">
-              <div className="text-sm font-semibold text-white font-vietnam transition-colors duration-200 hover:text-lime-400">
+              <div className="text-sm font-semibold text-white font-vietnam transition-colors duration-200 hover:text-[#70E002]">
                 {userName ?? "Guest"}
               </div>
               <div className="text-[11px] text-zinc-400">{userEmail ?? ""}</div>
@@ -245,76 +211,28 @@ export function HomeHeader({
         <nav className="border-t border-white/10 bg-[#0c0c0c] px-4 py-4">
           <div className="space-y-3">
             <a
-              href="#"
+              href="/thc-dashboard"
               className="block text-sm text-zinc-300 font-vietnam transition-all duration-200 hover:text-white hover:translate-x-1"
               onClick={() => setIsMenuOpen(false)}
             >
-              Explore
+              Home
             </a>
             <a
-              href="/catalogue"
+              href="/thc-courses"
               className="block text-sm text-zinc-300 font-vietnam transition-all duration-200 hover:text-white hover:translate-x-1"
               onClick={() => setIsMenuOpen(false)}
             >
-              Catalogue
+              Courses
             </a>
             <a
-              href="/mylibrary"
+              href="/thc-about"
               className="block text-sm text-zinc-300 font-vietnam transition-all duration-200 hover:text-white hover:translate-x-1"
               onClick={() => setIsMenuOpen(false)}
             >
-              My Library
+              About THC
             </a>
-            <button
-              className="group flex w-full items-center font-vietnam justify-between text-left text-sm text-zinc-300 transition-colors duration-200 hover:text-white"
-              onClick={() => setIsMobileChannelsOpen(!isMobileChannelsOpen)}
-              aria-expanded={isMobileChannelsOpen}
-              aria-controls="mobile-channels-submenu"
-            >
-              <span>Channels</span>
-              <ChevronDown
-                className={`h-4 w-4 transition-transform duration-200 ${
-                  isMobileChannelsOpen ? "rotate-180" : "group-hover:rotate-180"
-                }`}
-              />
-            </button>
-            <div
-              id="mobile-channels-submenu"
-              className={`overflow-hidden pl-3 ${
-                isMobileChannelsOpen ? "mt-2 max-h-40" : "max-h-0"
-              } transition-[max-height] duration-300 ease-in-out`}
-            >
-              <button
-                className="block w-full text-left py-2 text-sm text-zinc-300 hover:text-white"
-                onClick={() => {
-                  navigate("/jdashboard");
-                  setIsMenuOpen(false);
-                  setIsMobileChannelsOpen(false);
-                }}
-              >
-                Jsity
-              </button>
-              <button
-                className="block w-full text-left py-2 text-sm text-zinc-300 hover:text-white"
-                onClick={() => {
-                  navigate("/thc-dashboard");
-                  setIsMenuOpen(false);
-                  setIsMobileChannelsOpen(false);
-                }}
-              >
-                Thc
-              </button>
-              <button
-                className="block w-full text-left py-2 text-sm text-zinc-300 hover:text-white"
-                onClick={() => {
-                  navigate("/channels/gospeline");
-                  setIsMenuOpen(false);
-                  setIsMobileChannelsOpen(false);
-                }}
-              >
-                Gospeline
-              </button>
-            </div>
+
+
 
             {/* User info for mobile */}
             <div className="pt-3 border-t border-white/10">
@@ -345,13 +263,13 @@ export function HomeHeader({
         <div
           className={`flex items-center rounded-full font-vietnam px-4 py-2.5 text-[13px] text-zinc-300 transition-all duration-300 ${
             isSearchFocused
-              ? "bg-[#333] ring-2 ring-lime-500/30 shadow-lg shadow-lime-500/10"
+              ? "bg-[#333] ring-2 ring-[#70E002]/30 shadow-lg shadow-[rgba(112,224,2,0.1)]"
               : "bg-[#2a2a2a]"
           }`}
         >
           <Search
             className={`mr-2 h-4 w-4 transition-colors duration-200 ${
-              isSearchFocused ? "text-lime-400" : "text-zinc-400"
+              isSearchFocused ? "text-[#70E002]" : "text-zinc-400"
             }`}
             aria-hidden="true"
           />
@@ -370,3 +288,4 @@ export function HomeHeader({
     </header>
   );
 }
+
