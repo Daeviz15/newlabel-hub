@@ -49,6 +49,53 @@ export type Database = {
           },
         ]
       }
+      course_lessons: {
+        Row: {
+          course_id: string
+          created_at: string | null
+          description: string | null
+          duration: string | null
+          id: string
+          is_preview: boolean | null
+          order_number: number
+          title: string
+          updated_at: string | null
+          video_url: string
+        }
+        Insert: {
+          course_id: string
+          created_at?: string | null
+          description?: string | null
+          duration?: string | null
+          id?: string
+          is_preview?: boolean | null
+          order_number: number
+          title: string
+          updated_at?: string | null
+          video_url: string
+        }
+        Update: {
+          course_id?: string
+          created_at?: string | null
+          description?: string | null
+          duration?: string | null
+          id?: string
+          is_preview?: boolean | null
+          order_number?: number
+          title?: string
+          updated_at?: string | null
+          video_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_lessons_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           category: string
@@ -60,6 +107,7 @@ export type Database = {
           instructor: string | null
           instructor_role: string | null
           level: string | null
+          preview_video_url: string | null
           price: number
           rating: number | null
           students: number | null
@@ -76,6 +124,7 @@ export type Database = {
           instructor?: string | null
           instructor_role?: string | null
           level?: string | null
+          preview_video_url?: string | null
           price: number
           rating?: number | null
           students?: number | null
@@ -92,6 +141,7 @@ export type Database = {
           instructor?: string | null
           instructor_role?: string | null
           level?: string | null
+          preview_video_url?: string | null
           price?: number
           rating?: number | null
           students?: number | null
@@ -197,15 +247,42 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -332,6 +409,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+    },
   },
 } as const

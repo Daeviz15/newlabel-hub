@@ -26,6 +26,7 @@ import GVideoPlayer from "./GospelLine/GVideoPlayer";
 import { GcartPage } from "./GospelLine/GcartPage";
 import Gcheckout from "./GospelLine/Gcheckout";
 import Gabout from "./GospelLine/Gabout";
+import JsityAdmin from "./pages/JsityAdmin";
 
 const Index = lazy(() => import("./pages/Index"));
 const Login = lazy(() => import("./pages/Login"));
@@ -95,8 +96,9 @@ const App = () => (
               />
               <Route path="/jcart" element={<JcartPage />} />
               <Route path="/Jcheckout" element={<Jcheckout />} />
-
               <Route path="/about-jsity" element={<Jabout />} />
+              <Route path="/jsity-admin" element={<JsityAdmin />} />
+
 
               {/* Routes for thc pages */}
               <Route path="/thc-dashboard" element={<ThcDashboard />} />
