@@ -169,7 +169,7 @@ export function THomeHeader({
                   )}
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate("/")}>
+                <DropdownMenuItem onClick={() => navigate("/mylibrary")}>
                   My Library
                 </DropdownMenuItem>
        

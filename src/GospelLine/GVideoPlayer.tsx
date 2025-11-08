@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { JHomeHeader } from "./components/home-header";
-import JsityFooter from "./components/JsityFooter";
+import { THomeHeader } from "./components/home-header";
 import { CourseCard } from "@/components/course-card-interactive";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -14,6 +13,7 @@ import {
   Settings,
 } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
+import GFooter from "./components/GFooter";
 
 interface CourseData {
   id: string;
@@ -26,7 +26,7 @@ interface CourseData {
   description?: string;
 }
 
-export default function VideoPlayer() {
+export default function GVideoPlayer() {
   const location = useLocation();
   const navigate = useNavigate();
   const courseData = location.state as CourseData;
@@ -118,7 +118,7 @@ export default function VideoPlayer() {
 
   return (
     <main className="bg-[#0b0b0b] text-white min-h-screen">
-      <JHomeHeader
+      <THomeHeader
         search={searchQuery}
         onSearchChange={setSearchQuery}
         userName={userName ?? undefined}
@@ -161,32 +161,32 @@ export default function VideoPlayer() {
             {/* Progress Bar */}
             <div className="mb-3 sm:mb-4">
               <div className="w-full h-1 bg-white/20 rounded-full overflow-hidden">
-                <div className="h-full w-1/3 bg-purple-400 rounded-full"></div>
+                <div className="h-full w-1/3 bg-[#70E002] rounded-full"></div>
               </div>
             </div>
 
             {/* Control Buttons */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 sm:gap-3">
-                <button className="text-white hover:text-purple-400 transition-colors">
+                <button className="text-white hover:text-[#70E002] transition-colors">
                   <Pause className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
-                <button className="text-white hover:text-purple-400 transition-colors">
+                <button className="text-white hover:text-[#70E002] transition-colors">
                   <SkipBack className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
-                <button className="text-white hover:text-purple-400 transition-colors">
+                <button className="text-white hover:text-[#70E002] transition-colors">
                   <SkipForward className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
               </div>
 
               <div className="flex items-center gap-2 sm:gap-3">
-                <button className="text-white hover:text-purple-400 transition-colors">
+                <button className="text-white hover:text-[#70E002] transition-colors">
                   <Volume2 className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
-                <button className="text-white hover:text-purple-400 transition-colors">
+                <button className="text-white hover:text-[#70E002] transition-colors">
                   <Settings className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
-                <button className="text-white hover:text-purple-400 transition-colors">
+                <button className="text-white hover:text-[#70E002] transition-colors">
                   <Maximize className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
               </div>
@@ -229,7 +229,7 @@ export default function VideoPlayer() {
               title={course.title}
               creator={course.creator}
               price={course.price}
-              accent="purple"
+              accent="lime"
               onAddToCart={() => {
                 addItem({
                   id: course.id,
@@ -238,10 +238,10 @@ export default function VideoPlayer() {
                   image: course.image,
                   creator: course.creator,
                 });
-                navigate("/cart");
+                navigate("/gospel-cart");
               }}
               onViewDetails={() =>
-                navigate("/jsity-course-details", { state: course })
+                navigate("/gospel-course-details", { state: course })
               }
             />
           ))}
@@ -255,7 +255,7 @@ export default function VideoPlayer() {
               title={course.title}
               creator={course.creator}
               price={course.price}
-              accent="purple"
+              accent="lime"
               onAddToCart={() => {
                 addItem({
                   id: `${course.id}-${idx}`,
@@ -267,14 +267,14 @@ export default function VideoPlayer() {
                 navigate("/cart");
               }}
               onViewDetails={() =>
-                navigate("/jsity-course-details", { state: course })
+                navigate("/gospel-course-details", { state: course })
               }
             />
           ))}
         </div>
       </div>
 
-      <JsityFooter />
+      <GFooter />
     </main>
   );
 }

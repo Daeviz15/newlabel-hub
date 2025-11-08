@@ -30,15 +30,15 @@ export default function Jabout() {
 
   return (
     <main className="bg-[#0b0b0b] text-neutral-100">
-      <div className="mx-auto max-w-7xl px-6 md:px-8">
-        <JHomeHeader
-          search={searchQuery}
-          onSearchChange={setSearchQuery}
-          userName={userName ?? undefined}
-          userEmail={userEmail ?? undefined}
-          avatarUrl={avatarUrl ?? undefined}
-          onSignOut={handleSignOut}
-        />
+      <JHomeHeader
+        search={searchQuery}
+        onSearchChange={setSearchQuery}
+        userName={userName ?? undefined}
+        userEmail={userEmail ?? undefined}
+        avatarUrl={avatarUrl ?? undefined}
+        onSignOut={handleSignOut}
+      />
+      <div className="mx-auto max-w-7xl w-full px-6 md:px-8">
         <section className="py-12 md:py-16 lg:py-20">
           <div className="grid grid-cols-1 items-start gap-8 md:grid-cols-2">
             <h1 className="text-3xl font-semibold tracking-tight md:text-4xl lg:text-5xl">

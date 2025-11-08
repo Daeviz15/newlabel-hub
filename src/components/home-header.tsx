@@ -20,7 +20,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-
 export function HomeHeader({
   search,
   onSearchChange,
@@ -69,7 +68,7 @@ export function HomeHeader({
           <nav className="hidden items-center gap-4 text-[13px] text-zinc-300 lg:flex xl:gap-5">
             <a
               className="relative transition-colors font-vietnam duration-200 hover:text-white after:absolute after:bottom-[-2px] after:left-0 after:h-0.5 after:w-0 after:bg-lime-500 after:transition-all after:duration-300 hover:after:w-full"
-              href="#"
+              href="/dashboard"
             >
               Explore
             </a>
@@ -99,9 +98,7 @@ export function HomeHeader({
                 <DropdownMenuItem onClick={() => navigate("/thc-dashboard")}>
                   Thc
                 </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => navigate("/gdashboard")}
-                >
+                <DropdownMenuItem onClick={() => navigate("/gospel-dashboard")}>
                   Gospeline
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -111,7 +108,7 @@ export function HomeHeader({
 
         {/* Center: Search - Desktop */}
         <div
-          className={`mx-auto hidden w-full max-w-[480px] items-center rounded-full font-vietnam px-4 py-2 text-[13px] text-zinc-300 transition-all duration-300 lg:flex xl:max-w-[560px] ${
+          className={`mx-auto hidden w-full max-w-[480px] items-center rounded-full font-vietnam px-4 py-2 text-[13px] text-zinc-300 transition-all duration-300 lg:flex xl:max-w-[400px] ${
             isSearchFocused
               ? "bg-[#333] ring-2 ring-lime-500/30 shadow-lg shadow-lime-500/10"
               : "bg-[#2a2a2a] hover:bg-[#2f2f2f]"
@@ -307,7 +304,7 @@ export function HomeHeader({
               <button
                 className="block w-full text-left py-2 text-sm text-zinc-300 hover:text-white"
                 onClick={() => {
-                  navigate("/channels/gospeline");
+                  navigate("/channels/gospel-dashboard");
                   setIsMenuOpen(false);
                   setIsMobileChannelsOpen(false);
                 }}

@@ -19,6 +19,13 @@ import ThcVideoPlayer from "./ThcPages/ThcVideoPlayer";
 import { JcartPage as ThcCartPage } from "./ThcPages/TcartPage";
 import Tcheckout from "./ThcPages/Tcheckout";
 import Tabout from "./ThcPages/Tabout";
+import GDashboard from "./GospelLine/GDashboard";
+import GCourses from "./GospelLine/GCourses";
+import GCourseDetails from "./GospelLine/GcourseDetails";
+import GVideoPlayer from "./GospelLine/GVideoPlayer";
+import { GcartPage } from "./GospelLine/GcartPage";
+import Gcheckout from "./GospelLine/Gcheckout";
+import Gabout from "./GospelLine/Gabout";
 
 const Index = lazy(() => import("./pages/Index"));
 const Login = lazy(() => import("./pages/Login"));
@@ -94,17 +101,26 @@ const App = () => (
               {/* Routes for thc pages */}
               <Route path="/thc-dashboard" element={<ThcDashboard />} />
               <Route path="/thc-courses" element={<ThcCourses />} />
-              <Route path="/thc-course-details" element={<ThcCourseDetails />} />
+              <Route
+                path="/thc-course-details"
+                element={<ThcCourseDetails />}
+              />
               <Route path="/thc-video-player" element={<ThcVideoPlayer />} />
               <Route path="/thc-cart" element={<ThcCartPage />} />
               <Route path="/thc-checkout" element={<Tcheckout />} />
               <Route path="/thc-about" element={<Tabout />} />
 
               {/* Routes for gospel-line pages */}
-              <Route path="/gdashboard" element={<Jdashboard />} />
-              <Route path="/courses" element={<Jdashboard />} />
-              <Route path="/about" element={<Jdashboard />} />
-              <Route path="/contact" element={<Jdashboard />} />
+              <Route path="/gospel-dashboard" element={<GDashboard />} />
+              <Route path="/gospel-courses" element={<GCourses />} />
+              <Route
+                path="/gospel-course-details"
+                element={<GCourseDetails />}
+              />
+              <Route path="/gospel-video-player" element={<GVideoPlayer />} />
+              <Route path="/gospel-cart" element={<GcartPage />} />
+              <Route path="/gospel-checkout" element={<Gcheckout />} />
+              <Route path="/gospel-about" element={<Gabout />} />
 
               <Route path="*" element={<NotFound />} />
             </Routes>

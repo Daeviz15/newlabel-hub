@@ -15,9 +15,9 @@ import { useState } from "react";
 import { useUserProfile } from "@/hooks/use-user-profile";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import ThcFooter from "./components/ThcFooter";
+import GFooter from "./components/GFooter";
 
-export default function Jabout() {
+export default function Gabout() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("For You");
@@ -30,27 +30,30 @@ export default function Jabout() {
 
   return (
     <main className="bg-[#0b0b0b] text-neutral-100 ">
-      <THomeHeader
-        search={searchQuery}
-        onSearchChange={setSearchQuery}
-        userName={userName ?? undefined}
-        userEmail={userEmail ?? undefined}
-        avatarUrl={avatarUrl ?? undefined}
-        onSignOut={handleSignOut}
-      />
       <div className="mx-auto max-w-7xl px-6 md:px-8">
         {/* Top Banner - Desktop only */}
-
+        <div className="block bg-[#70E002] text-black text-sm py-3 text-center font-vietnam font-medium rounded-md">
+          Free Courses 🌟 Sale Ends Soon. Get It Now →
+        </div>
+        <THomeHeader
+          search={searchQuery}
+          onSearchChange={setSearchQuery}
+          userName={userName ?? undefined}
+          userEmail={userEmail ?? undefined}
+          avatarUrl={avatarUrl ?? undefined}
+          onSignOut={handleSignOut}
+        />
         <section className="py-12 md:py-16 lg:py-20">
           <div className="grid grid-cols-1 items-start gap-8 md:grid-cols-2">
             <h1 className="text-3xl font-semibold tracking-tight md:text-4xl lg:text-5xl">
-              About THC
+              About GospelLine
             </h1>
             <p className="max-w-prose text-sm leading-relaxed text-neutral-400 md:text-base">
-              Welcome to THC, a proud channel under NewLabel. We are dedicated
-              to empowering learners through expertly crafted digital courses.
-              As part of the NewLabel ecosystem, we bring together innovation,
-              education and community to help you unlock your full potential.
+              Welcome to GospelLine, a proud channel under NewLabel. We are
+              dedicated to empowering learners through expertly crafted digital
+              courses. As part of the NewLabel ecosystem, we bring together
+              innovation, education and community to help you unlock your full
+              potential.
             </p>
           </div>
 
@@ -65,8 +68,8 @@ export default function Jabout() {
                 Our Mission
               </h2>
               <p className="mt-3 max-w-[52ch] text-sm leading-relaxed text-neutral-400 md:text-base">
-                At THC, our mission is to democratize quality education by
-                providing accessible, expert-led digital courses that empower
+                At GospelLine, our mission is to democratize quality education
+                by providing accessible, expert-led digital courses that empower
                 individuals to master new skills, advance their careers and
                 achieve their personal goals.
               </p>
@@ -205,7 +208,7 @@ export default function Jabout() {
               <div>
                 <h3 className="text-2xl font-semibold leading-tight md:text-3xl lg:text-[32px]">
                   <span className="text-[#70E002]">Ready to learn?</span> Start
-                  your journey with THC today
+                  your journey with GospelLIne today
                 </h3>
                 <p className="mt-3 max-w-prose text-sm text-neutral-400 md:text-base">
                   Join thousands of learners who are already transforming their
@@ -228,7 +231,7 @@ export default function Jabout() {
         {/* Spacer above your existing footer */}
         <div className="h-6 md:h-10" />
       </div>
-      <ThcFooter />
+      <GFooter />
     </main>
   );
 }

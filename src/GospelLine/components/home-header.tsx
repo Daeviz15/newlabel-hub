@@ -10,7 +10,7 @@ import {
 import { useEffect, useState } from "react";
 import { getSaved, onSavedChange } from "@/hooks/use-saved";
 import { useNavigate } from "react-router-dom";
-import logo from "@/assets/jsity.png";
+import logo from "/assets/gospel.png";
 import {
     DropdownMenu,
   DropdownMenuContent,
@@ -20,7 +20,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export function JHomeHeader({
+export function THomeHeader({
   search,
   onSearchChange,
   userName,
@@ -67,22 +67,22 @@ export function JHomeHeader({
           {/* Desktop Navigation */}
           <nav className="hidden items-center gap-4 text-[13px] text-zinc-300 lg:flex xl:gap-5">
             <a
-              className="relative transition-colors font-vietnam duration-200 hover:text-white after:absolute after:bottom-[-2px] after:left-0 after:h-0.5 after:w-0 after:bg-[#6211A9] after:transition-all after:duration-300 hover:after:w-full"
-              href="/jdashboard"
+              className="relative transition-colors font-vietnam duration-200 hover:text-white after:absolute after:bottom-[-2px] after:left-0 after:h-0.5 after:w-0 after:bg-[#70E002] after:transition-all after:duration-300 hover:after:w-full"
+              href="/gospel-dashboard"
             >
               Home
             </a>
             <a
-              className="relative font-vietnam transition-colors duration-200 hover:text-white after:absolute after:bottom-[-2px] after:left-0 after:h-0.5 after:w-0 after:bg-[#6211A9]  after:transition-all after:duration-300 hover:after:w-full"
-              href="/jcourses"
+              className="relative font-vietnam transition-colors duration-200 hover:text-white after:absolute after:bottom-[-2px] after:left-0 after:h-0.5 after:w-0 after:bg-[#70E002]  after:transition-all after:duration-300 hover:after:w-full"
+              href="/gospel-courses"
             >
               Courses
             </a>
             <a
-              className="relative font-vietnam transition-colors duration-200 hover:text-white after:absolute after:bottom-[-2px] after:left-0 after:h-0.5 after:w-0 after:bg-[#6211A9]  after:transition-all after:duration-300 hover:after:w-full"
-              href="/about-jsity"
+              className="relative font-vietnam transition-colors duration-200 hover:text-white after:absolute after:bottom-[-2px] after:left-0 after:h-0.5 after:w-0 after:bg-[#70E002]  after:transition-all after:duration-300 hover:after:w-full"
+              href="/gospel-about"
             >
-              About jsity
+              About GospelLine
             </a>
  
           </nav>
@@ -92,13 +92,13 @@ export function JHomeHeader({
         <div
           className={`mx-auto hidden w-[500px] max-w-[480px] items-center rounded-full font-vietnam px-4 py-2 text-[13px] text-zinc-300 transition-all duration-300 lg:flex xl:max-w-[560px] ${
             isSearchFocused
-              ? "bg-[#333] ring-2 ring-purple-500/30 shadow-lg shadow-purple-500/10"
+              ? "bg-[#333] ring-2 ring-[#70E002]/30 shadow-lg shadow-[rgba(112,224,2,0.1)]"
               : "bg-[#2a2a2a] hover:bg-[#2f2f2f]"
           }`}
         >
           <Search
             className={`mr-2 h-4 w-4 font-vietnam transition-colors duration-200 ${
-              isSearchFocused ? "text-purple-400" : "text-zinc-400"
+              isSearchFocused ? "text-[#70E002]" : "text-zinc-400"
             }`}
             aria-hidden="true"
           />
@@ -114,7 +114,7 @@ export function JHomeHeader({
           />
         </div>
 <a
-            href="/jcart"
+            href="/gospel-cart"
             aria-label="Cart"
             className="hidden h-8 w-8 items-center justify-center font-vietnam rounded-md bg-[#1a1a1a] text-white ring-1 ring-white/10 transition-all duration-200 hover:bg-[#222] hover:scale-105 sm:inline-flex sm:h-9 sm:w-9"
           >
@@ -128,12 +128,12 @@ export function JHomeHeader({
               <Heart
                 className={
                   savedCount > 0
-                    ? "h-4 w-4 fill-purple-400 text-purple-600"
+                    ? "h-4 w-4 fill-[#70E002] text-[#70E002]"
                     : "h-4 w-4"
                 }
               />
               {savedCount > 0 && (
-                <span className="absolute -top-1 -right-1 inline-flex items-center justify-center rounded-full bg-purple-400 text-black text-[10px] font-bold h-4 min-w-4 px-1">
+                <span className="absolute -top-1 -right-1 inline-flex items-center justify-center rounded-full bg-[#70E002] text-black text-[10px] font-bold h-4 min-w-4 px-1">
                   {savedCount > 99 ? "99+" : savedCount}
                 </span>
               )}
@@ -149,7 +149,7 @@ export function JHomeHeader({
               <DropdownMenuTrigger asChild>
                 <button
                   aria-label="Open profile menu"
-                  className="relative h-8 w-8 overflow-hidden rounded-full ring-1 ring-white/10 transition-all duration-200 hover:ring-2 hover:ring-purple-500/30 sm:h-9 sm:w-9"
+                  className="relative h-8 w-8 overflow-hidden rounded-full ring-1 ring-white/10 transition-all duration-200 hover:ring-2 hover:ring-[#70E002]/30 sm:h-9 sm:w-9"
                 >
                   <img
                     src={avatarUrl || "/assets/dashboard-images/face.jpg"}
@@ -169,7 +169,7 @@ export function JHomeHeader({
                   )}
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem  onClick={() => navigate("/mylibrary")}>
+                <DropdownMenuItem onClick={() => navigate("/mylibrary")}>
                   My Library
                 </DropdownMenuItem>
        
@@ -180,7 +180,7 @@ export function JHomeHeader({
             </DropdownMenu>
             {/* User info - hidden on small screens */}
             <div className="hidden leading-tight lg:block">
-              <div className="text-sm font-semibold text-white font-vietnam transition-colors duration-200 hover:text-purple-400">
+              <div className="text-sm font-semibold text-white font-vietnam transition-colors duration-200 hover:text-[#70E002]">
                 {userName ?? "Guest"}
               </div>
               <div className="text-[11px] text-zinc-400">{userEmail ?? ""}</div>
@@ -211,25 +211,25 @@ export function JHomeHeader({
         <nav className="border-t border-white/10 bg-[#0c0c0c] px-4 py-4">
           <div className="space-y-3">
             <a
-              href="/jdashboard"
+              href="/gospel-dashboard"
               className="block text-sm text-zinc-300 font-vietnam transition-all duration-200 hover:text-white hover:translate-x-1"
               onClick={() => setIsMenuOpen(false)}
             >
               Home
             </a>
             <a
-              href="/jcourses"
+              href="/gospel-courses"
               className="block text-sm text-zinc-300 font-vietnam transition-all duration-200 hover:text-white hover:translate-x-1"
               onClick={() => setIsMenuOpen(false)}
             >
               Courses
             </a>
             <a
-              href="/about-jsity"
+              href="/gospel-about"
               className="block text-sm text-zinc-300 font-vietnam transition-all duration-200 hover:text-white hover:translate-x-1"
               onClick={() => setIsMenuOpen(false)}
             >
-              About jsity
+              About gospel
             </a>
 
 
@@ -263,13 +263,13 @@ export function JHomeHeader({
         <div
           className={`flex items-center rounded-full font-vietnam px-4 py-2.5 text-[13px] text-zinc-300 transition-all duration-300 ${
             isSearchFocused
-              ? "bg-[#333] ring-2 ring-purple-500/30 shadow-lg shadow-purple-500/10"
+              ? "bg-[#333] ring-2 ring-[#70E002]/30 shadow-lg shadow-[rgba(112,224,2,0.1)]"
               : "bg-[#2a2a2a]"
           }`}
         >
           <Search
             className={`mr-2 h-4 w-4 transition-colors duration-200 ${
-              isSearchFocused ? "text-purple-400" : "text-zinc-400"
+              isSearchFocused ? "text-[#70E002]" : "text-zinc-400"
             }`}
             aria-hidden="true"
           />
@@ -288,3 +288,4 @@ export function JHomeHeader({
     </header>
   );
 }
+
