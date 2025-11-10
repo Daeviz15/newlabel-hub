@@ -9,21 +9,18 @@ import Jdashboard from "./JsityPages/JsityDashboard";
 import JsityCourses from "./JsityPages/JsityCourses";
 import JsityCourseDetails from "./JsityPages/JsityCourseDetails";
 import JsityVideoPlayer from "./JsityPages/JsityVideoPlayer";
-import { JcartPage } from "./JsityPages/JcartPage";
 import Jabout from "./JsityPages/Jabout";
 import Jcheckout from "./JsityPages/Jcheckout";
 import ThcDashboard from "./ThcPages/ThcDashboard";
 import ThcCourses from "./ThcPages/ThcCourses";
 import ThcCourseDetails from "./ThcPages/ThcCourseDetails";
 import ThcVideoPlayer from "./ThcPages/ThcVideoPlayer";
-import { JcartPage as ThcCartPage } from "./ThcPages/TcartPage";
 import Tcheckout from "./ThcPages/Tcheckout";
 import Tabout from "./ThcPages/Tabout";
 import GDashboard from "./GospelLine/GDashboard";
 import GCourses from "./GospelLine/GCourses";
 import GCourseDetails from "./GospelLine/GcourseDetails";
 import GVideoPlayer from "./GospelLine/GVideoPlayer";
-import { GcartPage } from "./GospelLine/GcartPage";
 import Gcheckout from "./GospelLine/Gcheckout";
 import Gabout from "./GospelLine/Gabout";
 import JsityAdmin from "./pages/JsityAdmin";
@@ -96,7 +93,7 @@ const App = () => (
                 path="/jsity-video-player"
                 element={<JsityVideoPlayer />}
               />
-              <Route path="/jcart" element={<JcartPage />} />
+              <Route path="/jcart" element={<CartPage />} />
               <Route path="/Jcheckout" element={<Jcheckout />} />
               <Route path="/about-jsity" element={<Jabout />} />
               <Route path="/jsity-admin" element={<JsityAdmin />} />
@@ -109,7 +106,7 @@ const App = () => (
                 element={<ThcCourseDetails />}
               />
               <Route path="/thc-video-player" element={<ThcVideoPlayer />} />
-              <Route path="/thc-cart" element={<ThcCartPage />} />
+              <Route path="/thc-cart" element={<CartPage />} />
               <Route path="/thc-checkout" element={<Tcheckout />} />
               <Route path="/thc-about" element={<Tabout />} />
 
@@ -121,7 +118,7 @@ const App = () => (
                 element={<GCourseDetails />}
               />
               <Route path="/gospel-video-player" element={<GVideoPlayer />} />
-              <Route path="/gospel-cart" element={<GcartPage />} />
+              <Route path="/gospel-cart" element={<CartPage />} />
               <Route path="/gospel-checkout" element={<Gcheckout />} />
               <Route path="/gospel-about" element={<Gabout />} />
               {/* admin */}
