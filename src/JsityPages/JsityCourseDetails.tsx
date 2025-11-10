@@ -22,31 +22,22 @@ const JsityCourseDetails = () => {
     const fetchCourse = async () => {
       // If we have data from navigation, use it
       if (location.state) {
-        setCourseData(location.state);
+        const { data: lessonsData } = await supabase
+          .from('course_lessons')
+          .select('*')
+          .eq('course_id', location.state.id)
+          .order('order_number', { ascending: true });
+
+        setCourseData({
+          ...location.state,
+          lessons: lessonsData || [],
+          students: 240,
+          rating: 4.8,
+        });
         setLoading(false);
         return;
       }
 
-      // Otherwise fetch from database
-      // You'd need to pass the product ID in the URL somehow
-      const { data } = await supabase
-        .from('products')
-        .select('*')
-        .limit(1)
-        .single();
-      
-      if (data) {
-        setCourseData({
-          id: data.id,
-          image: data.image_url,
-          title: data.title,
-          creator: data.instructor,
-          price: `₦${data.price}`,
-          instructor: data.instructor,
-          students: 240,
-          rating: 4.8,
-        });
-      }
       setLoading(false);
     };
 
@@ -71,72 +62,29 @@ const JsityCourseDetails = () => {
     });
     navigate("/jcart");
   };
-  const handleStartLearning = () =>
+  const handleStartLearning = () => {
+    const firstLesson = courseData.lessons?.[0];
     navigate("/jsity-video-player", {
       state: {
-        id: String(courseData.id),
+        courseId: courseData.id,
+        lessonId: firstLesson?.id,
+        videoUrl: firstLesson?.video_url,
         image: courseData.image,
         title: courseData.title,
         creator: courseData.creator || courseData.instructor,
         price: courseData.price,
         lessons: courseData.lessons,
-        date: courseData.date,
         description: courseData.description,
       },
     });
+  };
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     navigate("/login");
   };
 
-  const curriculum = [
-    {
-      section: "01",
-      title: "Introduction to UI/UX Design",
-      lessons: [
-        { title: "Understanding UI/UX Design Principles", duration: "45 Minutes" },
-        { title: "Importance of User-Centered Design", duration: "1 Hour", highlighted: true },
-        { title: "The Role of UI/UX Design in Product Development", duration: "45 Minutes" },
-      ],
-    },
-    {
-      section: "02",
-      title: "User Research and Analysis",
-      lessons: [
-        { title: "Conducting User Research and Interviews", duration: "1 Hour" },
-        { title: "Analyzing User Needs and Behavior", duration: "1 Hour" },
-        { title: "Creating User Personas and Scenarios", duration: " 45Minutes" },
-      ],
-    },
-    {
-      section: "03",
-      title: "Wireframing and Prototyping",
-      lessons: [
-        { title: "Introduction to Wireframing Tools and Techniques", duration: "1 Hour" },
-        { title: "Creating Low-Fidelity Wireframes", duration: "1 Hour" },
-        { title: "Prototyping and Interactive Mockupss", duration: "1 Hour" },
-      ],
-    },
-    {
-      section: "04",
-      title: "Visual Design and Branding",
-      lessons: [
-        { title: "Color Theory and Typography in UI Design", duration: "1 Hour" },
-        { title: "Visual Hierarchy and Layout Design", duration: "1 Hour" },
-        { title: "Creating a Strong Brand Identity", duration: "45 Minutes" },
-      ],
-    },
-    {
-      section: "05",
-      title: "Usability Testing and Iteration",
-      lessons: [
-        { title: "Usability Testing Methods and Techniques", duration: "1 Hour" },
-        { title: "Analyzing Usability Test Resultsr", duration: "45 Hour" },
-        { title: "Iterating and Improving UX Designs", duration: "45 Minutes" },
-      ],
-    },
-  ];
+  const lessons = courseData.lessons || [];
 
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white">
@@ -215,36 +163,47 @@ const JsityCourseDetails = () => {
       <div className="container mx-auto px-4 pb-24 max-w-5xl">
         <h2 className="text-3xl font-bold mb-12">Course Curriculum</h2>
 
-        <div className="space-y-12">
-          {curriculum.map((section) => (
-            <div key={section.section} className="border-l-4 border-purple-600 pl-6">
-              <h3 className="text-xl font-semibold mb-6 text-purple-400">
-                {section.section}. {section.title}
-              </h3>
-              <div className="space-y-4">
-                {section.lessons.map((lesson, i) => (
-                  <div
-                    key={i}
-                    className={`p-4 rounded-lg border flex items-center justify-between transition-all hover:border-purple-600 ${
-                      lesson.highlighted
-                        ? "border-purple-600 bg-purple-600/10"
-                        : "border-gray-800"
-                    }`}
-                  >
-                    <div>
-                      <h4 className="font-medium">{lesson.title}</h4>
-                      <div className="flex items-center gap-2 text-sm text-gray-400 mt-1">
-                        <Clock className="w-4 h-4" />
-                        <span>{lesson.duration}</span>
-                      </div>
-                    </div>
-                    <BookOpen className="w-5 h-5 text-gray-500" />
+        {lessons.length > 0 ? (
+          <div className="space-y-4">
+            {lessons.map((lesson: any, i: number) => (
+              <div
+                key={lesson.id}
+                className={`p-4 rounded-lg border flex items-center justify-between transition-all hover:border-purple-600 cursor-pointer ${
+                  i === 0
+                    ? "border-purple-600 bg-purple-600/10"
+                    : "border-gray-800"
+                }`}
+                onClick={() => navigate("/jsity-video-player", {
+                  state: {
+                    courseId: courseData.id,
+                    lessonId: lesson.id,
+                    videoUrl: lesson.video_url,
+                    image: courseData.image,
+                    title: lesson.title,
+                    creator: courseData.creator || courseData.instructor,
+                    price: courseData.price,
+                    lessons: courseData.lessons,
+                    description: lesson.description,
+                  },
+                })}
+              >
+                <div>
+                  <h4 className="font-medium">{lesson.title}</h4>
+                  {lesson.description && (
+                    <p className="text-sm text-gray-400 mt-1">{lesson.description}</p>
+                  )}
+                  <div className="flex items-center gap-2 text-sm text-gray-400 mt-1">
+                    <Clock className="w-4 h-4" />
+                    <span>{lesson.duration || 'N/A'}</span>
                   </div>
-                ))}
+                </div>
+                <Play className="w-5 h-5 text-purple-400" />
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-gray-400">No lessons available yet.</p>
+        )}
       </div>
 
       <JsityFooter />
