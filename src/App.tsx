@@ -27,6 +27,8 @@ import { GcartPage } from "./GospelLine/GcartPage";
 import Gcheckout from "./GospelLine/Gcheckout";
 import Gabout from "./GospelLine/Gabout";
 import JsityAdmin from "./pages/JsityAdmin";
+import { CoursesList } from "./components/admin/CoursesList";
+import { CreateCourse } from "./components/admin/CreateCourse";
 
 const Index = lazy(() => import("./pages/Index"));
 const Login = lazy(() => import("./pages/Login"));
@@ -99,7 +101,6 @@ const App = () => (
               <Route path="/about-jsity" element={<Jabout />} />
               <Route path="/jsity-admin" element={<JsityAdmin />} />
 
-
               {/* Routes for thc pages */}
               <Route path="/thc-dashboard" element={<ThcDashboard />} />
               <Route path="/thc-courses" element={<ThcCourses />} />
@@ -123,6 +124,7 @@ const App = () => (
               <Route path="/gospel-cart" element={<GcartPage />} />
               <Route path="/gospel-checkout" element={<Gcheckout />} />
               <Route path="/gospel-about" element={<Gabout />} />
+              {/* admin */}
 
               <Route path="*" element={<NotFound />} />
             </Routes>

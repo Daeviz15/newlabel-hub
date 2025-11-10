@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import JsityFooter from "./components/JsityFooter";
 import { useUserProfile } from "@/hooks/use-user-profile";
 import { JHomeHeader } from "./components/home-header";
+import { SkipBack } from "lucide-react";
 
 const courseData = [
   {
@@ -86,6 +87,8 @@ export default function Jdashboard() {
       <div className="flex flex-col">
         {/* Top Banner - Desktop only */}
         <div className="hidden sm:block bg-[linear-gradient(269.56deg,_rgba(161,54,255,1)_0.05%,_rgba(149,44,242,1)_20.26%,_rgba(123,37,199,1)_49.47%,_rgba(98,17,169,1)_82.66%)] text-white text-sm py-3 text-center font-vietnam font-medium">
+         <SkipBack className="ml-10" />
+         
           Free Courses 🌟 Sale Ends Soon. Get It Now →
         </div>
 
