@@ -16,13 +16,14 @@ import {
 import { useCart } from "@/hooks/use-cart";
 
 interface CourseData {
-  id: string;
+  courseId: string;
+  lessonId?: string;
+  videoUrl?: string;
   image: string;
   title: string;
   creator: string;
   price: string;
-  lessons?: number;
-  date?: string;
+  lessons?: any[];
   description?: string;
 }
 
@@ -37,6 +38,8 @@ export default function VideoPlayer() {
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [currentLesson, setCurrentLesson] = useState<any>(null);
+  const [allLessons, setAllLessons] = useState<any[]>([]);
 
   useEffect(() => {
     const updateFromSession = (session: any) => {
@@ -70,6 +73,31 @@ export default function VideoPlayer() {
 
     return () => subscription.unsubscribe();
   }, []);
+
+  useEffect(() => {
+    const fetchLessons = async () => {
+      if (!courseData?.courseId) return;
+
+      const { data } = await supabase
+        .from('course_lessons')
+        .select('*')
+        .eq('course_id', courseData.courseId)
+        .order('order_number', { ascending: true });
+
+      if (data) {
+        setAllLessons(data);
+        
+        // Set current lesson based on lessonId or first lesson
+        const lesson = courseData.lessonId 
+          ? data.find(l => l.id === courseData.lessonId)
+          : data[0];
+        
+        setCurrentLesson(lesson);
+      }
+    };
+
+    fetchLessons();
+  }, [courseData]);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -130,89 +158,75 @@ export default function VideoPlayer() {
       {/* Video Player Section */}
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 lg:pt-28 pb-8 sm:pb-12">
         {/* Video Player */}
-        <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-black border border-white/10 group">
-          <img
-            src={courseData.image}
-            alt={courseData.title}
-            className="h-full w-full object-cover"
-          />
-
-          {/* Play/Pause Overlay */}
-          <button
-            onClick={() => setIsPlaying(!isPlaying)}
-            className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/40 transition-colors"
-          >
-            {!isPlaying && (
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white/90 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <Play className="w-8 h-8 sm:w-10 sm:h-10 text-black fill-black ml-1" />
-              </div>
-            )}
-          </button>
-
-          {/* Video Title Overlay (Bottom Left) */}
-          <div className="absolute bottom-14 sm:bottom-16 left-4 sm:left-6 text-white">
-            <p className="text-xs sm:text-sm font-medium opacity-90">
-              {courseData.title}
-            </p>
-          </div>
-
-          {/* Video Controls */}
-          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-3 sm:p-4 opacity-0 group-hover:opacity-100 transition-opacity">
-            {/* Progress Bar */}
-            <div className="mb-3 sm:mb-4">
-              <div className="w-full h-1 bg-white/20 rounded-full overflow-hidden">
-                <div className="h-full w-1/3 bg-purple-400 rounded-full"></div>
-              </div>
+        <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-black border border-white/10">
+          {currentLesson?.video_url ? (
+            <video
+              src={currentLesson.video_url}
+              controls
+              autoPlay
+              className="h-full w-full"
+              onPlay={() => setIsPlaying(true)}
+              onPause={() => setIsPlaying(false)}
+            />
+          ) : (
+            <div className="h-full w-full flex items-center justify-center bg-gray-900">
+              <p className="text-gray-400">No video available</p>
             </div>
-
-            {/* Control Buttons */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 sm:gap-3">
-                <button className="text-white hover:text-purple-400 transition-colors">
-                  <Pause className="w-4 h-4 sm:w-5 sm:h-5" />
-                </button>
-                <button className="text-white hover:text-purple-400 transition-colors">
-                  <SkipBack className="w-4 h-4 sm:w-5 sm:h-5" />
-                </button>
-                <button className="text-white hover:text-purple-400 transition-colors">
-                  <SkipForward className="w-4 h-4 sm:w-5 sm:h-5" />
-                </button>
-              </div>
-
-              <div className="flex items-center gap-2 sm:gap-3">
-                <button className="text-white hover:text-purple-400 transition-colors">
-                  <Volume2 className="w-4 h-4 sm:w-5 sm:h-5" />
-                </button>
-                <button className="text-white hover:text-purple-400 transition-colors">
-                  <Settings className="w-4 h-4 sm:w-5 sm:h-5" />
-                </button>
-                <button className="text-white hover:text-purple-400 transition-colors">
-                  <Maximize className="w-4 h-4 sm:w-5 sm:h-5" />
-                </button>
-              </div>
-            </div>
-          </div>
+          )}
         </div>
 
         {/* Course Info Section */}
         <div className="mt-6 sm:mt-8 space-y-3 sm:space-y-4">
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white">
-            {courseData.title}
+            {currentLesson?.title || courseData.title}
           </h1>
           <div className="flex flex-wrap items-center gap-2 text-sm sm:text-base text-gray-400">
             <span className="font-semibold text-white">
-              {userName || "John Doe"}
+              {courseData.creator}
             </span>
             <span>•</span>
-            <span>{courseData.lessons || 32} Lessons</span>
-            <span>•</span>
-            <span>{courseData.date || "12-08-2025"}</span>
+            <span>{allLessons.length} Lessons</span>
+            {currentLesson?.duration && (
+              <>
+                <span>•</span>
+                <span>{currentLesson.duration}</span>
+              </>
+            )}
           </div>
           <p className="text-sm sm:text-base text-gray-300 leading-relaxed max-w-4xl">
-            {courseData.description ||
-              "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."}
+            {currentLesson?.description || courseData.description || "No description available."}
           </p>
         </div>
+
+        {/* Lessons List */}
+        {allLessons.length > 0 && (
+          <div className="mt-8 space-y-2">
+            <h2 className="text-xl font-bold mb-4">Course Lessons</h2>
+            <div className="space-y-2">
+              {allLessons.map((lesson: any) => (
+                <div
+                  key={lesson.id}
+                  onClick={() => setCurrentLesson(lesson)}
+                  className={`p-4 rounded-lg border cursor-pointer transition-all hover:border-purple-500 ${
+                    currentLesson?.id === lesson.id
+                      ? "border-purple-500 bg-purple-500/10"
+                      : "border-gray-800 hover:bg-gray-900"
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="font-medium">{lesson.title}</h3>
+                      {lesson.duration && (
+                        <p className="text-sm text-gray-400">{lesson.duration}</p>
+                      )}
+                    </div>
+                    <Play className="w-5 h-5 text-purple-400" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* You Might Also Like Section */}

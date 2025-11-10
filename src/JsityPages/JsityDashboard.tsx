@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ProductCard, TopPick } from "@/components/course-card";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -6,49 +6,35 @@ import JsityFooter from "./components/JsityFooter";
 import { useUserProfile } from "@/hooks/use-user-profile";
 import { JHomeHeader } from "./components/home-header";
 
-const courseData = [
-  {
-    id: 1,
-    price: "$18",
-    title: "The Future Of AI In Everyday Products",
-    subtitle: "Ada Nwosu",
-    role: "Machine Learning Engineer At NewsTech",
-    image: "/assets/dashboard-images/face.jpg",
-  },
-  {
-    id: 2,
-    price: "$18",
-    title: "The Future Of AI In Everyday Products",
-    subtitle: "Ada Nwosu",
-    role: "Machine Learning Engineer At NewsTech",
-    image: "/assets/dashboard-images/firm.jpg",
-  },
-  {
-    id: 3,
-    price: "$18",
-    title: "The Future Of AI In Everyday Products",
-    subtitle: "Ada Nwosu",
-    role: "Machine Learning Engineer At NewsTech",
-    image: "/assets/dashboard-images/lady.jpg",
-  },
-  {
-    id: 4,
-    price: "$18",
-    title: "The Future Of AI In Everyday Products",
-    subtitle: "Ada Nwosu",
-    role: "Machine Learning Engineer At NewsTech",
-    image: "/assets/dashboard-images/only.jpg",
-  },
-];
-
-const trendingItems = courseData;
-const releasesItems = courseData;
-const recommendedItems = courseData;
-
 export default function Jdashboard() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const { userName, userEmail, avatarUrl } = useUserProfile();
+  const [courses, setCourses] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      const { data } = await supabase
+        .from('products')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (data) {
+        setCourses(data.map(course => ({
+          id: course.id,
+          price: `$${course.price}`,
+          title: course.title,
+          subtitle: course.instructor || 'Instructor',
+          role: course.instructor_role || 'Expert',
+          image: course.image_url || '/assets/dashboard-images/face.jpg',
+        })));
+      }
+      setLoading(false);
+    };
+
+    fetchCourses();
+  }, []);
 
   // Function to get time-based greeting
   const getTimeBasedGreeting = () => {
@@ -68,15 +54,7 @@ export default function Jdashboard() {
   };
 
   const q = searchQuery.trim().toLowerCase();
-  const filteredTrendingItems = trendingItems.filter(
-    (i) =>
-      i.title.toLowerCase().includes(q) || i.subtitle.toLowerCase().includes(q)
-  );
-  const filteredReleasesItems = releasesItems.filter(
-    (i) =>
-      i.title.toLowerCase().includes(q) || i.subtitle.toLowerCase().includes(q)
-  );
-  const filteredRecommendedItems = recommendedItems.filter(
+  const filteredCourses = courses.filter(
     (i) =>
       i.title.toLowerCase().includes(q) || i.subtitle.toLowerCase().includes(q)
   );
@@ -118,7 +96,11 @@ export default function Jdashboard() {
             title="What's Trending This week"
             description="Learn binge-worthy, career-building lessons from experts across tech media and business."
           >
-            <CardsGrid items={filteredTrendingItems} navigate={navigate} />
+            {loading ? (
+              <p className="text-gray-400">Loading courses...</p>
+            ) : (
+              <CardsGrid items={filteredCourses.slice(0, 4)} navigate={navigate} />
+            )}
           </Section>
 
           {/* New Releases */}
@@ -126,7 +108,11 @@ export default function Jdashboard() {
             title="New Releases"
             description="Learn binge-worthy, career-building lessons from experts across tech media and business."
           >
-            <CardsGrid items={filteredReleasesItems} navigate={navigate} />
+            {loading ? (
+              <p className="text-gray-400">Loading courses...</p>
+            ) : (
+              <CardsGrid items={filteredCourses} navigate={navigate} />
+            )}
           </Section>
 
           {/* Recommended For You */}
@@ -134,7 +120,11 @@ export default function Jdashboard() {
             title="Recommended For You"
             description="Learn binge-worthy, career-building lessons from experts across tech media and business."
           >
-            <CardsGrid items={filteredRecommendedItems} navigate={navigate} />
+            {loading ? (
+              <p className="text-gray-400">Loading courses...</p>
+            ) : (
+              <CardsGrid items={filteredCourses.slice(0, 4)} navigate={navigate} />
+            )}
           </Section>
 
           {/* This week's top pick */}
@@ -178,13 +168,7 @@ function CardsGrid({
   items,
   navigate,
 }: {
-  items: {
-    id: number;
-    image: string;
-    title: string;
-    subtitle: string;
-    price: string;
-  }[];
+  items: any[];
   navigate: any;
 }) {
   return (
@@ -201,12 +185,13 @@ function CardsGrid({
           onClick={() =>
             navigate("/jsity-course-details", {
               state: {
-                id: it.id.toString(),
+                id: it.id,
                 image: it.image,
                 title: it.title,
                 creator: it.subtitle,
                 price: it.price,
                 instructor: it.subtitle,
+                role: it.role,
               },
             })
           }
