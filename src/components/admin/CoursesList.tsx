@@ -42,6 +42,75 @@ export const CoursesList = () => {
 
   const handleDelete = async (courseId: string) => {
     try {
+      // First, get the course details to find associated files
+      const { data: course, error: courseError } = await supabase
+        .from("products")
+        .select("image_url, preview_video_url")
+        .eq("id", courseId)
+        .single();
+
+      if (courseError) throw courseError;
+
+      // Get all lessons for this course
+      const { data: lessons, error: lessonsError } = await supabase
+        .from("course_lessons")
+        .select("video_url")
+        .eq("course_id", courseId);
+
+      if (lessonsError) throw lessonsError;
+
+      // Delete lesson videos from storage
+      if (lessons && lessons.length > 0) {
+        const videoFilePaths = lessons
+          .map(lesson => {
+            const url = lesson.video_url;
+            const match = url.match(/course-videos\/(.+)$/);
+            return match ? match[1] : null;
+          })
+          .filter(Boolean) as string[];
+
+        if (videoFilePaths.length > 0) {
+          const { error: videoDeleteError } = await supabase.storage
+            .from("course-videos")
+            .remove(videoFilePaths);
+
+          if (videoDeleteError) console.error("Error deleting videos:", videoDeleteError);
+        }
+      }
+
+      // Delete course thumbnail from storage
+      if (course?.image_url) {
+        const imageMatch = course.image_url.match(/course-images\/(.+)$/);
+        if (imageMatch) {
+          const { error: imageDeleteError } = await supabase.storage
+            .from("course-images")
+            .remove([imageMatch[1]]);
+
+          if (imageDeleteError) console.error("Error deleting thumbnail:", imageDeleteError);
+        }
+      }
+
+      // Delete preview video from storage if exists
+      if (course?.preview_video_url) {
+        const previewMatch = course.preview_video_url.match(/course-videos\/(.+)$/);
+        if (previewMatch) {
+          const { error: previewDeleteError } = await supabase.storage
+            .from("course-videos")
+            .remove([previewMatch[1]]);
+
+          if (previewDeleteError) console.error("Error deleting preview video:", previewDeleteError);
+        }
+      }
+
+      // Delete course lessons from database
+      const { error: deleteLessonsError } = await supabase
+        .from("course_lessons")
+        .delete()
+        .eq("course_id", courseId);
+
+      if (deleteLessonsError) throw deleteLessonsError;
+
+      // Finally, delete the course itself
       const { error } = await supabase
         .from("products")
         .delete()
@@ -51,7 +120,7 @@ export const CoursesList = () => {
 
       toast({
         title: "Success",
-        description: "Course deleted successfully",
+        description: "Course and all associated files deleted successfully",
       });
       refetch();
     } catch (error: any) {
