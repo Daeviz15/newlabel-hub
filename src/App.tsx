@@ -31,6 +31,7 @@ const Index = lazy(() => import("./pages/Index"));
 const Login = lazy(() => import("./pages/Login"));
 const SignUp = lazy(() => import("./pages/SignUp"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const AboutPage = lazy(() => import("./pages/AboutPage"));
 const ContactPage = lazy(() => import("./pages/ContactPage"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -61,6 +62,7 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<SignUp />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/contact" element={<ContactPage />} />
