@@ -19,6 +19,7 @@ export default function Jdashboard() {
       const { data } = await supabase
         .from('products')
         .select('*')
+        .eq('category', 'jsity')
         .order('created_at', { ascending: false });
       
       if (data) {
