@@ -9,6 +9,7 @@ type CourseCardProps = {
   onAddToCart: () => void
   onViewDetails: () => void
   accent?: 'lime' | 'purple'
+  className?: string
 }
 
 export function CourseCard({
@@ -20,13 +21,14 @@ export function CourseCard({
   onAddToCart,
   onViewDetails,
   accent = 'lime',
+  className = '',
 }: CourseCardProps) {
   const ringHoverClass = accent === 'purple' ? 'hover:ring-purple-500' : 'hover:ring-lime-500'
   const priceTextClass = accent === 'purple' ? 'text-purple-400' : 'text-lime-400'
   const priceRingClass = accent === 'purple' ? 'ring-purple-500/40' : 'ring-lime-500/40'
   const titleHoverClass = accent === 'purple' ? 'group-hover:text-purple-400' : 'group-hover:text-lime-400'
   return (
-    <div className={`group relative overflow-hidden rounded-xl border border-white/10 bg-[#151515] hover:ring-2 ${ringHoverClass} transition-all duration-300 cursor-pointer`}>
+    <div className={`group relative overflow-hidden rounded-xl border border-white/10 bg-[#151515] hover:ring-2 ${ringHoverClass} transition-all duration-300 cursor-pointer ${className}`}>
       <div className="absolute left-3 top-3 z-10 flex items-center gap-2">
         <span className={`rounded-sm bg-black/70 px-1.5 py-0.5 text-[11px] font-semibold ${priceTextClass} ring-1 ${priceRingClass}`}>
           {price}

@@ -303,6 +303,8 @@ export default function VideoDetails() {
               title={course.title}
               creator={course.creator}
               price={course.price}
+              accent="purple"
+              className="hover:bg-purple-500/20"
               onAddToCart={() => {
                 addItem({
                   id: course.id,
@@ -328,6 +330,8 @@ export default function VideoDetails() {
               title={course.title}
               creator={course.creator}
               price={course.price}
+              accent="purple"
+              className="hover:bg-purple-500/20"
               onAddToCart={() => {
                 addItem({
                   id: `${course.id}-${idx}`,
