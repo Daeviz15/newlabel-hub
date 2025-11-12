@@ -1,10 +1,17 @@
-"use client"
+"use client";
 
-import { ChevronDown, Search, ShoppingCart, Heart, Menu, X } from "lucide-react"
-import { useEffect, useState } from "react"
-import { getSaved, onSavedChange } from "@/hooks/use-saved"
-import { useNavigate } from "react-router-dom"
-import logo from "@/assets/jsity.png"
+import {
+  ChevronDown,
+  Search,
+  ShoppingCart,
+  Heart,
+  Menu,
+  X,
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import { getSaved, onSavedChange } from "@/hooks/use-saved";
+import { useNavigate } from "react-router-dom";
+import logo from "@/assets/jsity.png";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,7 +19,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 
 export function JHomeHeader({
   search,
@@ -22,23 +29,23 @@ export function JHomeHeader({
   avatarUrl,
   onSignOut,
 }: {
-  search: string
-  onSearchChange: (q: string) => void
-  userName?: string
-  userEmail?: string
-  avatarUrl?: string
-  onSignOut?: () => void
+  search: string;
+  onSearchChange: (q: string) => void;
+  userName?: string;
+  userEmail?: string;
+  avatarUrl?: string;
+  onSignOut?: () => void;
 }) {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [isSearchFocused, setIsSearchFocused] = useState(false)
-  const [isMobileChannelsOpen, setIsMobileChannelsOpen] = useState(false)
-  const [savedCount, setSavedCount] = useState<number>(getSaved().length)
-  const navigate = useNavigate()
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [isMobileChannelsOpen, setIsMobileChannelsOpen] = useState(false);
+  const [savedCount, setSavedCount] = useState<number>(getSaved().length);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    setSavedCount(getSaved().length)
-    return onSavedChange(() => setSavedCount(getSaved().length))
-  }, [])
+    setSavedCount(getSaved().length);
+    return onSavedChange(() => setSavedCount(getSaved().length));
+  }, []);
 
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0c0c0c]/95 backdrop-blur supports-[backdrop-filter]:bg-[#0c0c0c]/75 transition-all duration-300">
@@ -139,19 +146,27 @@ export function JHomeHeader({
             onBlur={() => setIsSearchFocused(false)}
           />
         </div>
+        <div className="flex gap-2">
+
         <a
           href="/jcart"
           aria-label="Cart"
-          className="hidden h-8 w-8 items-center justify-center font-vietnam rounded-md bg-[#1a1a1a] text-white ring-1 ring-white/10 transition-all duration-200 hover:bg-[#222] hover:scale-105 sm:inline-flex sm:h-9 sm:w-9"
+          className="items-center p-2 justify-center font-vietnam rounded-md bg-[#1a1a1a] text-white ring-1 ring-white/10 transition-all duration-200 hover:bg-[#222] hover:scale-105 sm:inline-flex sm:h-9 sm:w-9"
         >
           <ShoppingCart className="h-4 w-4" />
         </a>
         <button
           aria-label="Favorites"
-          className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-[#1a1a1a] text-white ring-1 ring-white/10 transition-all duration-200 hover:bg-[#222] hover:scale-105 sm:h-9 sm:w-9"
+          className="inline-flex h-8 w-8 items-center   justify-center rounded-md bg-[#1a1a1a] text-white ring-1 ring-white/10 transition-all duration-200 hover:bg-[#222] hover:scale-105 sm:h-9 sm:w-9"
         >
           <div className="relative">
-            <Heart className={savedCount > 0 ? "h-4 w-4 fill-purple-400 text-purple-600" : "h-4 w-4"} />
+            <Heart
+              className={` ${
+                savedCount > 0
+                  ? "h-4 w-4 fill-purple-400 text-purple-600"
+                  : "h-4 w-4"
+              }`}
+            />
             {savedCount > 0 && (
               <span className="absolute -top-1 -right-1 inline-flex items-center justify-center rounded-full bg-purple-400 text-black text-[10px] font-bold h-4 min-w-4 px-1">
                 {savedCount > 99 ? "99+" : savedCount}
@@ -159,6 +174,8 @@ export function JHomeHeader({
             )}
           </div>
         </button>
+        </div>
+
         {/* Right: Icons + Profile */}
         <div className="flex items-center  gap-1 sm:gap-2">
           {/* Search icon for tablet */}
@@ -181,13 +198,21 @@ export function JHomeHeader({
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel>
-                  <div className="text-sm font-semibold">{userName ?? "Guest"}</div>
-                  {userEmail && <div className="text-xs text-zinc-400">{userEmail}</div>}
+                  <div className="text-sm font-semibold">
+                    {userName ?? "Guest"}
+                  </div>
+                  {userEmail && (
+                    <div className="text-xs text-zinc-400">{userEmail}</div>
+                  )}
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate("/mylibrary")}>My Library</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/mylibrary")}>
+                  My Library
+                </DropdownMenuItem>
 
-                <DropdownMenuItem onClick={() => onSignOut?.()}>Sign out</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onSignOut?.()}>
+                  Sign out
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
             {/* User info - hidden on small screens */}
@@ -265,9 +290,9 @@ export function JHomeHeader({
               <button
                 className="block w-full text-left py-2 text-sm text-zinc-300 hover:text-white"
                 onClick={() => {
-                  navigate("/gospel-dashboard")
-                  setIsMenuOpen(false)
-                  setIsMobileChannelsOpen(false)
+                  navigate("/gospel-dashboard");
+                  setIsMenuOpen(false);
+                  setIsMobileChannelsOpen(false);
                 }}
               >
                 Gospeline
@@ -275,9 +300,9 @@ export function JHomeHeader({
               <button
                 className="block w-full text-left py-2 text-sm text-zinc-300 hover:text-white"
                 onClick={() => {
-                  navigate("/thc-dashboard")
-                  setIsMenuOpen(false)
-                  setIsMobileChannelsOpen(false)
+                  navigate("/thc-dashboard");
+                  setIsMenuOpen(false);
+                  setIsMobileChannelsOpen(false);
                 }}
               >
                 Thc
@@ -285,9 +310,9 @@ export function JHomeHeader({
               <button
                 className="block w-full text-left py-2 text-sm text-zinc-300 hover:text-white"
                 onClick={() => {
-                  navigate("/dashboard")
-                  setIsMenuOpen(false)
-                  setIsMobileChannelsOpen(false)
+                  navigate("/dashboard");
+                  setIsMenuOpen(false);
+                  setIsMobileChannelsOpen(false);
                 }}
               >
                 NLTV
@@ -296,13 +321,17 @@ export function JHomeHeader({
 
             {/* User info for mobile */}
             <div className="pt-3 border-t border-white/10">
-              <div className="text-sm font-semibold text-white">{userName ?? "Guest"}</div>
-              {userEmail && <div className="text-xs text-zinc-400">{userEmail}</div>}
+              <div className="text-sm font-semibold text-white">
+                {userName ?? "Guest"}
+              </div>
+              {userEmail && (
+                <div className="text-xs text-zinc-400">{userEmail}</div>
+              )}
               {onSignOut && (
                 <button
                   onClick={() => {
-                    onSignOut()
-                    setIsMenuOpen(false)
+                    onSignOut();
+                    setIsMenuOpen(false);
                   }}
                   className="mt-3 inline-flex w-full items-center font-vietnam justify-center rounded-md bg-[#1a1a1a] text-white ring-1 ring-white/10 transition-all duration-200 hover:bg-[#222] py-2 text-sm"
                 >
@@ -318,7 +347,9 @@ export function JHomeHeader({
       <div className="block w-full px-3 pb-3 sm:px-4 lg:hidden">
         <div
           className={`flex items-center rounded-full font-vietnam px-4 py-2.5 text-[13px] text-zinc-300 transition-all duration-300 ${
-            isSearchFocused ? "bg-[#333] ring-2 ring-purple-500/30 shadow-lg shadow-purple-500/10" : "bg-[#2a2a2a]"
+            isSearchFocused
+              ? "bg-[#333] ring-2 ring-purple-500/30 shadow-lg shadow-purple-500/10"
+              : "bg-[#2a2a2a]"
           }`}
         >
           <Search
@@ -340,5 +371,5 @@ export function JHomeHeader({
         </div>
       </div>
     </header>
-  )
+  );
 }

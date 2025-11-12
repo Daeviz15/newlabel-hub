@@ -147,7 +147,7 @@ export function HomeHeader({
           <a
             href="/notifications"
             aria-label="Notification"
-            className="hidden h-8 w-8 items-center justify-center rounded-md bg-[#1a1a1a] text-white ring-1 ring-white/10 transition-all duration-200 hover:bg-[#222] hover:scale-105 sm:inline-flex sm:h-9 sm:w-9"
+            className=" p-2 items-center justify-center rounded-md bg-[#1a1a1a] text-white ring-1 ring-white/10 transition-all duration-200 hover:bg-[#222] hover:scale-105 sm:inline-flex sm:h-9 sm:w-9"
           >
             <Bell className="h-4 w-4" />
           </a>
@@ -242,7 +242,7 @@ export function HomeHeader({
         <nav className="border-t border-white/10 bg-[#0c0c0c] px-4 py-4">
           <div className="space-y-3">
             <a
-              href="#"
+              href="/dashboard"
               className="block text-sm text-zinc-300 font-vietnam transition-all duration-200 hover:text-white hover:translate-x-1"
               onClick={() => setIsMenuOpen(false)}
             >
@@ -304,7 +304,7 @@ export function HomeHeader({
               <button
                 className="block w-full text-left py-2 text-sm text-zinc-300 hover:text-white"
                 onClick={() => {
-                  navigate("/channels/gospel-dashboard");
+                  navigate("/gospel-dashboard");
                   setIsMenuOpen(false);
                   setIsMobileChannelsOpen(false);
                 }}

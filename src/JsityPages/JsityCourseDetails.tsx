@@ -11,6 +11,7 @@ import { addSaved, isItemSaved, removeSaved } from "@/hooks/use-saved";
 
 import { JHomeHeader } from "./components/home-header";
 import { useUserProfile } from "@/hooks/use-user-profile";
+import JsityFooter from "./components/JsityFooter";
 
 interface CourseData {
   id: string;
@@ -261,6 +262,8 @@ export default function VideoDetails() {
 
             {/* Action Buttons */}
             <div className="flex flex-col gap-3 mt-4">
+              <h1 className="font-bold">{courseData.price}</h1>
+
               <div className="grid grid-cols-2 gap-3">
                 <Button
                   onClick={handleAddToCart}
@@ -343,7 +346,7 @@ export default function VideoDetails() {
         </div>
       </div>
 
-      <Footer />
+      <JsityFooter />
     </main>
   );
 }

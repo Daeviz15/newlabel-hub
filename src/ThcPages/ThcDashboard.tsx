@@ -186,7 +186,7 @@ function CardsGrid({
           bgColor="ring-[#70E002]"
           priceAccent="thc"
           onClick={() =>
-            navigate("/thc-course-details", {
+            navigate("/thc-video-player", {
               state: {
                 id: it.id.toString(),
                 image: it.image,
