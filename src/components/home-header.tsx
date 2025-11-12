@@ -81,7 +81,7 @@ export function HomeHeader({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="group inline-flex items-center gap-1 font-vietnam transition-colors duration-200 hover:text-white">
-                  <span>Channels</span>
+                  <span>NLTV</span>
                   <ChevronDown
                     className="h-4 w-4 transition-transform duration-200 group-hover:rotate-180"
                     aria-hidden="true"
@@ -268,7 +268,7 @@ export function HomeHeader({
               aria-expanded={isMobileChannelsOpen}
               aria-controls="mobile-channels-submenu"
             >
-              <span>Channels</span>
+              <span>NLTV</span>
               <ChevronDown
                 className={`h-4 w-4 transition-transform duration-200 ${
                   isMobileChannelsOpen ? "rotate-180" : "group-hover:rotate-180"

@@ -1,15 +1,29 @@
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Play, Clock, Star, Users, BookOpen } from "lucide-react";
+import { HomeHeader } from "@/components/home-header";
+import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
+import { ShoppingCart, Heart, Play } from "lucide-react";
+import { CourseCard } from "@/components/course-card-interactive";
+import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/hooks/use-cart";
-import { toast } from "sonner";
-import JsityFooter from "./components/JsityFooter";
+import { addSaved, isItemSaved, removeSaved } from "@/hooks/use-saved";
+
 import { JHomeHeader } from "./components/home-header";
 import { useUserProfile } from "@/hooks/use-user-profile";
-import { supabase } from "@/integrations/supabase/client";
-import { useEffect, useState } from "react";
 
-const JsityCourseDetails = () => {
+interface CourseData {
+  id: string;
+  image: string;
+  title: string;
+  creator: string;
+  price: string;
+  lessons?: number;
+  date?: string;
+  description?: string;
+}
+
+export default function VideoDetails() {
   const location = useLocation();
   const navigate = useNavigate();
   const { addItem } = useCart();
@@ -22,22 +36,31 @@ const JsityCourseDetails = () => {
     const fetchCourse = async () => {
       // If we have data from navigation, use it
       if (location.state) {
-        const { data: lessonsData } = await supabase
-          .from("course_lessons")
-          .select("*")
-          .eq("course_id", location.state.id)
-          .order("order_number", { ascending: true });
-
-        setCourseData({
-          ...location.state,
-          lessons: lessonsData || [],
-          students: 240,
-          rating: 4.8,
-        });
+        setCourseData(location.state);
         setLoading(false);
         return;
       }
 
+      // Otherwise fetch from database
+      // You'd need to pass the product ID in the URL somehow
+      const { data } = await supabase
+        .from("products")
+        .select("*")
+        .limit(1)
+        .single();
+
+      if (data) {
+        setCourseData({
+          id: data.id,
+          image: data.image_url,
+          title: data.title,
+          creator: data.instructor,
+          price: `₦${data.price}`,
+          instructor: data.instructor,
+          students: 240,
+          rating: 4.8,
+        });
+      }
       setLoading(false);
     };
 
@@ -62,32 +85,129 @@ const JsityCourseDetails = () => {
     });
     navigate("/jcart");
   };
-  const handleStartLearning = () => {
-    const firstLesson = courseData.lessons?.[0];
+  const handleStartLearning = () =>
     navigate("/jsity-video-player", {
       state: {
-        courseId: courseData.id,
-        lessonId: firstLesson?.id,
-        videoUrl: firstLesson?.video_url,
+        id: String(courseData.id),
         image: courseData.image,
         title: courseData.title,
         creator: courseData.creator || courseData.instructor,
         price: courseData.price,
         lessons: courseData.lessons,
+        date: courseData.date,
         description: courseData.description,
       },
     });
-  };
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     navigate("/login");
   };
-
-  const lessons = courseData.lessons || [];
+  const recommendedCourses = [
+    {
+      id: "1",
+      image: "/assets/dashboard-images/face.jpg",
+      title: "The Future Of AI In Everyday Products",
+      creator: "Jsify",
+      price: "$18",
+    },
+    {
+      id: "2",
+      image: "/assets/gospel.png",
+      title: "Firm Foundation",
+      creator: "Faith Academy",
+      price: "$18",
+    },
+    {
+      id: "3",
+      image: "/assets/dashboard-images/lady.jpg",
+      title: "The Silent Trauma Of Millenials",
+      creator: "The House Chronicles",
+      price: "$18",
+    },
+    {
+      id: "4",
+      image: "/assets/dashboard-images/only.jpg",
+      title: "The Future Of AI In Everyday Products",
+      creator: "Jsify",
+      price: "$18",
+    },
+  ];
+  const curriculum = [
+    {
+      section: "01",
+      title: "Introduction to UI/UX Design",
+      lessons: [
+        {
+          title: "Understanding UI/UX Design Principles",
+          duration: "45 Minutes",
+        },
+        {
+          title: "Importance of User-Centered Design",
+          duration: "1 Hour",
+          highlighted: true,
+        },
+        {
+          title: "The Role of UI/UX Design in Product Development",
+          duration: "45 Minutes",
+        },
+      ],
+    },
+    {
+      section: "02",
+      title: "User Research and Analysis",
+      lessons: [
+        {
+          title: "Conducting User Research and Interviews",
+          duration: "1 Hour",
+        },
+        { title: "Analyzing User Needs and Behavior", duration: "1 Hour" },
+        {
+          title: "Creating User Personas and Scenarios",
+          duration: " 45Minutes",
+        },
+      ],
+    },
+    {
+      section: "03",
+      title: "Wireframing and Prototyping",
+      lessons: [
+        {
+          title: "Introduction to Wireframing Tools and Techniques",
+          duration: "1 Hour",
+        },
+        { title: "Creating Low-Fidelity Wireframes", duration: "1 Hour" },
+        { title: "Prototyping and Interactive Mockupss", duration: "1 Hour" },
+      ],
+    },
+    {
+      section: "04",
+      title: "Visual Design and Branding",
+      lessons: [
+        {
+          title: "Color Theory and Typography in UI Design",
+          duration: "1 Hour",
+        },
+        { title: "Visual Hierarchy and Layout Design", duration: "1 Hour" },
+        { title: "Creating a Strong Brand Identity", duration: "45 Minutes" },
+      ],
+    },
+    {
+      section: "05",
+      title: "Usability Testing and Iteration",
+      lessons: [
+        {
+          title: "Usability Testing Methods and Techniques",
+          duration: "1 Hour",
+        },
+        { title: "Analyzing Usability Test Resultsr", duration: "45 Hour" },
+        { title: "Iterating and Improving UX Designs", duration: "45 Minutes" },
+      ],
+    },
+  ];
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white">
+    <main className="bg-[#0b0b0b] text-white min-h-screen">
       <JHomeHeader
         search=""
         onSearchChange={() => {}}
@@ -98,121 +218,132 @@ const JsityCourseDetails = () => {
       />
 
       {/* Hero Section */}
-      <div className="container mx-auto px-4 pt-28 pb-20 max-w-6xl">
-        <div className="grid md:grid-cols-2 gap-10 items-center">
-          {/* Video Preview */}
-          <div className="relative rounded-2xl overflow-hidden aspect-video group shadow-lg">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 lg:pt-28 pb-12 sm:pb-16 lg:pb-20">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+          {/* Video Player */}
+          <div className="relative aspect-video lg:aspect-[4/5] w-full overflow-hidden rounded-xl bg-black/20 border border-white/10">
             <img
               src={courseData.image}
               alt={courseData.title}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              className="h-full w-full object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent" />
             <button
-              onClick={handleStartLearning}
-              className="absolute inset-0 flex items-center justify-center"
+              onClick={() => navigate("/video-player", { state: courseData })}
+              className="absolute inset-0 flex items-center justify-center group"
             >
-              <div className="w-20 h-20 rounded-full bg-purple-600 flex items-center justify-center group-hover:bg-purple-700 transition-all group-hover:scale-110">
-                <Play className="w-8 h-8 text-white fill-white ml-1" />
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-purple-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Play className="w-8 h-8 sm:w-10 sm:h-10 text-black fill-black ml-1" />
               </div>
             </button>
           </div>
 
-          {/* Text Section */}
-          <div>
-            <h1 className="text-4xl lg:text-5xl font-bold mb-4 leading-tight">
-              {courseData.title}
-            </h1>
-            <p className="text-gray-400 mb-6 leading-relaxed">
-              This course will teach you how to design intuitive and visually
-              appealing digital products. Learn how to research users, build
-              wireframes, and deliver impactful UI/UX experiences.
-            </p>
-
-            <div className="flex items-center gap-6 mb-6 text-gray-300">
-              <div className="flex items-center gap-2">
-                <Users className="w-4 h-4 text-purple-400" />
-                <span>{courseData.students}+ Students</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Star className="w-4 h-4 text-yellow-400" />
-                <span>{courseData.rating} Rating</span>
+          {/* Course Info */}
+          <div className="flex flex-col gap-4 sm:gap-6">
+            <div className="space-y-3 sm:space-y-4">
+              <p className="text-purple-400 text-sm sm:text-base font-semibold">
+                {courseData.creator}
+              </p>
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-purple-400 leading-tight">
+                {courseData.title}
+              </h1>
+              <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm text-gray-400">
+                <span>•</span>
+                <span>{courseData.lessons || 32} Lessons</span>
+                <span>•</span>
+                <span>{courseData.date || "12-08-2025"}</span>
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-4">
-              <Button
-                onClick={handleStartLearning}
-                className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-xl font-semibold"
-              >
-                Start Learning
-              </Button>
-              <Button
-                variant="outline"
-                onClick={handleAddToCart}
-                className="border-gray-700 hover:border-purple-600  hover:bg-purple-600 hover:text-white px-6 py-3 rounded-xl"
-              >
-                Add to Cart ({courseData.price})
+            <p className="text-sm sm:text-base text-gray-300 leading-relaxed">
+              {courseData.description ||
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."}
+            </p>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col gap-3 mt-4">
+              <div className="grid grid-cols-2 gap-3">
+                <Button
+                  onClick={handleAddToCart}
+                  className="bg-neutral-800 hover:bg-neutral-700 text-white border border-white/10"
+                >
+                  <ShoppingCart className="w-4 h-4 mr-2" />
+                  Add to cart
+                </Button>
+                <Button className="bg-neutral-800 hover:bg-neutral-700 text-white border border-white/10">
+                  <Heart
+                    className={`w-4 h-4 mr-2 ${
+                      isItemSaved ? "fill-purple-400 text-purple-400" : ""
+                    }`}
+                  />
+                  {isItemSaved ? "Saved" : "Save"}
+                </Button>
+              </div>
+              <Button className="bg-purple-400 hover:bg-purple-500 text-black font-bold w-full">
+                Purchase now
               </Button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Curriculum */}
-      <div className="container mx-auto px-4 pb-24 max-w-5xl">
-        <h2 className="text-3xl font-bold mb-12">Course Curriculum</h2>
-
-        {lessons.length > 0 ? (
-          <div className="space-y-4">
-            {lessons.map((lesson: any, i: number) => (
-              <div
-                key={lesson.id}
-                className={`p-4 rounded-lg border flex items-center justify-between transition-all hover:border-purple-600 cursor-pointer ${
-                  i === 0
-                    ? "border-purple-600 bg-purple-600/10"
-                    : "border-gray-800"
-                }`}
-                onClick={() =>
-                  navigate("/jsity-video-player", {
-                    state: {
-                      courseId: courseData.id,
-                      lessonId: lesson.id,
-                      videoUrl: lesson.video_url,
-                      image: courseData.image,
-                      title: lesson.title,
-                      creator: courseData.creator || courseData.instructor,
-                      price: courseData.price,
-                      lessons: courseData.lessons,
-                      description: lesson.description,
-                    },
-                  })
-                }
-              >
-                <div>
-                  <h4 className="font-medium">{lesson.title}</h4>
-                  {lesson.description && (
-                    <p className="text-sm text-gray-400 mt-1">
-                      {lesson.description}
-                    </p>
-                  )}
-                  <div className="flex items-center gap-2 text-sm text-gray-400 mt-1">
-                    <Clock className="w-4 h-4" />
-                    <span>{lesson.duration || "N/A"}</span>
-                  </div>
-                </div>
-                <Play className="w-5 h-5 text-purple-400" />
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-gray-400">No lessons available yet.</p>
-        )}
+      {/* You Might Also Like Section */}
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-12 sm:pb-16 lg:pb-20">
+        <h2 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8">
+          You Might Also Like
+        </h2>
+        <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-6">
+          {recommendedCourses.map((course) => (
+            <CourseCard
+              key={course.id}
+              id={course.id}
+              image={course.image}
+              title={course.title}
+              creator={course.creator}
+              price={course.price}
+              onAddToCart={() => {
+                addItem({
+                  id: course.id,
+                  title: course.title,
+                  price: parseFloat(course.price.replace(/[^\d.]/g, "")),
+                  image: course.image,
+                  creator: course.creator,
+                });
+                navigate("/cart");
+              }}
+              onViewDetails={() =>
+                navigate("/jsity-course-details", { state: course })
+              }
+            />
+          ))}
+        </div>
+        <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-6 mt-4 sm:mt-6">
+          {recommendedCourses.map((course, idx) => (
+            <CourseCard
+              key={`${course.id}-${idx}`}
+              id={`${course.id}-${idx}`}
+              image={course.image}
+              title={course.title}
+              creator={course.creator}
+              price={course.price}
+              onAddToCart={() => {
+                addItem({
+                  id: `${course.id}-${idx}`,
+                  title: course.title,
+                  price: parseFloat(course.price.replace(/[^\d.]/g, "")),
+                  image: course.image,
+                  creator: course.creator,
+                });
+                navigate("/cart");
+              }}
+              onViewDetails={() =>
+                navigate("/jsity-course-details", { state: course })
+              }
+            />
+          ))}
+        </div>
       </div>
 
-      <JsityFooter />
-    </div>
+      <Footer />
+    </main>
   );
-};
-
-export default JsityCourseDetails;
+}
