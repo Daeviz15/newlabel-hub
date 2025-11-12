@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -7,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Plus, Trash2 } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
 import {
   Form,
   FormControl,
@@ -33,6 +35,7 @@ const courseSchema = z.object({
 type CourseFormData = z.infer<typeof courseSchema>;
 
 interface Lesson {
+  id: string;
   title: string;
   description: string;
   duration: string;
@@ -46,7 +49,14 @@ export const CreateCourse = () => {
   const [previewVideoFile, setPreviewVideoFile] = useState<File | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [lessons, setLessons] = useState<Lesson[]>([
-    { title: "", description: "", duration: "", videoFile: null, order_number: 1 },
+    {
+      title: "",
+      description: "",
+      duration: "",
+      videoFile: null,
+      order_number: 1,
+      id: `lesson-${Date.now()}`,
+    },
   ]);
 
   const form = useForm<CourseFormData>({
@@ -65,40 +75,66 @@ export const CreateCourse = () => {
   const addLesson = () => {
     setLessons([
       ...lessons,
-      { title: "", description: "", duration: "", videoFile: null, order_number: lessons.length + 1 },
+      {
+        title: "",
+        description: "",
+        duration: "",
+        videoFile: null,
+        order_number: lessons.length + 1,
+        id: `lesson-${Date.now()}`,
+      },
     ]);
   };
 
-  const removeLesson = (index: number) => {
-    setLessons(lessons.filter((_, i) => i !== index));
+  const removeLesson = (lessonId: string) => {
+    setLessons(lessons.filter((lesson) => lesson.id !== lessonId));
   };
 
-  const updateLesson = (index: number, field: string, value: any) => {
-    const updatedLessons = [...lessons];
-    updatedLessons[index] = { ...updatedLessons[index], [field]: value };
+  const updateLesson = (lessonId: string, field: string, value: any) => {
+    const updatedLessons = lessons.map((lesson) =>
+      lesson.id === lessonId ? { ...lesson, [field]: value } : lesson
+    );
     setLessons(updatedLessons);
   };
 
   const uploadFile = async (file: File, bucket: string, path: string) => {
-    const { data, error } = await supabase.storage
-      .from(bucket)
-      .upload(path, file, { upsert: true });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
 
-    if (error) throw error;
+    try {
+      const { data, error } = await supabase.storage
+        .from(bucket)
+        .upload(path, file, { upsert: true });
 
-    const { data: { publicUrl } } = supabase.storage
-      .from(bucket)
-      .getPublicUrl(data.path);
+      if (error) {
+        console.error(`[v0] Upload error for ${file.name}:`, error);
+        throw new Error(`Upload failed: ${error.message}`);
+      }
 
-    return publicUrl;
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from(bucket).getPublicUrl(data.path);
+
+      console.log(`[v0] Successfully uploaded ${file.name}:`, publicUrl);
+      return publicUrl;
+    } catch (error) {
+      console.error(`[v0] Upload failed after timeout or error:`, error);
+      throw error;
+    } finally {
+      clearTimeout(timeoutId);
+    }
   };
 
   const onSubmit = async (data: CourseFormData) => {
     setLoading(true);
     try {
-      // Validate all lessons have videos
-      const invalidLessons = lessons.filter(l => !l.videoFile || !l.title || !l.duration);
+      console.log("[v0] Starting course creation...");
+
+      const invalidLessons = lessons.filter(
+        (l) => !l.videoFile || !l.title || !l.duration
+      );
       if (invalidLessons.length > 0) {
+        console.error("[v0] Invalid lessons found:", invalidLessons);
         toast({
           title: "Validation Error",
           description: "All lessons must have a title, duration, and video",
@@ -108,45 +144,114 @@ export const CreateCourse = () => {
         return;
       }
 
-      // Upload preview video
+      console.log("[v0] Validation passed. Total lessons:", lessons.length);
+
       let previewVideoUrl = null;
       if (previewVideoFile) {
-        const previewPath = `previews/${Date.now()}-${previewVideoFile.name}`;
-        previewVideoUrl = await uploadFile(previewVideoFile, "course-videos", previewPath);
+        try {
+          console.log("[v0] Uploading preview video...");
+          const previewPath = `previews/${Date.now()}-${previewVideoFile.name}`;
+          previewVideoUrl = await uploadFile(
+            previewVideoFile,
+            "course-videos",
+            previewPath
+          );
+          console.log("[v0] Preview video uploaded successfully");
+        } catch (error) {
+          console.error("[v0] Preview video upload failed:", error);
+          toast({
+            title: "Upload Error",
+            description: "Failed to upload preview video. Please try again.",
+            variant: "destructive",
+          });
+          setLoading(false);
+          return;
+        }
       }
 
-      // Upload course image
       let imageUrl = null;
       if (imageFile) {
-        const imagePath = `courses/${Date.now()}-${imageFile.name}`;
-        imageUrl = await uploadFile(imageFile, "course-images", imagePath);
+        try {
+          console.log("[v0] Uploading course image...");
+          const imagePath = `courses/${Date.now()}-${imageFile.name}`;
+          imageUrl = await uploadFile(imageFile, "course-images", imagePath);
+          console.log("[v0] Course image uploaded successfully");
+        } catch (error) {
+          console.error("[v0] Course image upload failed:", error);
+          toast({
+            title: "Upload Error",
+            description: "Failed to upload course image. Please try again.",
+            variant: "destructive",
+          });
+          setLoading(false);
+          return;
+        }
       }
 
-      // Create course
+      console.log("[v0] All media uploaded. Creating course in database...");
+
       const { data: course, error: courseError } = await supabase
         .from("products")
-        .insert([{
-          title: data.title,
-          description: data.description,
-          price: data.price,
-          instructor: data.instructor,
-          instructor_role: data.instructor_role,
-          level: data.level,
-          duration: data.duration,
-          category: "course",
-          image_url: imageUrl,
-          preview_video_url: previewVideoUrl,
-        }])
+        .insert([
+          {
+            title: data.title,
+            description: data.description,
+            price: data.price,
+            instructor: data.instructor,
+            instructor_role: data.instructor_role,
+            level: data.level,
+            duration: data.duration,
+            category: "course",
+            image_url: imageUrl,
+            preview_video_url: previewVideoUrl,
+          },
+        ])
         .select()
         .single();
 
-      if (courseError) throw courseError;
+      if (courseError) {
+        console.error(
+          "[v0] Course creation failed:",
+          courseError.message,
+          courseError.details
+        );
+        toast({
+          title: "Database Error",
+          description:
+            "Failed to create course. Please check your database permissions.",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
 
-      // Upload lesson videos and create lessons
-      for (const lesson of lessons) {
-        if (lesson.videoFile) {
-          const videoPath = `lessons/${course.id}/${Date.now()}-${lesson.videoFile.name}`;
-          const videoUrl = await uploadFile(lesson.videoFile, "course-videos", videoPath);
+      console.log("[v0] Course created successfully. ID:", course.id);
+      console.log(`[v0] Now uploading ${lessons.length} lesson videos...`);
+
+      let successfulLessons = 0;
+      for (let i = 0; i < lessons.length; i++) {
+        const lesson = lessons[i];
+        console.log(`[v0] Processing lesson ${i + 1}/${lessons.length}...`);
+
+        if (!lesson.videoFile) {
+          console.warn(`[v0] Lesson ${i + 1} has no video file, skipping`);
+          continue;
+        }
+
+        try {
+          console.log(`[v0] Uploading video for lesson "${lesson.title}"...`);
+          const videoPath = `lessons/${course.id}/${Date.now()}-${i}-${
+            lesson.videoFile.name
+          }`;
+          const videoUrl = await uploadFile(
+            lesson.videoFile,
+            "course-videos",
+            videoPath
+          );
+
+          console.log(
+            `[v0] Lesson ${i + 1} video uploaded. Inserting into database...`
+          );
 
           const { error: lessonError } = await supabase
             .from("course_lessons")
@@ -159,25 +264,57 @@ export const CreateCourse = () => {
               order_number: lesson.order_number,
             });
 
-          if (lessonError) throw lessonError;
+          if (lessonError) {
+            console.error(
+              `[v0] Lesson ${i + 1} database insert failed:`,
+              lessonError.message
+            );
+            throw new Error(`Database error: ${lessonError.message}`);
+          }
+
+          successfulLessons++;
+          console.log(
+            `[v0] Lesson ${
+              i + 1
+            } completed successfully (${successfulLessons}/${lessons.length})`
+          );
+        } catch (error: any) {
+          console.error(`[v0] Lesson ${i + 1} failed:`, error.message);
+          toast({
+            title: "Lesson Upload Error",
+            description: `Lesson "${lesson.title}" failed: ${error.message}`,
+            variant: "destructive",
+          });
+          setLoading(false);
+          return;
         }
       }
 
+      console.log(`[v0] All ${successfulLessons} lessons created successfully`);
+
       toast({
         title: "Success!",
-        description: "Course created successfully with all lessons",
+        description: `Course created with ${successfulLessons} lessons`,
       });
 
-      // Reset form
       form.reset();
       setPreviewVideoFile(null);
       setImageFile(null);
-      setLessons([{ title: "", description: "", duration: "", videoFile: null, order_number: 1 }]);
+      setLessons([
+        {
+          title: "",
+          description: "",
+          duration: "",
+          videoFile: null,
+          order_number: 1,
+          id: `lesson-${Date.now()}`,
+        },
+      ]);
     } catch (error: any) {
-      console.error("Error creating course:", error);
+      console.error("[v0] Unexpected error during course creation:", error);
       toast({
         title: "Error",
-        description: error.message || "Failed to create course",
+        description: error.message || "An unexpected error occurred",
         variant: "destructive",
       });
     } finally {
@@ -188,7 +325,6 @@ export const CreateCourse = () => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        {/* Course Details */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
@@ -197,7 +333,10 @@ export const CreateCourse = () => {
               <FormItem>
                 <FormLabel>Course Title</FormLabel>
                 <FormControl>
-                  <Input placeholder="e.g., Advanced React Development" {...field} />
+                  <Input
+                    placeholder="e.g., Advanced React Development"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -215,7 +354,9 @@ export const CreateCourse = () => {
                     type="number"
                     placeholder="10000"
                     {...field}
-                    onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                    onChange={(e) =>
+                      field.onChange(Number.parseFloat(e.target.value))
+                    }
                   />
                 </FormControl>
                 <FormMessage />
@@ -258,7 +399,10 @@ export const CreateCourse = () => {
               <FormItem>
                 <FormLabel>Level</FormLabel>
                 <FormControl>
-                  <Input placeholder="Beginner, Intermediate, Advanced" {...field} />
+                  <Input
+                    placeholder="Beginner, Intermediate, Advanced"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -298,7 +442,6 @@ export const CreateCourse = () => {
           )}
         />
 
-        {/* Media Uploads */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <ImageUpload onFileSelect={setImageFile} currentFile={imageFile} />
           <VideoUpload
@@ -308,11 +451,15 @@ export const CreateCourse = () => {
           />
         </div>
 
-        {/* Lessons Section */}
         <div className="border-t pt-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold">Course Lessons</h3>
-            <Button type="button" onClick={addLesson} variant="outline" size="sm">
+            <Button
+              type="button"
+              onClick={addLesson}
+              variant="outline"
+              size="sm"
+            >
               <Plus className="h-4 w-4 mr-2" />
               Add Lesson
             </Button>
@@ -321,11 +468,13 @@ export const CreateCourse = () => {
           <div className="space-y-4">
             {lessons.map((lesson, index) => (
               <LessonForm
-                key={index}
+                key={lesson.id}
                 lesson={lesson}
                 index={index}
-                onUpdate={updateLesson}
-                onRemove={() => removeLesson(index)}
+                onUpdate={(field, value) =>
+                  updateLesson(lesson.id, field, value)
+                }
+                onRemove={() => removeLesson(lesson.id)}
                 showRemove={lessons.length > 1}
               />
             ))}

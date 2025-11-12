@@ -14,7 +14,7 @@ const JsityCourseDetails = () => {
   const navigate = useNavigate();
   const { addItem } = useCart();
   const profile = useUserProfile();
-  
+
   const [courseData, setCourseData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -23,10 +23,10 @@ const JsityCourseDetails = () => {
       // If we have data from navigation, use it
       if (location.state) {
         const { data: lessonsData } = await supabase
-          .from('course_lessons')
-          .select('*')
-          .eq('course_id', location.state.id)
-          .order('order_number', { ascending: true });
+          .from("course_lessons")
+          .select("*")
+          .eq("course_id", location.state.id)
+          .order("order_number", { ascending: true });
 
         setCourseData({
           ...location.state,
@@ -56,7 +56,7 @@ const JsityCourseDetails = () => {
     addItem({
       id: courseData.id,
       title: courseData.title,
-      price: parseFloat(courseData.price.replace(/[^\d.]/g, '')),
+      price: parseFloat(courseData.price.replace(/[^\d.]/g, "")),
       image: courseData.image,
       creator: courseData.creator,
     });
@@ -124,9 +124,9 @@ const JsityCourseDetails = () => {
               {courseData.title}
             </h1>
             <p className="text-gray-400 mb-6 leading-relaxed">
-              This course will teach you how to design intuitive and visually appealing
-              digital products. Learn how to research users, build wireframes, and
-              deliver impactful UI/UX experiences.
+              This course will teach you how to design intuitive and visually
+              appealing digital products. Learn how to research users, build
+              wireframes, and deliver impactful UI/UX experiences.
             </p>
 
             <div className="flex items-center gap-6 mb-6 text-gray-300">
@@ -173,28 +173,32 @@ const JsityCourseDetails = () => {
                     ? "border-purple-600 bg-purple-600/10"
                     : "border-gray-800"
                 }`}
-                onClick={() => navigate("/jsity-video-player", {
-                  state: {
-                    courseId: courseData.id,
-                    lessonId: lesson.id,
-                    videoUrl: lesson.video_url,
-                    image: courseData.image,
-                    title: lesson.title,
-                    creator: courseData.creator || courseData.instructor,
-                    price: courseData.price,
-                    lessons: courseData.lessons,
-                    description: lesson.description,
-                  },
-                })}
+                onClick={() =>
+                  navigate("/jsity-video-player", {
+                    state: {
+                      courseId: courseData.id,
+                      lessonId: lesson.id,
+                      videoUrl: lesson.video_url,
+                      image: courseData.image,
+                      title: lesson.title,
+                      creator: courseData.creator || courseData.instructor,
+                      price: courseData.price,
+                      lessons: courseData.lessons,
+                      description: lesson.description,
+                    },
+                  })
+                }
               >
                 <div>
                   <h4 className="font-medium">{lesson.title}</h4>
                   {lesson.description && (
-                    <p className="text-sm text-gray-400 mt-1">{lesson.description}</p>
+                    <p className="text-sm text-gray-400 mt-1">
+                      {lesson.description}
+                    </p>
                   )}
                   <div className="flex items-center gap-2 text-sm text-gray-400 mt-1">
                     <Clock className="w-4 h-4" />
-                    <span>{lesson.duration || 'N/A'}</span>
+                    <span>{lesson.duration || "N/A"}</span>
                   </div>
                 </div>
                 <Play className="w-5 h-5 text-purple-400" />

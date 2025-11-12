@@ -1,14 +1,23 @@
+"use client";
+
+import type React from "react";
+
 import { Upload, Video } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 interface VideoUploadProps {
   label: string;
   onFileSelect: (file: File | null) => void;
   currentFile: File | null;
+  id?: string;
 }
 
-export const VideoUpload = ({ label, onFileSelect, currentFile }: VideoUploadProps) => {
+export const VideoUpload = ({
+  label,
+  onFileSelect,
+  currentFile,
+  id,
+}: VideoUploadProps) => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -21,6 +30,8 @@ export const VideoUpload = ({ label, onFileSelect, currentFile }: VideoUploadPro
     }
   };
 
+  const uniqueId = id || `video-upload-${label}`;
+
   return (
     <div>
       <Label className="mb-2 block">{label}</Label>
@@ -30,10 +41,10 @@ export const VideoUpload = ({ label, onFileSelect, currentFile }: VideoUploadPro
           accept="video/*"
           onChange={handleFileChange}
           className="hidden"
-          id={`video-upload-${label}`}
+          id={uniqueId}
         />
         <label
-          htmlFor={`video-upload-${label}`}
+          htmlFor={uniqueId}
           className="cursor-pointer flex flex-col items-center gap-2"
         >
           {currentFile ? (
@@ -50,7 +61,9 @@ export const VideoUpload = ({ label, onFileSelect, currentFile }: VideoUploadPro
               <p className="text-sm text-muted-foreground">
                 Click to upload video
               </p>
-              <p className="text-xs text-muted-foreground">MP4, MOV, AVI (max 500MB)</p>
+              <p className="text-xs text-muted-foreground">
+                MP4, MOV, AVI (max 500MB)
+              </p>
             </>
           )}
         </label>

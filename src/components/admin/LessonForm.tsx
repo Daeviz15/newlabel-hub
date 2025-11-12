@@ -1,3 +1,5 @@
+"use client";
+
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -7,6 +9,7 @@ import { Trash2 } from "lucide-react";
 import { VideoUpload } from "./VideoUpload";
 
 interface Lesson {
+  id: string;
   title: string;
   description: string;
   duration: string;
@@ -17,7 +20,7 @@ interface Lesson {
 interface LessonFormProps {
   lesson: Lesson;
   index: number;
-  onUpdate: (index: number, field: string, value: any) => void;
+  onUpdate: (field: string, value: any) => void;
   onRemove: () => void;
   showRemove: boolean;
 }
@@ -52,7 +55,7 @@ export const LessonForm = ({
           <Input
             placeholder="e.g., Introduction to React Hooks"
             value={lesson.title}
-            onChange={(e) => onUpdate(index, "title", e.target.value)}
+            onChange={(e) => onUpdate("title", e.target.value)}
           />
         </div>
 
@@ -61,7 +64,7 @@ export const LessonForm = ({
           <Input
             placeholder="e.g., 15 mins"
             value={lesson.duration}
-            onChange={(e) => onUpdate(index, "duration", e.target.value)}
+            onChange={(e) => onUpdate("duration", e.target.value)}
           />
         </div>
 
@@ -70,15 +73,16 @@ export const LessonForm = ({
           <Textarea
             placeholder="Brief description of what this lesson covers..."
             value={lesson.description}
-            onChange={(e) => onUpdate(index, "description", e.target.value)}
+            onChange={(e) => onUpdate("description", e.target.value)}
             className="min-h-[80px]"
           />
         </div>
 
         <VideoUpload
           label="Lesson Video"
-          onFileSelect={(file) => onUpdate(index, "videoFile", file)}
+          onFileSelect={(file) => onUpdate("videoFile", file)}
           currentFile={lesson.videoFile}
+          id={`video-upload-lesson-${lesson.id}`}
         />
       </div>
     </Card>
