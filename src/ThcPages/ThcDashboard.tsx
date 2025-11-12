@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import ThcFooter from "./components/ThcFooter";
 import { useUserProfile } from "@/hooks/use-user-profile";
 import { THomeHeader } from "./components/home-header";
+import ChannelMetricsCarousel from "@/components/channel-metrics-carousel";
 
 const courseData = [
   {
@@ -84,11 +85,6 @@ export default function ThcDashboard() {
   return (
     <main className="bg-[#0b0b0b] text-white min-h-screen">
       <div className="flex flex-col">
-        {/* Top Banner - Desktop only */}
-        <div className="block bg-[#70E002] text-black text-sm py-3 text-center font-vietnam font-medium rounded-md">
-          Free Courses 🌟 Sale Ends Soon. Get It Now →
-        </div>
-
         <THomeHeader
           search={searchQuery}
           onSearchChange={setSearchQuery}
@@ -99,18 +95,9 @@ export default function ThcDashboard() {
         />
 
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 md:px-8">
-          {/* Hero Banner */}
+          {/* Hero Carousel */}
           <section className="py-6 sm:py-8">
-            <div className="overflow-hidden rounded-2xl bg-[linear-gradient(269.56deg,_#70E002_0%,_#69DA02_25%,_#56CA01_60%,_#38B100_100%)]">
-              <div className="px-6 py-12 sm:px-8 md:px-12 md:py-16 lg:py-20">
-                <h1 className="text-3xl font-bold font-nunito text-white sm:text-4xl md:text-5xl">
-                  {getTimeBasedGreeting()}, {userName || "John"}
-                </h1>
-                <p className="mt-3 text-[20px] font-vietnam text-white/90 md:text-[20px]">
-                  Great to have you back. Ready to pick up where you left off?
-                </p>
-              </div>
-            </div>
+            <ChannelMetricsCarousel accentColor="green" />
           </section>
 
           {/* What's Trending This week */}
