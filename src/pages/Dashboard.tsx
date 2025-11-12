@@ -1,5 +1,5 @@
 import type React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ResumeCard, ProductCard, TopPick } from "@/components/course-card";
 import { HomeHeader } from "../components/home-header";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,44 +16,35 @@ const resumeItems = Array.from({ length: 4 }).map((_, i) => ({
   brand: "jsty",
 }));
 
-const trendingItems = [
-  {
-    id: 1,
-    price: "$18",
-    title: "The Future Of AI In Everyday Products",
-    subtitle: "jsty",
-    image: "/assets/dashboard-images/face.jpg",
-  },
-  {
-    id: 2,
-    price: "$18",
-    title: "Firm Foundation",
-    subtitle: "—",
-    image: "/assets/dashboard-images/firm.jpg",
-  },
-  {
-    id: 3,
-    price: "$18",
-    title: "The Silent Trauma Of Millennials",
-    subtitle: "The House Chronicles",
-    image: "/assets/dashboard-images/lady.jpg",
-  },
-  {
-    id: 4,
-    price: "$18",
-    title: "The Future Of AI In Everyday Products",
-    subtitle: "jsty",
-    image: "/assets/dashboard-images/face.jpg",
-  },
-];
-
-const releasesItems = trendingItems;
-const recommendedItems = trendingItems;
-
 export default function Dashboard() {
   const router = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const { userName, userEmail, avatarUrl } = useUserProfile();
+  const [courses, setCourses] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      const { data } = await supabase
+        .from('products')
+        .select('*')
+        .eq('category', 'jsity')
+        .order('created_at', { ascending: false });
+      
+      if (data) {
+        setCourses(data.map(course => ({
+          id: course.id,
+          price: `$${course.price}`,
+          title: course.title,
+          subtitle: course.instructor || 'Instructor',
+          image: course.image_url || '/assets/dashboard-images/face.jpg',
+        })));
+      }
+      setLoading(false);
+    };
+
+    fetchCourses();
+  }, []);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -65,15 +56,7 @@ export default function Dashboard() {
     (i) =>
       i.title.toLowerCase().includes(q) || i.brand.toLowerCase().includes(q)
   );
-  const filteredTrendingItems = trendingItems.filter(
-    (i) =>
-      i.title.toLowerCase().includes(q) || i.subtitle.toLowerCase().includes(q)
-  );
-  const filteredReleasesItems = releasesItems.filter(
-    (i) =>
-      i.title.toLowerCase().includes(q) || i.subtitle.toLowerCase().includes(q)
-  );
-  const filteredRecommendedItems = recommendedItems.filter(
+  const filteredCourses = courses.filter(
     (i) =>
       i.title.toLowerCase().includes(q) || i.subtitle.toLowerCase().includes(q)
   );
@@ -142,7 +125,11 @@ export default function Dashboard() {
             title={"What's Trending This week"}
             description="Learn binge-worthy, career-building lessons from experts across tech media and business."
           >
-            <CardsGrid items={filteredTrendingItems} router={router} />
+            {loading ? (
+              <p className="text-gray-400">Loading courses...</p>
+            ) : (
+              <CardsGrid items={filteredCourses.slice(0, 4)} router={router} />
+            )}
           </Section>
 
           {/* New Releases */}
@@ -150,7 +137,11 @@ export default function Dashboard() {
             title="New Releases"
             description="Learn binge-worthy, career-building lessons from experts across tech media and business."
           >
-            <CardsGrid items={filteredReleasesItems} router={router} />
+            {loading ? (
+              <p className="text-gray-400">Loading courses...</p>
+            ) : (
+              <CardsGrid items={filteredCourses} router={router} />
+            )}
           </Section>
 
           {/* Recommended For You */}
@@ -158,7 +149,11 @@ export default function Dashboard() {
             title="Recommended For You"
             description="Learn binge-worthy, career-building lessons from experts across tech media and business."
           >
-            <CardsGrid items={filteredRecommendedItems} router={router} />
+            {loading ? (
+              <p className="text-gray-400">Loading courses...</p>
+            ) : (
+              <CardsGrid items={filteredCourses.slice(0, 4)} router={router} />
+            )}
           </Section>
 
           {/* This week's top pick */}
