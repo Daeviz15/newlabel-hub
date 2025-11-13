@@ -229,7 +229,7 @@ export default function VideoDetails() {
               className="h-full w-full object-cover"
             />
             <button
-              onClick={() => navigate("/video-player", { state: courseData })}
+              onClick={() => navigate("/jsity-video-player", { state: courseData })}
               className="absolute inset-0 flex items-center justify-center group"
             >
               <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-purple-400 flex items-center justify-center group-hover:scale-110 transition-transform">
