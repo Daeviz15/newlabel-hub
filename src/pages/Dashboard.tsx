@@ -28,7 +28,6 @@ export default function Dashboard() {
       const { data } = await supabase
         .from('products')
         .select('*')
-        .eq('category', 'jsity')
         .order('created_at', { ascending: false });
       
       if (data) {
@@ -45,6 +44,34 @@ export default function Dashboard() {
     };
 
     fetchCourses();
+
+    // Set up real-time subscription for new courses
+    const channel = supabase
+      .channel('products-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'products'
+        },
+        (payload) => {
+          const newCourse = payload.new as any;
+          setCourses(prev => [{
+            id: newCourse.id,
+            price: `$${newCourse.price}`,
+            title: newCourse.title,
+            subtitle: newCourse.instructor || 'Instructor',
+            image: newCourse.image_url || '/assets/dashboard-images/face.jpg',
+            category: newCourse.category,
+          }, ...prev]);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const handleSignOut = async () => {
