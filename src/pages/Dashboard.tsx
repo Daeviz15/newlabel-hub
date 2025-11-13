@@ -38,6 +38,7 @@ export default function Dashboard() {
           title: course.title,
           subtitle: course.instructor || 'Instructor',
           image: course.image_url || '/assets/dashboard-images/face.jpg',
+          category: course.category,
         })));
       }
       setLoading(false);
@@ -201,6 +202,7 @@ function CardsGrid({
     title: string;
     subtitle: string;
     price: string;
+    category?: string;
   }[];
   router: ReturnType<typeof useNavigate>;
 }) {
@@ -213,17 +215,14 @@ function CardsGrid({
           title={it.title}
           subtitle={it.subtitle}
           price={it.price}
-          onClick={() =>
-            router(
-              `/video-details?id=${it.id}&image=${encodeURIComponent(
-                it.image
-              )}&title=${encodeURIComponent(
-                it.title
-              )}&creator=${encodeURIComponent(
-                it.subtitle
-              )}&price=${encodeURIComponent(it.price)}`
-            )
-          }
+          onClick={() => {
+            const detailsRoute = it.category === 'jsity' 
+              ? '/jsity-course-details'
+              : it.category === 'thc'
+              ? '/thc-course-details'
+              : '/gospel-course-details';
+            router(detailsRoute, { state: { id: it.id } });
+          }}
         />
       ))}
     </div>
