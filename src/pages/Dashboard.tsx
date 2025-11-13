@@ -26,19 +26,21 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchCourses = async () => {
       const { data } = await supabase
-        .from('products')
-        .select('*')
-        .order('created_at', { ascending: false });
-      
+        .from("products")
+        .select("*")
+        .order("created_at", { ascending: false });
+
       if (data) {
-        setCourses(data.map(course => ({
-          id: course.id,
-          price: `$${course.price}`,
-          title: course.title,
-          subtitle: course.instructor || 'Instructor',
-          image: course.image_url || '/assets/dashboard-images/face.jpg',
-          category: course.category,
-        })));
+        setCourses(
+          data.map((course) => ({
+            id: course.id,
+            price: `$${course.price}`,
+            title: course.title,
+            subtitle: course.instructor || "Instructor",
+            image: course.image_url || "/assets/dashboard-images/face.jpg",
+            category: course.category,
+          }))
+        );
       }
       setLoading(false);
     };
@@ -47,24 +49,27 @@ export default function Dashboard() {
 
     // Set up real-time subscription for new courses
     const channel = supabase
-      .channel('products-changes')
+      .channel("products-changes")
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'products'
+          event: "INSERT",
+          schema: "public",
+          table: "products",
         },
         (payload) => {
           const newCourse = payload.new as any;
-          setCourses(prev => [{
-            id: newCourse.id,
-            price: `$${newCourse.price}`,
-            title: newCourse.title,
-            subtitle: newCourse.instructor || 'Instructor',
-            image: newCourse.image_url || '/assets/dashboard-images/face.jpg',
-            category: newCourse.category,
-          }, ...prev]);
+          setCourses((prev) => [
+            {
+              id: newCourse.id,
+              price: `$${newCourse.price}`,
+              title: newCourse.title,
+              subtitle: newCourse.instructor || "Instructor",
+              image: newCourse.image_url || "/assets/dashboard-images/face.jpg",
+              category: newCourse.category,
+            },
+            ...prev,
+          ]);
         }
       )
       .subscribe();
@@ -121,32 +126,7 @@ export default function Dashboard() {
             <ChannelMetricsCarousel />
           </section>
 
-          {/* Continue Listening */}
-          <Section
-            title="Continue Listening"
-            description="Learn binge-worthy, career-building lessons from experts across tech media and business."
-          >
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {filteredResumeItems.map((item) => (
-                <ResumeCard
-                  key={item.id}
-                  imageSrc={item.image}
-                  title={item.title}
-                  percent={item.percent}
-                  brand={item.brand}
-                  onClick={() =>
-                    router(
-                      `/course-details?id=${item.id}&image=${encodeURIComponent(
-                        item.image
-                      )}&title=${encodeURIComponent(
-                        item.title
-                      )}&creator=${encodeURIComponent(item.brand)}&price=18`
-                    )
-                  }
-                />
-              ))}
-            </div>
-          </Section>
+   
 
           {/* What's Trending This week */}
           <Section
@@ -243,19 +223,20 @@ function CardsGrid({
           subtitle={it.subtitle}
           price={it.price}
           onClick={() => {
-            const detailsRoute = it.category === 'jsity' 
-              ? '/jsity-course-details'
-              : it.category === 'thc'
-              ? '/thc-course-details'
-              : '/gospel-course-details';
-            router(detailsRoute, { 
-              state: { 
+            const detailsRoute =
+              it.category === "jsity"
+                ? "/jsity-course-details"
+                : it.category === "thc"
+                ? "/jsity-course-details"
+                : "/jsity-course-details";
+            router(detailsRoute, {
+              state: {
                 id: it.id,
                 image: it.image,
                 title: it.title,
                 creator: it.subtitle,
-                price: it.price
-              } 
+                price: it.price,
+              },
             });
           }}
         />

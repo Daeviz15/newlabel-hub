@@ -86,10 +86,11 @@ export default function VideoDetails() {
     });
     navigate("/jcart");
   };
+
   const handleStartLearning = () =>
     navigate("/jsity-video-player", {
       state: {
-        id: String(courseData.id),
+        courseId: String(courseData.id),  // ✅ Changed from 'id' to 'courseId'
         image: courseData.image,
         title: courseData.title,
         creator: courseData.creator || courseData.instructor,
@@ -104,6 +105,7 @@ export default function VideoDetails() {
     await supabase.auth.signOut();
     navigate("/login");
   };
+
   const recommendedCourses = [
     {
       id: "1",
@@ -134,6 +136,7 @@ export default function VideoDetails() {
       price: "$18",
     },
   ];
+
   const curriculum = [
     {
       section: "01",
@@ -229,7 +232,17 @@ export default function VideoDetails() {
               className="h-full w-full object-cover"
             />
             <button
-              onClick={() => navigate("/jsity-video-player", { state: courseData })}
+              onClick={() => navigate("/jsity-video-player", { 
+                state: {
+                  courseId: String(courseData.id),  // ✅ Fixed: passing courseId
+                  image: courseData.image,
+                  title: courseData.title,
+                  creator: courseData.creator || courseData.instructor,
+                  price: courseData.price,
+                  lessons: courseData.lessons,
+                  description: courseData.description,
+                }
+              })}
               className="absolute inset-0 flex items-center justify-center group"
             >
               <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-purple-400 flex items-center justify-center group-hover:scale-110 transition-transform">

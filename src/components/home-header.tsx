@@ -53,7 +53,6 @@ export function HomeHeader({
         <div className="flex items-center gap-4 md:gap-6">
           <button
             aria-label="Newlabel Home"
-            onClick={() => navigate("/")}
             className="flex items-center gap-2 transition-transform duration-200 hover:scale-105"
           >
             <img
