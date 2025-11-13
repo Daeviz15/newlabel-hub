@@ -221,7 +221,15 @@ function CardsGrid({
               : it.category === 'thc'
               ? '/thc-course-details'
               : '/gospel-course-details';
-            router(detailsRoute, { state: { id: it.id } });
+            router(detailsRoute, { 
+              state: { 
+                id: it.id,
+                image: it.image,
+                title: it.title,
+                creator: it.subtitle,
+                price: it.price
+              } 
+            });
           }}
         />
       ))}
