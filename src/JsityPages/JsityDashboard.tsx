@@ -36,6 +36,35 @@ export default function Jdashboard() {
     };
 
     fetchCourses();
+
+    // Real-time subscription for new Jsity courses
+    const channel = supabase
+      .channel('jsity-products-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'products',
+          filter: 'category=eq.jsity'
+        },
+        (payload) => {
+          const newCourse = payload.new as any;
+          setCourses(prev => [{
+            id: newCourse.id,
+            price: `$${newCourse.price}`,
+            title: newCourse.title,
+            subtitle: newCourse.instructor || 'Instructor',
+            role: newCourse.instructor_role || 'Expert',
+            image: newCourse.image_url || '/assets/dashboard-images/face.jpg',
+          }, ...prev]);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   // Function to get time-based greeting
