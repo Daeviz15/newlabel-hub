@@ -123,23 +123,18 @@ export default function VideoPlayer() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 lg:pt-28 pb-8 sm:pb-12">
         {/* Video Player */}
         <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-black border border-white/10 group">
-          <img
-            src={courseData.image}
-            alt={courseData.title}
-            className="h-full w-full object-cover"
-          />
-          
-          {/* Play/Pause Overlay */}
-          <button 
-            onClick={() => setIsPlaying(!isPlaying)}
-            className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/40 transition-colors"
-          >
-            {!isPlaying && (
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white/90 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <Play className="w-8 h-8 sm:w-10 sm:h-10 text-black fill-black ml-1" />
-              </div>
-            )}
-          </button>
+          {courseData.image ? (
+            <video
+              src={courseData.image}
+              className="h-full w-full object-cover"
+              controls
+              autoPlay={isPlaying}
+            />
+          ) : (
+            <div className="h-full w-full flex items-center justify-center bg-black/60">
+              <p className="text-white text-lg">No video available</p>
+            </div>
+          )}
 
           {/* Video Title Overlay (Bottom Left) */}
           <div className="absolute bottom-14 sm:bottom-16 left-4 sm:left-6 text-white">
