@@ -1,57 +1,66 @@
 import React, { useState } from "react";
-import { ProductCard, TopPick } from "@/components/course-card";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import ThcFooter from "./components/ThcFooter";
 import { useUserProfile } from "@/hooks/use-user-profile";
 import { THomeHeader } from "./components/home-header";
 import ChannelMetricsCarousel from "@/components/channel-metrics-carousel";
+import { PodcastCard } from "@/components/podcast-card";
 
-const courseData = [
+const podcastData = [
   {
     id: 1,
-    price: "$18",
-    title: "The Future Of AI In Everyday Products",
-    subtitle: "Ada Nwosu",
-    role: "Machine Learning Engineer At NewsTech",
+    title: "The Daily Chronicles",
+    host: "Alex Thompson",
+    episodeCount: 156,
     image: "/assets/dashboard-images/face.jpg",
   },
   {
     id: 2,
-    price: "$18",
-    title: "The Future Of AI In Everyday Products",
-    subtitle: "Ada Nwosu",
-    role: "Machine Learning Engineer At NewsTech",
+    title: "Late Night Talks",
+    host: "Jamie Wilson",
+    episodeCount: 89,
     image: "/assets/dashboard-images/firm.jpg",
   },
   {
     id: 3,
-    price: "$18",
-    title: "The Future Of AI In Everyday Products",
-    subtitle: "Ada Nwosu",
-    role: "Machine Learning Engineer At NewsTech",
+    title: "Tech Bytes Podcast",
+    host: "Sarah Chen",
+    episodeCount: 124,
     image: "/assets/dashboard-images/lady.jpg",
   },
   {
     id: 4,
-    price: "$18",
-    title: "The Future Of AI In Everyday Products",
-    subtitle: "Ada Nwosu",
-    role: "Machine Learning Engineer At NewsTech",
+    title: "Story Time Sessions",
+    host: "Marcus Brown",
+    episodeCount: 72,
     image: "/assets/dashboard-images/only.jpg",
+  },
+  {
+    id: 5,
+    title: "The Midnight Hour",
+    host: "Nicole Davis",
+    episodeCount: 98,
+    image: "/assets/dashboard-images/Cart1.jpg",
+  },
+  {
+    id: 6,
+    title: "Conversations & Coffee",
+    host: "David Lee",
+    episodeCount: 145,
+    image: "/assets/podcast-episode.jpg",
   },
 ];
 
-const trendingItems = courseData;
-const releasesItems = courseData;
-const recommendedItems = courseData;
+const trendingPodcasts = podcastData;
+const newReleases = podcastData.slice(2);
+const recommendedPodcasts = podcastData.slice(1);
 
-export default function ThcDashboard() {
+export default function ThcPodcastDashboard() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const { userName, userEmail, avatarUrl } = useUserProfile();
 
-  // Function to get time-based greeting
   const getTimeBasedGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) {
@@ -69,17 +78,14 @@ export default function ThcDashboard() {
   };
 
   const q = searchQuery.trim().toLowerCase();
-  const filteredTrendingItems = trendingItems.filter(
-    (i) =>
-      i.title.toLowerCase().includes(q) || i.subtitle.toLowerCase().includes(q)
+  const filteredTrendingPodcasts = trendingPodcasts.filter(
+    (i) => i.title.toLowerCase().includes(q) || i.host.toLowerCase().includes(q)
   );
-  const filteredReleasesItems = releasesItems.filter(
-    (i) =>
-      i.title.toLowerCase().includes(q) || i.subtitle.toLowerCase().includes(q)
+  const filteredNewReleases = newReleases.filter(
+    (i) => i.title.toLowerCase().includes(q) || i.host.toLowerCase().includes(q)
   );
-  const filteredRecommendedItems = recommendedItems.filter(
-    (i) =>
-      i.title.toLowerCase().includes(q) || i.subtitle.toLowerCase().includes(q)
+  const filteredRecommendedPodcasts = recommendedPodcasts.filter(
+    (i) => i.title.toLowerCase().includes(q) || i.host.toLowerCase().includes(q)
   );
 
   return (
@@ -100,33 +106,34 @@ export default function ThcDashboard() {
             <ChannelMetricsCarousel accentColor="green" />
           </section>
 
-          {/* What's Trending This week */}
+          {/* Trending Podcasts */}
           <Section
-            title="What's Trending This week"
-            description="Learn binge-worthy, career-building lessons from experts across tech media and business."
+            title="Trending Now"
+            description="Popular podcasts everyone is listening to right now."
           >
-            <CardsGrid items={filteredTrendingItems} navigate={navigate} />
+            <PodcastsGrid
+              items={filteredTrendingPodcasts}
+              navigate={navigate}
+            />
           </Section>
 
-          {/* New Releases */}
+          {/* New Episodes */}
           <Section
-            title="New Releases"
-            description="Learn binge-worthy, career-building lessons from experts across tech media and business."
+            title="New Episodes"
+            description="The latest episode releases from your favorite shows."
           >
-            <CardsGrid items={filteredReleasesItems} navigate={navigate} />
+            <PodcastsGrid items={filteredNewReleases} navigate={navigate} />
           </Section>
 
           {/* Recommended For You */}
           <Section
             title="Recommended For You"
-            description="Learn binge-worthy, career-building lessons from experts across tech media and business."
+            description="Personalized picks based on your listening history."
           >
-            <CardsGrid items={filteredRecommendedItems} navigate={navigate} />
-          </Section>
-
-          {/* This week's top pick */}
-          <Section title="This week's top pick" description="">
-            <TopPick accent="lime" imageFit="cover" />
+            <PodcastsGrid
+              items={filteredRecommendedPodcasts}
+              navigate={navigate}
+            />
           </Section>
 
           <div className="h-16" />
@@ -161,7 +168,7 @@ function Section({
   );
 }
 
-function CardsGrid({
+function PodcastsGrid({
   items,
   navigate,
 }: {
@@ -169,31 +176,28 @@ function CardsGrid({
     id: number;
     image: string;
     title: string;
-    subtitle: string;
-    price: string;
+    host: string;
+    episodeCount: number;
   }[];
   navigate: any;
 }) {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      {items.map((it) => (
-        <ProductCard
-          key={it.id}
-          imageSrc={it.image}
-          title={it.title}
-          subtitle={it.subtitle}
-          price={it.price}
-          bgColor="ring-[#70E002]"
-          priceAccent="thc"
+      {items.map((podcast) => (
+        <PodcastCard
+          key={podcast.id}
+          imageSrc={podcast.image}
+          title={podcast.title}
+          host={podcast.host}
+          episodeCount={podcast.episodeCount}
           onClick={() =>
             navigate("/thc-video-player", {
               state: {
-                id: it.id.toString(),
-                image: it.image,
-                title: it.title,
-                creator: it.subtitle,
-                price: it.price,
-                instructor: it.subtitle,
+                id: podcast.id.toString(),
+                image: podcast.image,
+                title: podcast.title,
+                host: podcast.host,
+                episodeCount: podcast.episodeCount,
               },
             })
           }
@@ -202,4 +206,3 @@ function CardsGrid({
     </div>
   );
 }
-
