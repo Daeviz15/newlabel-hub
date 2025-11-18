@@ -17,7 +17,7 @@ const Catalogue = () => {
     {
       id: 1,
       price: "$18",
-      title: "The Future Of AI In Everyday Products",
+      title: "The Future Of AI In Everyday Product",
       subtitle: "jsty",
       image: "/assets/dashboard-images/face.jpg",
       liked: false,
