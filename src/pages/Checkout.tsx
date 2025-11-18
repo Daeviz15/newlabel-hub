@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -26,12 +26,54 @@ export default function CheckoutPage() {
   const { state: cartState, clearCart } = useCart();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
-
+  const [searchQuery, setSearchQuery] = useState("");
+  const [userName, setUserName] = useState<string | null>(null);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const total = cartState.total;
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate("/login");
+  };
+  useEffect(() => {
+    const updateFromSession = (session: any) => {
+      const user = session?.user || null;
+      if (user) {
+        const meta = user.user_metadata || {};
+        setUserEmail(user.email ?? null);
+        setUserName(meta.full_name || meta.name || user.email || null);
+        setAvatarUrl(meta.avatar_url || meta.picture || null);
+        setTimeout(async () => {
+          const { data, error } = await supabase
+            .from("profiles")
+            .select("full_name, avatar_url")
+            .eq("user_id", user.id)
+            .maybeSingle();
+          if (!error && data) {
+            if (data.full_name) setUserName(data.full_name);
+            if (data.avatar_url) setAvatarUrl(data.avatar_url);
+          }
+        }, 0);
+      }
+    };
 
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        updateFromSession(session);
+      }
+    );
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      updateFromSession(session);
+    });
+
+    return () => {
+      listener.subscription.unsubscribe();
+    };
+  }, []);
   async function handlePayment(event: React.MouseEvent<HTMLButtonElement>) {
     event.preventDefault();
-    
+
     if (cartState.items.length === 0) {
       toast({
         title: "Cart is empty",
@@ -44,7 +86,9 @@ export default function CheckoutPage() {
     setIsProcessingPayment(true);
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) {
         toast({
           title: "Authentication required",
@@ -56,14 +100,17 @@ export default function CheckoutPage() {
       }
 
       // Call edge function to initialize payment
-      const { data, error } = await supabase.functions.invoke('initialize-payment', {
-        body: {
-          cart_items: cartState.items.map(item => ({
-            id: item.id,
-            quantity: item.quantity,
-          })),
-        },
-      });
+      const { data, error } = await supabase.functions.invoke(
+        "initialize-payment",
+        {
+          body: {
+            cart_items: cartState.items.map((item) => ({
+              id: item.id,
+              quantity: item.quantity,
+            })),
+          },
+        }
+      );
 
       if (error) throw error;
 
@@ -71,13 +118,14 @@ export default function CheckoutPage() {
         // Redirect to Paystack payment page
         window.location.href = data.authorization_url;
       } else {
-        throw new Error('No payment URL received');
+        throw new Error("No payment URL received");
       }
     } catch (error: any) {
-      console.error('Payment initialization error:', error);
+      console.error("Payment initialization error:", error);
       toast({
         title: "Payment failed",
-        description: error.message || "Failed to initialize payment. Please try again.",
+        description:
+          error.message || "Failed to initialize payment. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -88,20 +136,27 @@ export default function CheckoutPage() {
   // Check for payment success callback
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('payment') === 'success') {
+    if (urlParams.get("payment") === "success") {
       clearCart();
       toast({
         title: "Payment successful!",
         description: "Your courses have been added to your library",
       });
       // Clean up URL
-      window.history.replaceState({}, '', '/mylibrary');
+      window.history.replaceState({}, "", "/mylibrary");
     }
   }, []);
 
   return (
     <>
-      <HomeHeader search="" onSearchChange={null} userEmail="" avatarUrl="" onSignOut={null} />
+      <HomeHeader
+        search={searchQuery}
+        onSearchChange={setSearchQuery}
+        userName={userName ?? undefined}
+        userEmail={userEmail ?? undefined}
+        avatarUrl={avatarUrl ?? undefined}
+        onSignOut={handleSignOut}
+      />
 
       <main className="container mx-auto px-4 py-12">
         <h1 className="text-2xl font-vietnam font-bold mb-12">Checkout</h1>
@@ -109,11 +164,16 @@ export default function CheckoutPage() {
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Billing Details */}
           <div className="bg-[#A3A3A3 10%] border border-zinc-800 rounded-lg p-8">
-            <h2 className="text-2xl font-vietnam font-semibold mb-6">Billing Details</h2>
+            <h2 className="text-2xl font-vietnam font-semibold mb-6">
+              Billing Details
+            </h2>
             <form className="space-y-6">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="firstName" className="block font-vietnam text-sm mb-2">
+                  <label
+                    htmlFor="firstName"
+                    className="block font-vietnam text-sm mb-2"
+                  >
                     First Name
                   </label>
                   <Input
@@ -123,7 +183,10 @@ export default function CheckoutPage() {
                   />
                 </div>
                 <div>
-                  <label htmlFor="lastName" className="block font-vietnam text-sm mb-2">
+                  <label
+                    htmlFor="lastName"
+                    className="block font-vietnam text-sm mb-2"
+                  >
                     Last Name
                   </label>
                   <Input
@@ -146,7 +209,10 @@ export default function CheckoutPage() {
               </div>
 
               <div>
-                <label htmlFor="street" className="block text-sm font-vietnam mb-2">
+                <label
+                  htmlFor="street"
+                  className="block text-sm font-vietnam mb-2"
+                >
                   Street Address
                 </label>
                 <Input
@@ -157,7 +223,10 @@ export default function CheckoutPage() {
               </div>
 
               <div>
-                <label htmlFor="state" className="block text-sm font-vietnam mb-2">
+                <label
+                  htmlFor="state"
+                  className="block text-sm font-vietnam mb-2"
+                >
                   State/County
                 </label>
                 <Input
@@ -168,7 +237,10 @@ export default function CheckoutPage() {
               </div>
 
               <div>
-                <label htmlFor="phone" className="block font-vietnam text-sm mb-2">
+                <label
+                  htmlFor="phone"
+                  className="block font-vietnam text-sm mb-2"
+                >
                   Phone Number
                 </label>
                 <Input
@@ -180,7 +252,10 @@ export default function CheckoutPage() {
               </div>
 
               <div>
-                <label htmlFor="email" className="block font-vietnam text-sm mb-2">
+                <label
+                  htmlFor="email"
+                  className="block font-vietnam text-sm mb-2"
+                >
                   Email Address
                 </label>
                 <Input
@@ -192,7 +267,10 @@ export default function CheckoutPage() {
               </div>
 
               <div>
-                <label htmlFor="notes" className="block font-vietnam text-sm mb-2">
+                <label
+                  htmlFor="notes"
+                  className="block font-vietnam text-sm mb-2"
+                >
                   Additional Notes
                 </label>
                 <Textarea
@@ -207,7 +285,9 @@ export default function CheckoutPage() {
 
           {/* Order Summary */}
           <div className="bg-[#A3A3A3 10%] border border-zinc-800 rounded-lg p-8 h-fit">
-            <h2 className="text-2xl font-vietnam font-semibold mb-6">Order Summary</h2>
+            <h2 className="text-2xl font-vietnam font-semibold mb-6">
+              Order Summary
+            </h2>
             <div className="flex justify-between font-vietnam text-sm font-medium mb-6 pb-4 border-b border-zinc-800">
               <span>Product</span>
               <span>Amount</span>
@@ -215,7 +295,9 @@ export default function CheckoutPage() {
 
             <div className="space-y-4 mb-6">
               {cartState.items.length === 0 ? (
-                <p className="text-zinc-500 text-center py-8">Your cart is empty</p>
+                <p className="text-zinc-500 text-center py-8">
+                  Your cart is empty
+                </p>
               ) : (
                 cartState.items.map((item) => (
                   <div key={item.id} className="flex gap-4">
@@ -225,10 +307,16 @@ export default function CheckoutPage() {
                       className="w-16 h-16 object-cover rounded"
                     />
                     <div className="flex-1">
-                      <h3 className="text-sm font-vietnam font-medium mb-1">{item.title}</h3>
-                      <p className="text-xs font-vietnam text-zinc-500">Qty: {item.quantity}</p>
+                      <h3 className="text-sm font-vietnam font-medium mb-1">
+                        {item.title}
+                      </h3>
+                      <p className="text-xs font-vietnam text-zinc-500">
+                        Qty: {item.quantity}
+                      </p>
                     </div>
-                    <div className="text-sm font-vietnam font-semibold">{item.price}</div>
+                    <div className="text-sm font-vietnam font-semibold">
+                      {item.price}
+                    </div>
                   </div>
                 ))
               )}
@@ -248,10 +336,9 @@ export default function CheckoutPage() {
             </Button>
           </div>
         </div>
+      </main>
 
-    </main>
-
-    <Footer />
+      <Footer />
     </>
   );
 }
