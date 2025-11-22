@@ -14,30 +14,30 @@ export default function PopularContent() {
     {
       image:
         "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/NewLabel%20cards-RwCTjHHDOoN5zkZrEtDhuABIVBmiHq.png",
-      // price: "$18",
-      // title: "The Future Of AI In Everyday Products",
-      // author: "Jsify",
+      price: "$18",
+      title: "The Future Of AI In Everyday Products",
+      subtitle: "Jsity",
     },
     {
       image:
         "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/NewLabel%20cards%20%281%29-twaNwqHhV7wFjwFD5UuAL1JyM09Yhz.png",
-      // price: "$18",
-      // title: "Firm Foundation",
-      // author: "NLC",
+      price: "$18",
+      title: "Firm Foundation",
+      subtitle: "Gospelline",
     },
     {
       image:
         "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/NewLabel%20cards%20%282%29-aoNzOtotGyY6wmcgyaAUn260H9UY3D.png",
-      // price: "$18",
-      // title: "The Silent Trauma Of Millennials",
-      // author: "The House Chronicles",
+      price: "$18",
+      title: "The Silent Trauma Of Millennials",
+      subtitle: "The House Chronicles",
     },
     {
       image:
         "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/NewLabel%20cards-RwCTjHHDOoN5zkZrEtDhuABIVBmiHq.png",
-      // price: "$18",
-      // title: "The Future Of AI In Everyday Products",
-      // author: "Jsify",
+      price: "$18",
+      title: "The Future Of AI In Everyday Products",
+      subtitle: "Jsity",
     },
   ];
 
@@ -56,6 +56,9 @@ export default function PopularContent() {
           <ProductCard
             key={index}
             imageSrc={item.image}
+            title={item.title}
+            subtitle={item.subtitle}
+            price={item.price}
             className="hover:ring-0 hover:ring-transparent"
           />
         ))}
@@ -75,6 +78,9 @@ export default function PopularContent() {
               <CarouselItem key={index} className="pl-2 md:pl-4 basis-4/5 sm:basis-3/5">
                 <ProductCard
                   imageSrc={item.image}
+                  title={item.title}
+                  subtitle={item.subtitle}
+                  price={item.price}
                   className="hover:ring-0 hover:ring-transparent"
                 />
               </CarouselItem>
