@@ -1,37 +1,50 @@
-"use client"
+"use client";
 
-import { Card } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { Trash2 } from "lucide-react"
-import { VideoUpload } from "./VideoUpload"
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Trash2 } from "lucide-react";
+import { VideoUpload } from "./VideoUpload";
 
 interface Episode {
-  id: string
-  title: string
-  description: string
-  duration: string
-  videoFile: File | null
-  order_number: number
+  id: string;
+  title: string;
+  description: string;
+  duration: string;
+  videoFile: File | null;
+  video_url?: string;
+  order_number: number;
 }
 
 interface EpisodeFormProps {
-  episode: Episode
-  index: number
-  onUpdate: (field: string, value: any) => void
-  onRemove: () => void
-  showRemove: boolean
+  episode: Episode;
+  index: number;
+  onUpdate: (field: string, value: any) => void;
+  onRemove: () => void;
+  showRemove: boolean;
 }
 
-export const EpisodeForm = ({ episode, index, onUpdate, onRemove, showRemove }: EpisodeFormProps) => {
+export const EpisodeForm = ({
+  episode,
+  index,
+  onUpdate,
+  onRemove,
+  showRemove,
+}: EpisodeFormProps) => {
   return (
     <Card className="p-4">
       <div className="flex items-start justify-between mb-4">
         <h4 className="font-medium">Episode {index + 1}</h4>
         {showRemove && (
-          <Button type="button" variant="ghost" size="sm" onClick={onRemove} className="text-destructive">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={onRemove}
+            className="text-destructive"
+          >
             <Trash2 className="h-4 w-4" />
           </Button>
         )}
@@ -70,9 +83,10 @@ export const EpisodeForm = ({ episode, index, onUpdate, onRemove, showRemove }: 
           label="Episode Video/Audio"
           onFileSelect={(file) => onUpdate("videoFile", file)}
           currentFile={episode.videoFile}
+          previewUrl={episode.video_url}
           id={`video-upload-episode-${episode.id}`}
         />
       </div>
     </Card>
-  )
-}
+  );
+};

@@ -14,6 +14,7 @@ interface Lesson {
   description: string;
   duration: string;
   videoFile: File | null;
+  video_url?: string;
   order_number: number;
 }
 
@@ -82,6 +83,7 @@ export const LessonForm = ({
           label="Lesson Video"
           onFileSelect={(file) => onUpdate("videoFile", file)}
           currentFile={lesson.videoFile}
+          previewUrl={lesson.video_url}
           id={`video-upload-lesson-${lesson.id}`}
         />
       </div>
