@@ -10,6 +10,7 @@ interface VideoUploadProps {
   onFileSelect: (file: File | null) => void;
   currentFile: File | null;
   id?: string;
+  previewUrl?: string | null;
 }
 
 export const VideoUpload = ({
@@ -17,6 +18,7 @@ export const VideoUpload = ({
   onFileSelect,
   currentFile,
   id,
+  previewUrl,
 }: VideoUploadProps) => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -53,6 +55,19 @@ export const VideoUpload = ({
               <p className="text-sm font-medium">{currentFile.name}</p>
               <p className="text-xs text-muted-foreground">
                 {(currentFile.size / 1024 / 1024).toFixed(2)} MB
+              </p>
+            </>
+          ) : previewUrl ? (
+            <>
+              <Video className="h-8 w-8 text-primary" />
+              <p className="text-sm font-medium text-primary">
+                Current Video Uploaded
+              </p>
+              <p className="text-xs text-muted-foreground break-all line-clamp-1 px-4">
+                {previewUrl.split("/").pop()}
+              </p>
+              <p className="text-xs text-muted-foreground mt-2">
+                Click to replace
               </p>
             </>
           ) : (

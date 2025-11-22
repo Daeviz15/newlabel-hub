@@ -1,11 +1,20 @@
-"use client"
+"use client";
 
-import { useQuery } from "@tanstack/react-query"
-import { supabase } from "@/integrations/supabase/client"
-import { Loader2, Edit, Trash2 } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { useToast } from "@/hooks/use-toast"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Loader2, Edit, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
+import { EditPodcast } from "./EditPodcast";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,10 +25,18 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+} from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export const PodcastList = () => {
-  const { toast } = useToast()
+  const { toast } = useToast();
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const {
     data: podcasts,
@@ -32,12 +49,12 @@ export const PodcastList = () => {
         .from("products")
         .select("*")
         .eq("category", "podcast") // Filter for podcasts
-        .order("created_at", { ascending: false })
+        .order("created_at", { ascending: false });
 
-      if (error) throw error
-      return data
+      if (error) throw error;
+      return data;
     },
-  })
+  });
 
   const handleDelete = async (podcastId: string) => {
     try {
@@ -46,93 +63,111 @@ export const PodcastList = () => {
         .from("products")
         .select("image_url, preview_video_url")
         .eq("id", podcastId)
-        .single()
+        .single();
 
-      if (podcastError) throw podcastError
+      if (podcastError) throw podcastError;
 
       // Get all episodes for this podcast
       const { data: episodes, error: episodesError } = await supabase
         .from("course_lessons")
         .select("video_url")
-        .eq("course_id", podcastId)
+        .eq("course_id", podcastId);
 
-      if (episodesError) throw episodesError
+      if (episodesError) throw episodesError;
 
       // Delete episode videos from storage
       if (episodes && episodes.length > 0) {
         const videoFilePaths = episodes
           .map((episode) => {
-            const url = episode.video_url
-            const match = url.match(/course-videos\/(.+)$/)
-            return match ? match[1] : null
+            const url = episode.video_url;
+            const match = url.match(/course-videos\/(.+)$/);
+            return match ? match[1] : null;
           })
-          .filter(Boolean) as string[]
+          .filter(Boolean) as string[];
 
         if (videoFilePaths.length > 0) {
-          const { error: videoDeleteError } = await supabase.storage.from("course-videos").remove(videoFilePaths)
+          const { error: videoDeleteError } = await supabase.storage
+            .from("course-videos")
+            .remove(videoFilePaths);
 
-          if (videoDeleteError) console.error("Error deleting videos:", videoDeleteError)
+          if (videoDeleteError)
+            console.error("Error deleting videos:", videoDeleteError);
         }
       }
 
       // Delete podcast cover from storage
       if (podcast?.image_url) {
-        const imageMatch = podcast.image_url.match(/course-images\/(.+)$/)
+        const imageMatch = podcast.image_url.match(/course-images\/(.+)$/);
         if (imageMatch) {
-          const { error: imageDeleteError } = await supabase.storage.from("course-images").remove([imageMatch[1]])
+          const { error: imageDeleteError } = await supabase.storage
+            .from("course-images")
+            .remove([imageMatch[1]]);
 
-          if (imageDeleteError) console.error("Error deleting cover:", imageDeleteError)
+          if (imageDeleteError)
+            console.error("Error deleting cover:", imageDeleteError);
         }
       }
 
       // Delete trailer from storage if exists
       if (podcast?.preview_video_url) {
-        const previewMatch = podcast.preview_video_url.match(/course-videos\/(.+)$/)
+        const previewMatch =
+          podcast.preview_video_url.match(/course-videos\/(.+)$/);
         if (previewMatch) {
-          const { error: previewDeleteError } = await supabase.storage.from("course-videos").remove([previewMatch[1]])
+          const { error: previewDeleteError } = await supabase.storage
+            .from("course-videos")
+            .remove([previewMatch[1]]);
 
-          if (previewDeleteError) console.error("Error deleting trailer:", previewDeleteError)
+          if (previewDeleteError)
+            console.error("Error deleting trailer:", previewDeleteError);
         }
       }
 
       // Delete episodes from database
-      const { error: deleteEpisodesError } = await supabase.from("course_lessons").delete().eq("course_id", podcastId)
+      const { error: deleteEpisodesError } = await supabase
+        .from("course_lessons")
+        .delete()
+        .eq("course_id", podcastId);
 
-      if (deleteEpisodesError) throw deleteEpisodesError
+      if (deleteEpisodesError) throw deleteEpisodesError;
 
       // Finally, delete the podcast itself
-      const { error } = await supabase.from("products").delete().eq("id", podcastId)
+      const { error } = await supabase
+        .from("products")
+        .delete()
+        .eq("id", podcastId);
 
-      if (error) throw error
+      if (error) throw error;
 
       toast({
         title: "Success",
         description: "Podcast and all episodes deleted successfully",
-      })
-      refetch()
+      });
+      refetch();
     } catch (error: any) {
       toast({
         title: "Error",
         description: error.message || "Failed to delete podcast",
         variant: "destructive",
-      })
+      });
     }
-  }
+  };
 
   if (isLoading) {
     return (
       <div className="flex justify-center py-8">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
-    )
+    );
   }
 
   if (!podcasts || podcasts.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground">
-        <p>No podcasts found. Create your first podcast series to get started!</p>
+        <p>
+          No podcasts found. Create your first podcast series to get started!
+        </p>
       </div>
-    )
+    );
   }
 
   return (
@@ -154,7 +189,11 @@ export const PodcastList = () => {
               <TableCell>{podcast.level || "N/A"}</TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-2">
-                  <Button variant="outline" size="sm">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setEditingId(podcast.id)}
+                  >
                     <Edit className="h-4 w-4" />
                   </Button>
                   <AlertDialog>
@@ -167,13 +206,17 @@ export const PodcastList = () => {
                       <AlertDialogHeader>
                         <AlertDialogTitle>Delete Podcast?</AlertDialogTitle>
                         <AlertDialogDescription>
-                          This will permanently delete "{podcast.title}" and all its episodes. This action cannot be
-                          undone.
+                          This will permanently delete "{podcast.title}" and all
+                          its episodes. This action cannot be undone.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => handleDelete(podcast.id)}>Delete</AlertDialogAction>
+                        <AlertDialogAction
+                          onClick={() => handleDelete(podcast.id)}
+                        >
+                          Delete
+                        </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
@@ -183,6 +226,30 @@ export const PodcastList = () => {
           ))}
         </TableBody>
       </Table>
+
+      <Dialog
+        open={!!editingId}
+        onOpenChange={(open) => !open && setEditingId(null)}
+      >
+        <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
+          <DialogHeader>
+            <DialogTitle>Edit Podcast</DialogTitle>
+            <DialogDescription>
+              Update podcast details, episodes, and media.
+            </DialogDescription>
+          </DialogHeader>
+          {editingId && (
+            <EditPodcast
+              podcastId={editingId}
+              onSuccess={() => {
+                setEditingId(null);
+                refetch();
+              }}
+              onCancel={() => setEditingId(null)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
-  )
-}
+  );
+};
