@@ -43,7 +43,11 @@ interface Lesson {
   order_number: number;
 }
 
-export const CreateCourse = () => {
+export const CreateCourse = ({
+  brand = "jsity",
+}: {
+  brand?: "jsity" | "thc";
+}) => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [previewVideoFile, setPreviewVideoFile] = useState<File | null>(null);
@@ -204,6 +208,7 @@ export const CreateCourse = () => {
             category: "course",
             image_url: imageUrl,
             preview_video_url: previewVideoUrl,
+            brand: brand,
           },
         ])
         .select()

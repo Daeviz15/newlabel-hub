@@ -105,7 +105,7 @@ const JsityAdmin = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <CreateCourse />
+                  <CreateCourse brand={selectedBrand} />
                 </CardContent>
               </Card>
             </TabsContent>
@@ -140,7 +140,7 @@ const JsityAdmin = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <CreatePodcast />
+                  <CreatePodcast brand={selectedBrand} />
                 </CardContent>
               </Card>
             </TabsContent>
