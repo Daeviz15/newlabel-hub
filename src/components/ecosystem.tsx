@@ -6,7 +6,7 @@ import { ArrowUpRightIcon } from "@heroicons/react/24/outline";
 export default function Ecosystem() {
   const platforms = [
     {
-      name: "Jsify",
+      name: "Jsity",
       logoType: null,
       logoSrc: "/assets/jsity.png", // Fixed: removed /public/ - Next.js serves from public/ automatically
       description: "Learn from industry experts and enhance your skills",

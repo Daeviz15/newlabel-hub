@@ -1,4 +1,7 @@
-import React, { useState } from "react";
+"use client";
+
+import type React from "react";
+import { useState, useEffect } from "react";
 import { ProductCard, TopPick } from "@/components/course-card";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -6,52 +9,72 @@ import { useUserProfile } from "@/hooks/use-user-profile";
 import { THomeHeader } from "./components/home-header";
 import GFooter from "./components/GFooter";
 import ChannelMetricsCarousel from "@/components/channel-metrics-carousel";
-
-const courseData = [
-  {
-    id: 1,
-    price: "$18",
-    title: "The Future Of AI In Everyday Products",
-    subtitle: "Ada Nwosu",
-    role: "Machine Learning Engineer At NewsTech",
-    image: "/assets/dashboard-images/face.jpg",
-  },
-  {
-    id: 2,
-    price: "$18",
-    title: "The Future Of AI In Everyday Products",
-    subtitle: "Ada Nwosu",
-    role: "Machine Learning Engineer At NewsTech",
-    image: "/assets/dashboard-images/firm.jpg",
-  },
-  {
-    id: 3,
-    price: "$18",
-    title: "The Future Of AI In Everyday Products",
-    subtitle: "Ada Nwosu",
-    role: "Machine Learning Engineer At NewsTech",
-    image: "/assets/dashboard-images/lady.jpg",
-  },
-  {
-    id: 4,
-    price: "$18",
-    title: "The Future Of AI In Everyday Products",
-    subtitle: "Ada Nwosu",
-    role: "Machine Learning Engineer At NewsTech",
-    image: "/assets/dashboard-images/only.jpg",
-  },
-];
-
-const trendingItems = courseData;
-const releasesItems = courseData;
-const recommendedItems = courseData;
+import { EmptyState } from "@/components/ui/empty-state";
 
 export default function GDashboard() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const { userName, userEmail, avatarUrl } = useUserProfile();
+  const [courses, setCourses] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Function to get time-based greeting
+  useEffect(() => {
+    const fetchCourses = async () => {
+      const { data } = await supabase
+        .from("products")
+        .select("*")
+        .eq("brand", "gospeline")
+        .order("created_at", { ascending: false });
+
+      if (data) {
+        setCourses(
+          data.map((item) => ({
+            id: item.id,
+            price: `$${item.price}`,
+            title: item.title,
+            subtitle: item.instructor || "Instructor",
+            role: item.instructor_role || "Expert",
+            image: item.image_url || "/assets/dashboard-images/face.jpg",
+          }))
+        );
+      }
+      setLoading(false);
+    };
+
+    fetchCourses();
+
+    const channel = supabase
+      .channel("gospel-products-changes")
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "products",
+          filter: "brand=eq.gospeline",
+        },
+        (payload) => {
+          const newItem = payload.new as any;
+          setCourses((prev) => [
+            {
+              id: newItem.id,
+              price: `$${newItem.price}`,
+              title: newItem.title,
+              subtitle: newItem.instructor || "Instructor",
+              role: newItem.instructor_role || "Expert",
+              image: newItem.image_url || "/assets/dashboard-images/face.jpg",
+            },
+            ...prev,
+          ]);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
   const getTimeBasedGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) {
@@ -69,15 +92,7 @@ export default function GDashboard() {
   };
 
   const q = searchQuery.trim().toLowerCase();
-  const filteredTrendingItems = trendingItems.filter(
-    (i) =>
-      i.title.toLowerCase().includes(q) || i.subtitle.toLowerCase().includes(q)
-  );
-  const filteredReleasesItems = releasesItems.filter(
-    (i) =>
-      i.title.toLowerCase().includes(q) || i.subtitle.toLowerCase().includes(q)
-  );
-  const filteredRecommendedItems = recommendedItems.filter(
+  const filteredCourses = courses.filter(
     (i) =>
       i.title.toLowerCase().includes(q) || i.subtitle.toLowerCase().includes(q)
   );
@@ -95,39 +110,66 @@ export default function GDashboard() {
         />
 
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 md:px-8">
-          {/* Hero Carousel */}
           <section className="py-6 sm:py-8">
             <ChannelMetricsCarousel accentColor="lime" />
           </section>
 
-          {/* What's Trending This week */}
-          <Section
-            title="What's Trending This week"
-            description="Learn binge-worthy, career-building lessons from experts across tech media and business."
-          >
-            <CardsGrid items={filteredTrendingItems} navigate={navigate} />
-          </Section>
+          {loading ? (
+            <div className="py-20 text-center text-gray-400">
+              Loading content...
+            </div>
+          ) : filteredCourses.length === 0 ? (
+            <div className="py-20">
+              <EmptyState
+                title="No Gospeline content yet"
+                description="Faith-based content is being prepared for you."
+                // Actually I'll just import Cross if I can, but to be safe I'll use null or let it default to Database if I don't pass icon.
+                // Wait, I added Cross in imports.
+              />
+            </div>
+          ) : (
+            <>
+              <Section
+                title="What's Trending This week"
+                description="Learn binge-worthy, career-building lessons from experts across tech media and business."
+              >
+                <CardsGrid
+                  items={filteredCourses.slice(0, 4)}
+                  navigate={navigate}
+                />
+              </Section>
 
-          {/* New Releases */}
-          <Section
-            title="New Releases"
-            description="Learn binge-worthy, career-building lessons from experts across tech media and business."
-          >
-            <CardsGrid items={filteredReleasesItems} navigate={navigate} />
-          </Section>
+              <Section
+                title="New Releases"
+                description="Learn binge-worthy, career-building lessons from experts across tech media and business."
+              >
+                <CardsGrid items={filteredCourses} navigate={navigate} />
+              </Section>
 
-          {/* Recommended For You */}
-          <Section
-            title="Recommended For You"
-            description="Learn binge-worthy, career-building lessons from experts across tech media and business."
-          >
-            <CardsGrid items={filteredRecommendedItems} navigate={navigate} />
-          </Section>
+              <Section
+                title="Recommended For You"
+                description="Learn binge-worthy, career-building lessons from experts across tech media and business."
+              >
+                <CardsGrid
+                  items={filteredCourses.slice(0, 4)}
+                  navigate={navigate}
+                />
+              </Section>
 
-          {/* This week's top pick */}
-          <Section title="This week's top pick" description="">
-            <TopPick accent="lime" imageFit="cover" />
-          </Section>
+              <Section title="This week's top pick" description="">
+                {filteredCourses.length > 0 ? (
+                  <TopPick
+                    accent="lime"
+                    imageFit="cover"
+                    title={filteredCourses[0].title}
+                    author={filteredCourses[0].subtitle}
+                    authorRole={filteredCourses[0].role}
+                    imageSrc={filteredCourses[0].image}
+                  />
+                ) : null}
+              </Section>
+            </>
+          )}
 
           <div className="h-16" />
         </div>

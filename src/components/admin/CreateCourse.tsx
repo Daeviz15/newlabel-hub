@@ -21,6 +21,13 @@ import {
 import { VideoUpload } from "./VideoUpload";
 import { ImageUpload } from "./ImageUpload";
 import { LessonForm } from "./LessonForm";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const courseSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters"),
@@ -30,6 +37,7 @@ const courseSchema = z.object({
   instructor_role: z.string().min(2, "Instructor role is required"),
   level: z.string().min(1, "Level is required"),
   duration: z.string().min(1, "Duration is required"),
+  brand: z.string().min(1, "Brand is required"),
 });
 
 type CourseFormData = z.infer<typeof courseSchema>;
@@ -73,6 +81,7 @@ export const CreateCourse = ({
       instructor_role: "",
       level: "Beginner",
       duration: "",
+      brand: brand,
     },
   });
 
@@ -208,7 +217,7 @@ export const CreateCourse = ({
             category: "course",
             image_url: imageUrl,
             preview_video_url: previewVideoUrl,
-            brand: brand,
+            brand: data.brand,
           },
         ])
         .select()
@@ -423,6 +432,32 @@ export const CreateCourse = ({
                 <FormControl>
                   <Input placeholder="e.g., 5 hours" {...field} />
                 </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="brand"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Platform Label</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select platform" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="jsity">Jsity</SelectItem>
+                    <SelectItem value="thc">THC</SelectItem>
+                    <SelectItem value="gospeline">Gospeline</SelectItem>
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}

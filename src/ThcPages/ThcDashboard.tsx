@@ -1,4 +1,7 @@
-import React, { useState } from "react";
+"use client";
+
+import type React from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import ThcFooter from "./components/ThcFooter";
@@ -6,60 +9,72 @@ import { useUserProfile } from "@/hooks/use-user-profile";
 import { THomeHeader } from "./components/home-header";
 import ChannelMetricsCarousel from "@/components/channel-metrics-carousel";
 import { PodcastCard } from "@/components/podcast-card";
-
-const podcastData = [
-  {
-    id: 1,
-    title: "The Daily Chronicles",
-    host: "Alex Thompson",
-    episodeCount: 156,
-    image: "/assets/dashboard-images/face.jpg",
-  },
-  {
-    id: 2,
-    title: "Late Night Talks",
-    host: "Jamie Wilson",
-    episodeCount: 89,
-    image: "/assets/dashboard-images/firm.jpg",
-  },
-  {
-    id: 3,
-    title: "Tech Bytes Podcast",
-    host: "Sarah Chen",
-    episodeCount: 124,
-    image: "/assets/dashboard-images/lady.jpg",
-  },
-  {
-    id: 4,
-    title: "Story Time Sessions",
-    host: "Marcus Brown",
-    episodeCount: 72,
-    image: "/assets/dashboard-images/only.jpg",
-  },
-  {
-    id: 5,
-    title: "The Midnight Hour",
-    host: "Nicole Davis",
-    episodeCount: 98,
-    image: "/assets/dashboard-images/Cart1.jpg",
-  },
-  {
-    id: 6,
-    title: "Conversations & Coffee",
-    host: "David Lee",
-    episodeCount: 145,
-    image: "/assets/podcast-episode.jpg",
-  },
-];
-
-const trendingPodcasts = podcastData;
-const newReleases = podcastData.slice(2);
-const recommendedPodcasts = podcastData.slice(1);
+import { EmptyState } from "@/components/ui/empty-state";
+import { Mic } from "lucide-react";
 
 export default function ThcPodcastDashboard() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const { userName, userEmail, avatarUrl } = useUserProfile();
+  const [podcasts, setPodcasts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPodcasts = async () => {
+      const { data } = await supabase
+        .from("products")
+        .select("*")
+        .or("brand.eq.thc,category.eq.thc")
+        .order("created_at", { ascending: false });
+
+      if (data) {
+        setPodcasts(
+          data.map((item) => ({
+            id: item.id,
+            title: item.title,
+            host: item.instructor || "Host",
+            episodeCount: 1, // Default or fetch from related table if needed
+            image: item.image_url || "/assets/dashboard-images/face.jpg",
+          }))
+        );
+      }
+      setLoading(false);
+    };
+
+    fetchPodcasts();
+
+    // Real-time subscription
+    const channel = supabase
+      .channel("thc-products-changes")
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "products",
+        },
+        (payload) => {
+          const newItem = payload.new as any;
+          if (newItem.brand === "thc" || newItem.category === "thc") {
+            setPodcasts((prev) => [
+              {
+                id: newItem.id,
+                title: newItem.title,
+                host: newItem.instructor || "Host",
+                episodeCount: 1,
+                image: newItem.image_url || "/assets/dashboard-images/face.jpg",
+              },
+              ...prev,
+            ]);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   const getTimeBasedGreeting = () => {
     const hour = new Date().getHours();
@@ -78,13 +93,7 @@ export default function ThcPodcastDashboard() {
   };
 
   const q = searchQuery.trim().toLowerCase();
-  const filteredTrendingPodcasts = trendingPodcasts.filter(
-    (i) => i.title.toLowerCase().includes(q) || i.host.toLowerCase().includes(q)
-  );
-  const filteredNewReleases = newReleases.filter(
-    (i) => i.title.toLowerCase().includes(q) || i.host.toLowerCase().includes(q)
-  );
-  const filteredRecommendedPodcasts = recommendedPodcasts.filter(
+  const filteredPodcasts = podcasts.filter(
     (i) => i.title.toLowerCase().includes(q) || i.host.toLowerCase().includes(q)
   );
 
@@ -101,40 +110,46 @@ export default function ThcPodcastDashboard() {
         />
 
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 md:px-8">
-          {/* Hero Carousel */}
           <section className="py-6 sm:py-8">
             <ChannelMetricsCarousel accentColor="green" />
           </section>
 
-          {/* Trending Podcasts */}
-          <Section
-            title="Trending Now"
-            description="Popular podcasts everyone is listening to right now."
-          >
-            <PodcastsGrid
-              items={filteredTrendingPodcasts}
-              navigate={navigate}
-            />
-          </Section>
+          {loading ? (
+            <div className="py-20 text-center text-gray-400">
+              Loading podcasts...
+            </div>
+          ) : filteredPodcasts.length === 0 ? (
+            <div className="py-20">
+              <EmptyState
+                title="No THC content available"
+                description="New episodes and healing sessions are coming soon."
+                icon={Mic}
+              />
+            </div>
+          ) : (
+            <>
+              <Section
+                title="Trending Now"
+                description="Popular podcasts everyone is listening to right now."
+              >
+                <PodcastsGrid items={filteredPodcasts} navigate={navigate} />
+              </Section>
 
-          {/* New Episodes */}
-          <Section
-            title="New Episodes"
-            description="The latest episode releases from your favorite shows."
-          >
-            <PodcastsGrid items={filteredNewReleases} navigate={navigate} />
-          </Section>
+              <Section
+                title="New Episodes"
+                description="The latest episode releases from your favorite shows."
+              >
+                <PodcastsGrid items={filteredPodcasts} navigate={navigate} />
+              </Section>
 
-          {/* Recommended For You */}
-          <Section
-            title="Recommended For You"
-            description="Personalized picks based on your listening history."
-          >
-            <PodcastsGrid
-              items={filteredRecommendedPodcasts}
-              navigate={navigate}
-            />
-          </Section>
+              <Section
+                title="Recommended For You"
+                description="Personalized picks based on your listening history."
+              >
+                <PodcastsGrid items={filteredPodcasts} navigate={navigate} />
+              </Section>
+            </>
+          )}
 
           <div className="h-16" />
         </div>

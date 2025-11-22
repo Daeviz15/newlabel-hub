@@ -21,6 +21,13 @@ import {
 import { VideoUpload } from "./VideoUpload";
 import { ImageUpload } from "./ImageUpload";
 import { EpisodeForm } from "./EpisodeForm";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const podcastSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters"),
@@ -30,6 +37,7 @@ const podcastSchema = z.object({
   instructor_role: z.string().min(2, "Host role is required"), // e.g. "Main Host"
   level: z.string().min(1, "Category/Genre is required"), // Reusing 'level' for Genre
   duration: z.string().min(1, "Total Duration is required"),
+  brand: z.string().min(1, "Brand is required"),
 });
 
 type PodcastFormData = z.infer<typeof podcastSchema>;
@@ -73,6 +81,7 @@ export const CreatePodcast = ({
       instructor_role: "Host",
       level: "Entertainment",
       duration: "",
+      brand: brand,
     },
   });
 
@@ -94,7 +103,7 @@ export const CreatePodcast = ({
     setEpisodes(episodes.filter((episode) => episode.id !== episodeId));
   };
 
-  const updateEpisode = (episodeId: string, field: string, value: any) => {
+  const updateEpisode = (episodeId: string, field: string, value: string | number) => {
     const updatedEpisodes = episodes.map((episode) =>
       episode.id === episodeId ? { ...episode, [field]: value } : episode
     );
@@ -197,7 +206,7 @@ export const CreatePodcast = ({
             category: "podcast", // Explicitly set category to podcast
             image_url: imageUrl,
             preview_video_url: previewVideoUrl,
-            brand: brand,
+            brand: data.brand,
           },
         ])
         .select()
@@ -370,6 +379,32 @@ export const CreatePodcast = ({
                 <FormControl>
                   <Input placeholder="e.g., 45 mins per episode" {...field} />
                 </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="brand"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Platform Label</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select platform" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="jsity">Jsity</SelectItem>
+                    <SelectItem value="thc">THC</SelectItem>
+                    <SelectItem value="gospeline">Gospeline</SelectItem>
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}

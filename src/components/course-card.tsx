@@ -87,7 +87,7 @@ export function ProductCard({
   subtitle = "The House Chronicles",
   price = "$18",
   liked = false,
-  brand = "jsty",
+  brand = "",
   bgColor = "ring-lime-500",
   priceAccent = 'lime',
   onClick,

@@ -1,6 +1,8 @@
+"use client";
+
 import type React from "react";
 import { useState, useEffect } from "react";
-import { ResumeCard, ProductCard, TopPick } from "@/components/course-card";
+import { ProductCard, TopPick } from "@/components/course-card";
 import { HomeHeader } from "../components/home-header";
 import { supabase } from "@/integrations/supabase/client";
 import Footer from "@/components/Footer";
@@ -39,6 +41,7 @@ export default function Dashboard() {
             subtitle: course.instructor || "Instructor",
             image: course.image_url || "/assets/dashboard-images/face.jpg",
             category: course.category,
+            brand: course.brand || "jsity", // Added brand mapping with fallback
           }))
         );
       }
@@ -67,6 +70,7 @@ export default function Dashboard() {
               subtitle: newCourse.instructor || "Instructor",
               image: newCourse.image_url || "/assets/dashboard-images/face.jpg",
               category: newCourse.category,
+              brand: newCourse.brand || "jsity", // Added brand mapping with fallback
             },
             ...prev,
           ]);
@@ -125,8 +129,6 @@ export default function Dashboard() {
           <section className="py-6">
             <ChannelMetricsCarousel />
           </section>
-
-   
 
           {/* What's Trending This week */}
           <Section
@@ -210,6 +212,7 @@ function CardsGrid({
     subtitle: string;
     price: string;
     category?: string;
+    brand?: string; // Added brand type
   }[];
   router: ReturnType<typeof useNavigate>;
 }) {
@@ -222,13 +225,14 @@ function CardsGrid({
           title={it.title}
           subtitle={it.subtitle}
           price={it.price}
+          brand={it.brand} // Pass brand prop
           onClick={() => {
             const detailsRoute =
-              it.category === "jsity"
+              it.brand === "jsity"
                 ? "/jsity-course-details"
-                : it.category === "thc"
-                ? "/jsity-course-details"
-                : "/jsity-course-details";
+                : it.brand === "thc"
+                ? "/thc-video-player"
+                : "/gospel-course-details";
             router(detailsRoute, {
               state: {
                 id: it.id,
