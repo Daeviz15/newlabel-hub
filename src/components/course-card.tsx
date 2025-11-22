@@ -79,6 +79,7 @@ type ProductCardProps = {
   bgColor?: string;
   priceAccent?: 'lime' | 'purple' | 'thc';
   onClick?: () => void;
+  className?: string;
 };
 
 export function ProductCard({
@@ -91,6 +92,7 @@ export function ProductCard({
   bgColor = "ring-lime-500",
   priceAccent = 'lime',
   onClick,
+  className = "",
 }: ProductCardProps) {
   const priceBgClass =
     priceAccent === 'purple'
@@ -107,7 +109,7 @@ export function ProductCard({
       : 'hover:ring-lime-500';
   return (
     <div
-      className={`group relative overflow-hidden rounded-xl border border-white/10 bg-[#151515] hover:ring-4 ${ringHoverClass} transition-all`}
+      className={cn(`group relative overflow-hidden rounded-xl border border-white/10 bg-[#151515] hover:ring-4 ${ringHoverClass} transition-all`, className)}
       onClick={onClick}
     >
       <div className="absolute left-3 top-3 z-10 flex items-center gap-2">

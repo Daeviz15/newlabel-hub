@@ -7,6 +7,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import { ProductCard } from "@/components/course-card";
 
 export default function PopularContent() {
   const content = [
@@ -52,18 +53,11 @@ export default function PopularContent() {
       {/* Desktop Grid View */}
       <div className="hidden md:grid md:grid-cols-4 gap-6">
         {content.map((item, index) => (
-          <div
+          <ProductCard
             key={index}
-            className="rounded-2xl overflow-hidden hover:transform hover:scale-105 transition-transform cursor-pointer"
-          >
-            <div className="relative w-full h-[400px]">
-              <img 
-                src={item.image || "/placeholder.svg?height=400&width=300"}
-                alt='images'
-                className="w-full h-full object-cover"
-              />
-            </div>
-          </div>
+            imageSrc={item.image}
+            className="hover:ring-0 hover:ring-transparent"
+          />
         ))}
       </div>
 
@@ -79,15 +73,10 @@ export default function PopularContent() {
           <CarouselContent className="-ml-2 md:-ml-4">
             {content.map((item, index) => (
               <CarouselItem key={index} className="pl-2 md:pl-4 basis-4/5 sm:basis-3/5">
-                <div className="rounded-2xl overflow-hidden">
-                  <div className="relative w-full h-[400px]">
-                    <img 
-                      src={item.image || "/placeholder.svg?height=400&width=300"}
-                      alt='images'
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                </div>
+                <ProductCard
+                  imageSrc={item.image}
+                  className="hover:ring-0 hover:ring-transparent"
+                />
               </CarouselItem>
             ))}
           </CarouselContent>
