@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 
 export default function Newsletter() {
   return (
-    <section id="newsletter" className=" ">
+    <section className=" ">
       <div className="flex flex-col items-center justify-center">
         <h2 className="text-4xl font-bold mb-2 font-poppins">
           Stay In The Loop

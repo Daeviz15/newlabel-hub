@@ -36,7 +36,7 @@ const FAQSection = () => {
   ];
 
   return (
-    <section id="faq" className="w-full bg-background py-20">
+    <section className="w-full bg-background py-20">
       <div className="container mx-auto px-6">
         {/* Section Header */}
         <MotionWrapper variant="fadeUp">
