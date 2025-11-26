@@ -8,7 +8,29 @@ const Header = () => {
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const handleNavigation = (path) => {
+  const handleNavigation = (path: string) => {
+    // If it's a hash link (e.g. "#channels"), scroll to the element instead of using react-router navigate
+    if (path.startsWith("#")) {
+      const id = path.slice(1);
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        // Update the URL hash without reloading the page
+        window.history.replaceState(null, "", `#${id}`);
+      } else {
+        // If element not found yet (maybe below fold or rendered later), set hash and retry shortly
+        window.history.replaceState(null, "", `#${id}`);
+        setTimeout(() => {
+          const elRetry = document.getElementById(id);
+          if (elRetry) {
+            elRetry.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        }, 100);
+      }
+      setIsMobileMenuOpen(false);
+      return;
+    }
+
     navigate(path);
     setIsMobileMenuOpen(false); // Close mobile menu after navigation
   };
@@ -41,7 +63,7 @@ const Header = () => {
   const navigationItems = [
     { name: "Home", path: "/" },
     { name: "About us", path: "/about" },
-    { name: "Channels", path: "/channels" },
+    { name: "Channels", path: "#channels" },
     { name: "Contact", path: "/contact" }
   ];
 
