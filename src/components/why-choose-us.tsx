@@ -32,7 +32,7 @@ export default function WhyChooseUs() {
   ];
 
   return (
-    <section className="px-6 py-16 max-w-7xl mx-auto">
+    <section id="why-choose-us" className="px-6 py-16 max-w-7xl mx-auto">
       <MotionWrapper variant="fadeUp">
         <div className="mb-12">
           <h2 className="text-4xl font-bold mb-2 font-vietnam">Why Choose Us?</h2>
