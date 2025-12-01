@@ -30,7 +30,7 @@ export default function Jdashboard() {
         setCourses(
           data.map((course) => ({
             id: course.id,
-            price: `$${course.price}`,
+            price: `₦${course.price}`,
             title: course.title,
             subtitle: course.instructor || "Instructor",
             role: course.instructor_role || "Expert",
@@ -58,7 +58,7 @@ export default function Jdashboard() {
             setCourses((prev) => [
               {
                 id: newCourse.id,
-                price: `$${newCourse.price}`,
+                price: `₦${newCourse.price}`,
                 title: newCourse.title,
                 subtitle: newCourse.instructor || "Instructor",
                 role: newCourse.instructor_role || "Expert",

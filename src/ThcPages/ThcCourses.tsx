@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 const courseData = [
   {
     id: 1,
-    price: "$18",
+    price: "₦18",
     lessons: "32 Lessons",
     title: "The Future Of AI In Everyday Products",
     instructor: "Ada Nwosu",
@@ -18,7 +18,7 @@ const courseData = [
   },
   {
     id: 2,
-    price: "$18",
+    price: "₦18",
     lessons: "32 Lessons",
     title: "The Future Of AI In Everyday Products",
     instructor: "Ada Nwosu",
@@ -27,7 +27,7 @@ const courseData = [
   },
   {
     id: 3,
-    price: "$18",
+    price: "₦18",
     lessons: "32 Lessons",
     title: "The Future Of AI In Everyday Products",
     instructor: "Ada Nwosu",
@@ -36,7 +36,7 @@ const courseData = [
   },
   {
     id: 4,
-    price: "$18",
+    price: "₦18",
     lessons: "32 Lessons",
     title: "The Future Of AI In Everyday Products",
     instructor: "Ada Nwosu",

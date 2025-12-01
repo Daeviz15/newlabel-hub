@@ -30,7 +30,7 @@ export default function GDashboard() {
         setCourses(
           data.map((item) => ({
             id: item.id,
-            price: `$${item.price}`,
+            price: `₦${item.price}`,
             title: item.title,
             subtitle: item.instructor || "Instructor",
             role: item.instructor_role || "Expert",
@@ -58,7 +58,7 @@ export default function GDashboard() {
           setCourses((prev) => [
             {
               id: newItem.id,
-              price: `$${newItem.price}`,
+              price: `₦${newItem.price}`,
               title: newItem.title,
               subtitle: newItem.instructor || "Instructor",
               role: newItem.instructor_role || "Expert",

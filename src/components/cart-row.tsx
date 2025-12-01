@@ -57,11 +57,11 @@ export function CartRow({
         <div className="text-sm text-zinc-200">{title}</div>
       </div>
 
-      <div className="text-sm text-zinc-200">${price.toFixed(2)}</div>
+      <div className="text-sm text-zinc-200">₦{price.toFixed(2)}</div>
 
       <CartQty value={count} onChange={setCount} />
 
-      <div className="text-sm font-medium text-zinc-100">${subtotal}</div>
+      <div className="text-sm font-medium text-zinc-100">₦{subtotal}</div>
     </div>
   );
 }

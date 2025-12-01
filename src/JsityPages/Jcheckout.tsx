@@ -292,7 +292,7 @@ export default function Jcheckout() {
 
             <div className="flex justify-between text-lg font-vietnam font-semibold pt-4 border-t border-zinc-800 mb-6">
               <span>Total</span>
-              <span>${total.toFixed(2)}</span>
+              <span>₦{total.toFixed(2)}</span>
             </div>
 
             <Button
