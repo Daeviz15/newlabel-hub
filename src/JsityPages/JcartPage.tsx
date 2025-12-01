@@ -198,7 +198,7 @@ const CartRow = memo(function CartRow({
         </div>
 
         {/* Price */}
-        <div className="col-span-2 text-center text-white font-medium">${item.price.toFixed(2)}</div>
+        <div className="col-span-2 text-center text-white font-medium">₦{item.price.toFixed(2)}</div>
 
         {/* Quantity Controls */}
         <div className="col-span-2 flex items-center justify-center gap-2">
@@ -223,7 +223,7 @@ const CartRow = memo(function CartRow({
 
         {/* Subtotal */}
         <div className="col-span-2 text-right text-white font-medium">
-          ${calculateSubtotal(item.price, item.quantity)}
+          ₦{calculateSubtotal(item.price, item.quantity)}
         </div>
       </div>
 
@@ -254,7 +254,7 @@ const CartRow = memo(function CartRow({
 
             {/* Price and Quantity Row */}
             <div className="flex items-center justify-between gap-4">
-              <div className="text-white font-medium">${item.price.toFixed(2)}</div>
+              <div className="text-white font-medium">₦{item.price.toFixed(2)}</div>
 
               {/* Quantity Controls */}
               <div className="flex items-center gap-2">
@@ -281,7 +281,7 @@ const CartRow = memo(function CartRow({
             {/* Subtotal */}
             <div className="mt-3 pt-3 border-t border-zinc-800 flex items-center justify-between">
               <span className="text-zinc-400 text-sm">Subtotal</span>
-              <span className="text-white font-medium">${calculateSubtotal(item.price, item.quantity)}</span>
+              <span className="text-white font-medium">₦{calculateSubtotal(item.price, item.quantity)}</span>
             </div>
           </div>
         </div>
