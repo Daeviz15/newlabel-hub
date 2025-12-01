@@ -10,6 +10,7 @@ import {
 import { useEffect, useState } from "react";
 import { getSaved, onSavedChange } from "@/hooks/use-saved";
 import { useNavigate } from "react-router-dom";
+import { useNotifications } from "@/hooks/use-notifications";
 import logo from "../assets/Logo.png";
 import {
   DropdownMenu,
@@ -39,6 +40,7 @@ export function HomeHeader({
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [isMobileChannelsOpen, setIsMobileChannelsOpen] = useState(false);
   const [savedCount, setSavedCount] = useState<number>(getSaved().length);
+  const { unreadCount } = useNotifications();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -146,9 +148,14 @@ export function HomeHeader({
           <a
             href="/notifications"
             aria-label="Notification"
-            className=" p-2 items-center justify-center rounded-md bg-[#1a1a1a] text-white ring-1 ring-white/10 transition-all duration-200 hover:bg-[#222] hover:scale-105 sm:inline-flex sm:h-9 sm:w-9"
+            className="p-2 items-center justify-center rounded-md bg-[#1a1a1a] text-white ring-1 ring-white/10 transition-all duration-200 hover:bg-[#222] hover:scale-105 sm:inline-flex sm:h-9 sm:w-9 relative"
           >
             <Bell className="h-4 w-4" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 inline-flex items-center justify-center rounded-full bg-red-500 text-white text-[10px] font-bold h-4 min-w-4 px-1">
+                {unreadCount > 99 ? "99+" : unreadCount}
+              </span>
+            )}
           </a>
           <button
             aria-label="Favorites"
