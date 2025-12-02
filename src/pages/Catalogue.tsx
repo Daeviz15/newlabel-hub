@@ -5,6 +5,16 @@ import Footer from "@/components/Footer";
 import { useNavigate } from "react-router-dom";
 import Tab from "@/components/Tab";
 import { ProductCard } from "@/components/course-card";
+import { Skeleton } from "@/components/ui/skeleton";
+
+interface Product {
+  id: string;
+  title: string;
+  price: number;
+  image_url: string | null;
+  instructor: string | null;
+  category: string;
+}
 
 const Catalogue = () => {
   const navigate = useNavigate();
@@ -13,50 +23,45 @@ const Catalogue = () => {
   const [userName, setUserName] = useState<string | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     navigate("/login");
   };
 
-  const browse = [
-    {
-      id: 1,
-      price: "₦18",
-      title: "The Future Of AI In Everyday Product",
-      subtitle: "jsty",
-      image: "/assets/dashboard-images/face.jpg",
-      category: "Trending",
-    },
-    {
-      id: 2,
-      price: "₦18",
-      title: "Firm Foundation",
-      subtitle: "—",
-      image: "/assets/dashboard-images/firm.jpg",
-      category: "New Releases",
-    },
-    {
-      id: 3,
-      price: "₦18",
-      title: "The Silent Trauma Of Millennials",
-      subtitle: "The House Chronicles",
-      image: "/assets/dashboard-images/lady.jpg",
-      category: "For You",
-    },
-    {
-      id: 4,
-      price: "₦18",
-      title: "The Future Of AI In Everyday Products",
-      subtitle: "jsty",
-      image: "/assets/dashboard-images/face.jpg",
-      category: "Trending",
-    },
-  ];
+  // Fetch products from Supabase
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from("products")
+        .select("id, title, price, image_url, instructor, category")
+        .order("created_at", { ascending: false });
+
+      if (!error && data) {
+        setProducts(data);
+      }
+      setLoading(false);
+    };
+
+    fetchProducts();
+  }, []);
+
+  // Map database categories to tab categories
+  const getCategoryForTab = (category: string) => {
+    const categoryMap: Record<string, string> = {
+      course: "For You",
+      podcast: "Trending",
+      // Add more mappings as needed
+    };
+    return categoryMap[category] || "New Releases";
+  };
 
   const filteredItems = selectedCategory === "All" 
-    ? browse 
-    : browse.filter(item => item.category === selectedCategory);
+    ? products 
+    : products.filter(item => getCategoryForTab(item.category) === selectedCategory);
 
   useEffect(() => {
     const updateFromSession = (session: any) => {
@@ -120,13 +125,12 @@ const Catalogue = () => {
           <p className="w-full lg:w-1/2 font-light text-sm sm:text-base text-[#EDEDED] font-vietnam leading-relaxed">
             Welcome to our online course page, where you can enhance your skills
             in design and development. Choose from our carefully curated
-            selection of 10 courses designed to provide you with comprehensive
+            selection of courses designed to provide you with comprehensive
             knowledge and practical experience. Explore the courses below and
             find the perfect fit for your learning journey.
           </p>
         </div>
         <div className="w-full h-[1px] bg-[#A3A3A3]/20 mt-12 mb-8"></div>
-
 
         {/* Browse Section - Fully Responsive */}
         <div className="flex flex-col gap-6 sm:gap-8 pb-12 sm:pb-16">
@@ -142,35 +146,52 @@ const Catalogue = () => {
             />
           </div>
 
-          {/* Product Grid - Responsive columns */}
-          <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-6">
-            {filteredItems.map((it) => (
-              <ProductCard
-                key={it.id}
-                imageSrc={it.image}
-                title={it.title}
-                subtitle={it.subtitle}
-                price={it.price}
-                onClick={() => navigate("/video-details", { 
-                  state: { 
-                    id: it.id.toString(), 
-                    image: it.image, 
-                    title: it.title, 
-                    creator: it.subtitle, 
-                    price: it.price 
-                  } 
-                })}
-              />
-            ))}
-          </div>
+          {/* Loading State */}
+          {loading && (
+            <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-6">
+              {[...Array(8)].map((_, i) => (
+                <div key={i} className="space-y-3">
+                  <Skeleton className="h-40 w-full rounded-lg bg-neutral-800" />
+                  <Skeleton className="h-4 w-3/4 bg-neutral-800" />
+                  <Skeleton className="h-4 w-1/2 bg-neutral-800" />
+                </div>
+              ))}
+            </div>
+          )}
 
-          {filteredItems.length === 0 && (
+          {/* Product Grid - Responsive columns */}
+          {!loading && (
+            <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-6">
+              {filteredItems.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  imageSrc={product.image_url || "/assets/dashboard-images/face.jpg"}
+                  title={product.title}
+                  subtitle={product.instructor || "—"}
+                  price={`₦${product.price.toLocaleString()}`}
+                  onClick={() => navigate("/video-details", { 
+                    state: { 
+                      id: product.id, 
+                      image: product.image_url, 
+                      title: product.title, 
+                      creator: product.instructor, 
+                      price: `₦${product.price.toLocaleString()}` 
+                    } 
+                  })}
+                />
+              ))}
+            </div>
+          )}
+
+          {!loading && filteredItems.length === 0 && (
             <p className="text-gray-400 text-center py-8">No items found in this category.</p>
           )}
 
-          <button className="flex justify-center items-center text-xs sm:text-sm w-full bg-gray-500/25 hover:bg-gray-500/35 transition-colors h-10 sm:h-12 mt-3 mb-6 sm:mb-10 rounded-sm font-nunito font-bold cursor-pointer active:scale-[0.98]">
-            Load More
-          </button>
+          {!loading && filteredItems.length > 0 && (
+            <button className="flex justify-center items-center text-xs sm:text-sm w-full bg-gray-500/25 hover:bg-gray-500/35 transition-colors h-10 sm:h-12 mt-3 mb-6 sm:mb-10 rounded-sm font-nunito font-bold cursor-pointer active:scale-[0.98]">
+              Load More
+            </button>
+          )}
         </div>
       </div>
 
