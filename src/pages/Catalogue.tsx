@@ -59,9 +59,11 @@ const Catalogue = () => {
     return categoryMap[category] || "New Releases";
   };
 
-  const filteredItems = selectedCategory === "All" 
-    ? products 
-    : products.filter(item => getCategoryForTab(item.category) === selectedCategory);
+  const filteredItems = products.filter(item => {
+    const matchesCategory = selectedCategory === "All" || getCategoryForTab(item.category) === selectedCategory;
+    const matchesSearch = !searchQuery || item.title.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
 
   useEffect(() => {
     const updateFromSession = (session: any) => {
