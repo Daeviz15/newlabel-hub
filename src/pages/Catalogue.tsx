@@ -1,13 +1,19 @@
 import { HomeHeader } from "@/components/home-header";
 import { supabase } from "@/integrations/supabase/client";
-import  { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Footer from "@/components/Footer";
 import { useNavigate } from "react-router-dom";
 import Tab from "@/components/Tab";
-import { ProductCard, ResumeCard } from "@/components/course-card";
+import { ProductCard } from "@/components/course-card";
 
 const Catalogue = () => {
   const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [userName, setUserName] = useState<string | null>(null);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     navigate("/login");
@@ -16,46 +22,41 @@ const Catalogue = () => {
   const browse = [
     {
       id: 1,
-      price: "$18",
+      price: "₦18",
       title: "The Future Of AI In Everyday Product",
       subtitle: "jsty",
       image: "/assets/dashboard-images/face.jpg",
-      liked: false,
-      brand: "jsty",
+      category: "Trending",
     },
     {
       id: 2,
-      price: "$18",
+      price: "₦18",
       title: "Firm Foundation",
       subtitle: "—",
       image: "/assets/dashboard-images/firm.jpg",
-      liked: false,
-      brand: "jsty",
+      category: "New Releases",
     },
     {
       id: 3,
-      price: "$18",
+      price: "₦18",
       title: "The Silent Trauma Of Millennials",
       subtitle: "The House Chronicles",
       image: "/assets/dashboard-images/lady.jpg",
-      liked: false,
-      brand: "jsty",
+      category: "For You",
     },
     {
       id: 4,
-      price: "$18",
+      price: "₦18",
       title: "The Future Of AI In Everyday Products",
       subtitle: "jsty",
       image: "/assets/dashboard-images/face.jpg",
-      liked: false,
-      brand: "jsty",
+      category: "Trending",
     },
   ];
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const [userName, setUserName] = useState<string | null>(null);
-  const [userEmail, setUserEmail] = useState<string | null>(null);
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const filteredItems = selectedCategory === "All" 
+    ? browse 
+    : browse.filter(item => item.category === selectedCategory);
 
   useEffect(() => {
     const updateFromSession = (session: any) => {
@@ -135,12 +136,15 @@ const Catalogue = () => {
 
           {/* Tab Component - Horizontal scroll on mobile */}
           <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
-            <Tab />
+            <Tab 
+              selectedTab={selectedCategory} 
+              onTabChange={setSelectedCategory}
+            />
           </div>
 
-          {/* Product Grid 1 - Responsive columns */}
+          {/* Product Grid - Responsive columns */}
           <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-6">
-            {browse.map((it) => (
+            {filteredItems.map((it) => (
               <ProductCard
                 key={it.id}
                 imageSrc={it.image}
@@ -160,48 +164,9 @@ const Catalogue = () => {
             ))}
           </div>
 
-          {/* Product Grid 2 */}
-          <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-6">
-            {browse.map((it) => (
-              <ProductCard
-                key={it.id}
-                imageSrc={it.image}
-                title={it.title}
-                subtitle={it.subtitle}
-                price={it.price}
-                onClick={() => navigate("/video-details", { 
-                  state: { 
-                    id: it.id.toString(), 
-                    image: it.image, 
-                    title: it.title, 
-                    creator: it.subtitle, 
-                    price: it.price 
-                  } 
-                })}
-              />
-            ))}
-          </div>
-
-          <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-6">
-            {browse.map((it) => (
-              <ProductCard
-                key={it.id}
-                imageSrc={it.image}
-                title={it.title}
-                subtitle={it.subtitle}
-                price={it.price}
-                onClick={() => navigate("/video-details", { 
-                  state: { 
-                    id: it.id.toString(), 
-                    image: it.image, 
-                    title: it.title, 
-                    creator: it.subtitle, 
-                    price: it.price 
-                  } 
-                })}
-              />
-            ))}
-          </div>
+          {filteredItems.length === 0 && (
+            <p className="text-gray-400 text-center py-8">No items found in this category.</p>
+          )}
 
           <button className="flex justify-center items-center text-xs sm:text-sm w-full bg-gray-500/25 hover:bg-gray-500/35 transition-colors h-10 sm:h-12 mt-3 mb-6 sm:mb-10 rounded-sm font-nunito font-bold cursor-pointer active:scale-[0.98]">
             Load More
