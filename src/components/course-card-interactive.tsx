@@ -1,4 +1,5 @@
 import { Heart } from "lucide-react"
+import { OptimizedImage } from "@/components/ui/optimized-image"
 
 type CourseCardProps = {
   id: string
@@ -43,11 +44,11 @@ export function CourseCard({
       </button>
 
       <div className="relative aspect-[4/5] w-full overflow-hidden bg-black/20" onClick={onViewDetails}>
-        <img
-          src={image || "/placeholder.svg"}
+        <OptimizedImage
+          src={image}
           alt={`${title} poster`}
           className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-300"
-          loading="lazy"
+          containerClassName="h-full w-full"
         />
       </div>
       <div className="space-y-1 p-4" onClick={onViewDetails}>

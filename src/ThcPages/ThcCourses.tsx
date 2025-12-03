@@ -20,12 +20,17 @@ interface Product {
 
 const categories = ["All", "For You", "Trending", "New Releases"];
 
+const ITEMS_PER_PAGE = 12;
+
 export default function ThcCourses() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
   const { userName, userEmail, avatarUrl } = useUserProfile();
 
   const handleSignOut = async () => {
@@ -33,23 +38,42 @@ export default function ThcCourses() {
     navigate("/login");
   };
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from("products")
-        .select("id, title, price, image_url, instructor, instructor_role, category, duration")
-        .eq("brand", "thc")
-        .order("created_at", { ascending: false });
+  const fetchProducts = async (pageNum: number, append = false) => {
+    if (append) setLoadingMore(true);
+    else setLoading(true);
 
-      if (!error && data) {
+    const from = pageNum * ITEMS_PER_PAGE;
+    const to = from + ITEMS_PER_PAGE - 1;
+
+    const { data, error } = await supabase
+      .from("products")
+      .select("id, title, price, image_url, instructor, instructor_role, category, duration")
+      .eq("brand", "thc")
+      .order("created_at", { ascending: false })
+      .range(from, to);
+
+    if (!error && data) {
+      if (append) {
+        setProducts(prev => [...prev, ...data]);
+      } else {
         setProducts(data);
       }
-      setLoading(false);
-    };
+      setHasMore(data.length === ITEMS_PER_PAGE);
+    }
+    setLoading(false);
+    setLoadingMore(false);
+  };
 
-    fetchProducts();
+  useEffect(() => {
+    setPage(0);
+    fetchProducts(0);
   }, []);
+
+  const handleLoadMore = () => {
+    const nextPage = page + 1;
+    setPage(nextPage);
+    fetchProducts(nextPage, true);
+  };
 
   const getCategoryForTab = (category: string) => {
     const categoryMap: Record<string, string> = {
@@ -171,10 +195,14 @@ export default function ThcCourses() {
             )}
 
             {/* Load More Button */}
-            {!loading && filteredItems.length > 0 && (
+            {!loading && filteredItems.length > 0 && hasMore && (
               <div className="mt-10 flex justify-center">
-                <button className="w-full max-w-7xl bg-[#1a1a1a] hover:bg-[#222] text-white font-vietnam font-semibold py-3 px-6 rounded-md transition-colors">
-                  Load More
+                <button 
+                  onClick={handleLoadMore}
+                  disabled={loadingMore}
+                  className="w-full max-w-7xl bg-[#1a1a1a] hover:bg-[#222] text-white font-vietnam font-semibold py-3 px-6 rounded-md transition-colors disabled:opacity-50"
+                >
+                  {loadingMore ? "Loading..." : "Load More"}
                 </button>
               </div>
             )}
