@@ -30,7 +30,7 @@ export default function ChannelMetricsCarousel({ accentColor = "green" }: Carous
       if (data && data.length > 0) {
         setTrendingItems(data.map(course => ({
           id: course.id,
-          price: `$${course.price}`,
+          price: `₦${course.price}`,
           title: course.title,
           subtitle: course.instructor || 'Expert Instructor',
           image: course.image_url || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=1920&h=600&fit=crop&q=80',
