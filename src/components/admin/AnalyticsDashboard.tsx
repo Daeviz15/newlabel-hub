@@ -15,8 +15,11 @@ import {
   TrendingUp,
   Heart,
   RefreshCw,
+  Target,
+  ArrowRightLeft,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import {
   ChartContainer,
   ChartTooltip,
@@ -86,6 +89,60 @@ function StatCard({
         {description && (
           <p className="text-xs text-muted-foreground mt-1">{description}</p>
         )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function ConversionCard({
+  title,
+  rate,
+  description,
+  loading,
+}: {
+  title: string;
+  rate: number;
+  description: string;
+  loading?: boolean;
+}) {
+  if (loading) {
+    return (
+      <Card>
+        <CardHeader className="pb-2">
+          <Skeleton className="h-4 w-32" />
+        </CardHeader>
+        <CardContent>
+          <Skeleton className="h-8 w-20 mb-2" />
+          <Skeleton className="h-2 w-full mb-2" />
+          <Skeleton className="h-3 w-40" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const getProgressColor = (value: number) => {
+    if (value >= 50) return "bg-green-500";
+    if (value >= 25) return "bg-yellow-500";
+    return "bg-red-500";
+  };
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <CardTitle className="text-sm font-medium text-muted-foreground">
+          {title}
+        </CardTitle>
+        <Target className="h-4 w-4 text-muted-foreground" />
+      </CardHeader>
+      <CardContent>
+        <div className="text-2xl font-bold">{rate.toFixed(1)}%</div>
+        <div className="mt-2 h-2 w-full rounded-full bg-muted overflow-hidden">
+          <div
+            className={`h-full rounded-full transition-all ${getProgressColor(rate)}`}
+            style={{ width: `${Math.min(rate, 100)}%` }}
+          />
+        </div>
+        <p className="text-xs text-muted-foreground mt-2">{description}</p>
       </CardContent>
     </Card>
   );
@@ -254,6 +311,34 @@ export function AnalyticsDashboard() {
             )}
           </CardContent>
         </Card>
+      </div>
+
+      {/* Conversion Rates */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
+          <ArrowRightLeft className="h-5 w-5" />
+          <h3 className="text-lg font-semibold">Conversion Rates</h3>
+        </div>
+        <div className="grid gap-4 md:grid-cols-3">
+          <ConversionCard
+            title="User → Cart"
+            rate={data?.userToCartRate || 0}
+            description={`${data?.usersWithCart || 0} of ${data?.totalUsers || 0} users added to cart`}
+            loading={loading}
+          />
+          <ConversionCard
+            title="Cart → Purchase"
+            rate={data?.cartToPurchaseRate || 0}
+            description={`${data?.usersWithPurchases || 0} of ${data?.usersWithCart || 0} cart users purchased`}
+            loading={loading}
+          />
+          <ConversionCard
+            title="Saved → Purchase"
+            rate={data?.savedToPurchaseRate || 0}
+            description={`Conversion from saved items to purchases`}
+            loading={loading}
+          />
+        </div>
       </div>
 
       {/* Secondary Metrics */}

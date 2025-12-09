@@ -24,6 +24,13 @@ export interface AnalyticsData {
   
   // Recent activity
   recentPurchases: { id: string; title: string; amount: number; date: string }[];
+  
+  // Conversion rates
+  usersWithCart: number;
+  usersWithPurchases: number;
+  cartToPurchaseRate: number;
+  userToCartRate: number;
+  savedToPurchaseRate: number;
 }
 
 export function useAnalytics() {
@@ -61,16 +68,18 @@ export function useAnalytics() {
           .limit(10),
         // All products
         supabase.from("products").select("id, title, brand, price"),
-        // Cart items count
-        supabase.from("cart_items").select("id", { count: "exact", head: true }),
-        // Saved items count
-        supabase.from("saved_items").select("id", { count: "exact", head: true }),
+        // Cart items with user info
+        supabase.from("cart_items").select("id, user_id"),
+        // Saved items with user info
+        supabase.from("saved_items").select("id, user_id"),
       ]);
 
       const profiles = profilesResult.data || [];
       const purchases = purchasesResult.data || [];
       const recentPurchases = recentPurchasesResult.data || [];
       const products = productsResult.data || [];
+      const cartItems = cartItemsResult.data || [];
+      const savedItems = savedItemsResult.data || [];
 
       // Calculate user metrics
       const totalUsers = profiles.length;
@@ -164,6 +173,26 @@ export function useAnalytics() {
         date: new Date(p.purchased_at).toLocaleDateString(),
       }));
 
+      // Conversion rate calculations
+      const usersWithCart = new Set(cartItems.map((c) => c.user_id)).size;
+      const usersWithSaved = new Set(savedItems.map((s) => s.user_id)).size;
+      const usersWithPurchases = new Set(purchases.map((p) => p.product_id)).size;
+      
+      // Cart to purchase: users who purchased / users who added to cart
+      const cartToPurchaseRate = usersWithCart > 0 
+        ? (usersWithPurchases / usersWithCart) * 100 
+        : 0;
+      
+      // User to cart: users who added to cart / total users
+      const userToCartRate = totalUsers > 0 
+        ? (usersWithCart / totalUsers) * 100 
+        : 0;
+      
+      // Saved to purchase: users who purchased / users who saved
+      const savedToPurchaseRate = usersWithSaved > 0 
+        ? (usersWithPurchases / usersWithSaved) * 100 
+        : 0;
+
       setData({
         totalUsers,
         activeUsersLast30Days: new Set(purchasesLast30Days.map((p) => p.product_id)).size,
@@ -176,10 +205,15 @@ export function useAnalytics() {
         dailyRevenue,
         totalCourses: products.length,
         coursesByBrand,
-        totalCartItems: cartItemsResult.count || 0,
-        totalSavedItems: savedItemsResult.count || 0,
+        totalCartItems: cartItems.length,
+        totalSavedItems: savedItems.length,
         topCourses,
         recentPurchases: formattedRecentPurchases,
+        usersWithCart,
+        usersWithPurchases,
+        cartToPurchaseRate,
+        userToCartRate,
+        savedToPurchaseRate,
       });
     } catch (err) {
       console.error("Error fetching analytics:", err);
