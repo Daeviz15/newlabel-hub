@@ -1,18 +1,20 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface UserProfile {
   userName: string | null;
   userEmail: string | null;
   avatarUrl: string | null;
+  refetch: () => void;
 }
 
-export function useUserProfile() {
-  const [profile, setProfile] = useState<UserProfile>({
+export function useUserProfile(): UserProfile {
+  const [profile, setProfile] = useState<Omit<UserProfile, 'refetch'>>({
     userName: null,
     userEmail: null,
     avatarUrl: null,
   });
+  const [userId, setUserId] = useState<string | null>(null);
 
   const toTitleCase = (value: string): string => {
     return value
@@ -31,10 +33,33 @@ export function useUserProfile() {
     return toTitleCase(cleaned);
   };
 
+  const fetchProfileData = useCallback(async (uid: string) => {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("full_name, avatar_url")
+      .eq("user_id", uid)
+      .maybeSingle();
+    
+    if (!error && data) {
+      setProfile((prev) => ({
+        ...prev,
+        userName: data.full_name || prev.userName,
+        avatarUrl: data.avatar_url || prev.avatarUrl,
+      }));
+    }
+  }, []);
+
+  const refetch = useCallback(() => {
+    if (userId) {
+      fetchProfileData(userId);
+    }
+  }, [userId, fetchProfileData]);
+
   useEffect(() => {
     const updateFromSession = (session: any) => {
       const user = session?.user || null;
       if (user) {
+        setUserId(user.id);
         const meta = user.user_metadata || {};
         const email: string | null = user.email ?? null;
         const metaName: string | null = meta.full_name || meta.name || null;
@@ -47,21 +72,11 @@ export function useUserProfile() {
           avatarUrl: meta.avatar_url || meta.picture || null,
         });
 
-        setTimeout(async () => {
-          const { data, error } = await supabase
-            .from("profiles")
-            .select("full_name, avatar_url")
-            .eq("user_id", user.id)
-            .maybeSingle();
-          if (!error && data) {
-            setProfile((prev) => ({
-              ...prev,
-              userName: data.full_name || prev.userName,
-              avatarUrl: data.avatar_url || prev.avatarUrl,
-            }));
-          }
+        setTimeout(() => {
+          fetchProfileData(user.id);
         }, 0);
       } else {
+        setUserId(null);
         setProfile({
           userName: null,
           userEmail: null,
@@ -81,7 +96,7 @@ export function useUserProfile() {
     return () => {
       listener.subscription.unsubscribe();
     };
-  }, []);
+  }, [fetchProfileData]);
 
-  return profile;
+  return { ...profile, refetch };
 }
