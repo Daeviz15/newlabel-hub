@@ -64,17 +64,17 @@ export default function MyLibrary() {
         avatarUrl={avatarUrl ?? undefined}
         onSignOut={handleSignOut}
       />
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-white text-4xl font-vietnam font-bold mb-2 leading-[150%] tracking-normal">My Library</h1>
-          <p className="text-[#EDEDED] text-sm font-normal font-vietnam leading-[150%] tracking-normal">Find all of your saved, purchased and in-progress content here</p>
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-white text-2xl sm:text-3xl md:text-4xl font-vietnam font-bold mb-2 leading-[150%] tracking-normal">My Library</h1>
+          <p className="text-[#EDEDED] text-xs sm:text-sm font-normal font-vietnam leading-[150%] tracking-normal">Find all of your saved, purchased and in-progress content here</p>
         </div>
-        <div className="w-full h-[1px] bg-[#A3A3A3]/20 mt-12 mb-8"></div>
+        <div className="w-full h-[1px] bg-[#A3A3A3]/20 mt-6 sm:mt-12 mb-6 sm:mb-8"></div>
 
 
         {/* Tabs */}
-  <div className="flex flex-wrap gap-3 mb-8">
+  <div className="flex flex-wrap gap-2 sm:gap-3 mb-6 sm:mb-8 overflow-x-auto pb-2">
           <Button
             variant={activeTab === "all" ? "default" : "outline"}
             onClick={() => setActiveTab("all")}
@@ -122,10 +122,10 @@ export default function MyLibrary() {
         </div>
 
         {/* Continue Watching */}
-        <section className="mb-12">
-          <h2 className="text-[#EDEDED] text-2xl font-bold mb-2 font-Nunito">Continue Watching</h2>
-          <p className="text-[#EDEDED] mb-6 text-base font-Inter font-normal leading-[120%]">Learn binge-worthy, career-building lessons from experts across tech media and business.</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <section className="mb-8 sm:mb-12">
+          <h2 className="text-[#EDEDED] text-xl sm:text-2xl font-bold mb-2 font-Nunito">Continue Watching</h2>
+          <p className="text-[#EDEDED] mb-4 sm:mb-6 text-sm sm:text-base font-Inter font-normal leading-[120%]">Learn binge-worthy, career-building lessons from experts across tech media and business.</p>
+          <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {courses.map((course, index) => (
               <ResumeCard
                 key={`continue-${index}`}
@@ -139,10 +139,10 @@ export default function MyLibrary() {
         </section>
 
         {/* Saved For Later */}
-        <section className="mb-12">
-          <h2 className="text-[#EDEDED] text-2xl font-bold mb-2 font-Inter">Saved For Later</h2>
-          <p className="text-[#EDEDED] mb-6 text-base font-normal leading-[120%]">Learn binge-worthy, career-building lessons from experts across tech media and business.</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <section className="mb-8 sm:mb-12">
+          <h2 className="text-[#EDEDED] text-xl sm:text-2xl font-bold mb-2 font-Inter">Saved For Later</h2>
+          <p className="text-[#EDEDED] mb-4 sm:mb-6 text-sm sm:text-base font-normal leading-[120%]">Learn binge-worthy, career-building lessons from experts across tech media and business.</p>
+          <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {courses.map((course, index) => (
               <ProductCard key={`saved-${index}`} imageSrc={course.image} {...course} />
             ))}
@@ -150,10 +150,10 @@ export default function MyLibrary() {
         </section>
 
         {/* Purchased */}
-        <section className="mb-12">
-          <h2 className="text-[#EDEDED] text-2xl font-bold mb-2 font-Inter font-Nunito">Purchased</h2>
-          <p className="text-[#EDEDED] mb-6 text-base font-normal leading-[120%]">Learn binge-worthy, career-building lessons from experts across tech media and business.</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <section className="mb-8 sm:mb-12">
+          <h2 className="text-[#EDEDED] text-xl sm:text-2xl font-bold mb-2 font-Inter font-Nunito">Purchased</h2>
+          <p className="text-[#EDEDED] mb-4 sm:mb-6 text-sm sm:text-base font-normal leading-[120%]">Learn binge-worthy, career-building lessons from experts across tech media and business.</p>
+          <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {courses.map((course, index) => (
               <ProductCard key={`purchased-${index}`} imageSrc={course.image} {...course} />
             ))}
@@ -161,10 +161,10 @@ export default function MyLibrary() {
         </section>
 
         {/* Downloads */}
-        <section className="mb-12">
-          <h2 className="text-[#EDEDED] text-2xl font-bold mb-2 Font-Inter font-Nunito">Downloads</h2>
-          <p className="text-[#EDEDED] mb-6 text-base font-normal leading-[120%]">Learn binge-worthy, career-building lessons from experts across tech media and business.</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <section className="mb-8 sm:mb-12">
+          <h2 className="text-[#EDEDED] text-xl sm:text-2xl font-bold mb-2 Font-Inter font-Nunito">Downloads</h2>
+          <p className="text-[#EDEDED] mb-4 sm:mb-6 text-sm sm:text-base font-normal leading-[120%]">Learn binge-worthy, career-building lessons from experts across tech media and business.</p>
+          <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {courses.map((course, index) => (
               <ProductCard key={`downloads-${index}`} imageSrc={course.image} {...course} />
             ))}
