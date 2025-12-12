@@ -14,7 +14,10 @@ import {
   Loader2,
   LogOut,
   Eye,
-  EyeOff
+  EyeOff,
+  CheckCircle2,
+  AlertCircle,
+  Mail
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -44,12 +47,56 @@ const AccountSetting: React.FC = () => {
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [pushNotifications, setPushNotifications] = useState(true);
   const [marketingEmails, setMarketingEmails] = useState(false);
+  
+  // Email verification state
+  const [isEmailVerified, setIsEmailVerified] = useState<boolean | null>(null);
+  const [isResendingVerification, setIsResendingVerification] = useState(false);
 
   useEffect(() => {
     if (userName) setName(userName);
     if (userEmail) setEmail(userEmail);
     if (avatarUrl) setAvatar(avatarUrl);
   }, [userName, userEmail, avatarUrl]);
+
+  useEffect(() => {
+    const checkEmailVerification = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setIsEmailVerified(!!user.email_confirmed_at);
+      }
+    };
+    checkEmailVerification();
+  }, []);
+
+  const handleResendVerification = async () => {
+    if (!email) return;
+    
+    setIsResendingVerification(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/`
+        }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Verification email sent",
+        description: "Please check your inbox and click the verification link",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Failed to send email",
+        description: error.message || "Please try again later",
+        variant: "destructive",
+      });
+    } finally {
+      setIsResendingVerification(false);
+    }
+  };
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -301,6 +348,47 @@ const AccountSetting: React.FC = () => {
                   className="bg-muted border-border text-muted-foreground font-vietnam cursor-not-allowed w-full"
                 />
                 <p className="text-xs text-muted-foreground mt-1">Email cannot be changed</p>
+                
+                {/* Email Verification Status */}
+                <div className="mt-3 flex flex-col sm:flex-row sm:items-center gap-2">
+                  {isEmailVerified === null ? (
+                    <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Checking verification status...</span>
+                    </div>
+                  ) : isEmailVerified ? (
+                    <div className="flex items-center gap-2 text-green-500 text-sm">
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span className="font-medium">Email verified</span>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                      <div className="flex items-center gap-2 text-amber-500 text-sm">
+                        <AlertCircle className="w-4 h-4" />
+                        <span className="font-medium">Email not verified</span>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleResendVerification}
+                        disabled={isResendingVerification}
+                        className="border-border text-foreground hover:bg-muted font-vietnam text-xs h-7 w-fit"
+                      >
+                        {isResendingVerification ? (
+                          <>
+                            <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                            Sending...
+                          </>
+                        ) : (
+                          <>
+                            <Mail className="w-3 h-3 mr-1" />
+                            Resend verification
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  )}
+                </div>
               </div>
 
               <Button 
