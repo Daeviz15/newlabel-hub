@@ -8,8 +8,8 @@ import {
   Menu,
   X,
 } from "lucide-react";
-import { useEffect, useState } from "react";
-import { getSaved, onSavedChange } from "@/hooks/use-saved";
+import { useState } from "react";
+import { useSavedItems } from "@/hooks/use-saved-items";
 import { useNavigate } from "react-router-dom";
 import logo from "@/assets/jsity.png";
 import {
@@ -39,13 +39,9 @@ export function JHomeHeader({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [isMobileChannelsOpen, setIsMobileChannelsOpen] = useState(false);
-  const [savedCount, setSavedCount] = useState<number>(getSaved().length);
+  const { savedItemIds } = useSavedItems();
+  const savedCount = savedItemIds.size;
   const navigate = useNavigate();
-
-  useEffect(() => {
-    setSavedCount(getSaved().length);
-    return onSavedChange(() => setSavedCount(getSaved().length));
-  }, []);
 
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0c0c0c]/95 backdrop-blur supports-[backdrop-filter]:bg-[#0c0c0c]/75 transition-all duration-300">
@@ -157,6 +153,7 @@ export function JHomeHeader({
         </a>
         <button
           aria-label="Favorites"
+          onClick={() => navigate("/mylibrary")}
           className="inline-flex h-8 w-8 items-center   justify-center rounded-md bg-[#1a1a1a] text-white ring-1 ring-white/10 transition-all duration-200 hover:bg-[#222] hover:scale-105 sm:h-9 sm:w-9"
         >
           <div className="relative">

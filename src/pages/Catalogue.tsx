@@ -16,6 +16,8 @@ interface Product {
   category: string;
 }
 
+const ITEMS_PER_PAGE = 12;
+
 const Catalogue = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
@@ -25,29 +27,55 @@ const Catalogue = () => {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [displayedCount, setDisplayedCount] = useState(ITEMS_PER_PAGE);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     navigate("/login");
   };
 
-  // Fetch products from Supabase
-  useEffect(() => {
-    const fetchProducts = async () => {
+  // Fetch products from Supabase with pagination
+  const fetchProducts = async (pageNum: number, append = false) => {
+    if (append) {
+      setLoadingMore(true);
+    } else {
       setLoading(true);
-      const { data, error } = await supabase
-        .from("products")
-        .select("id, title, price, image_url, instructor, category")
-        .order("created_at", { ascending: false });
+    }
 
-      if (!error && data) {
+    const from = pageNum * ITEMS_PER_PAGE;
+    const to = from + ITEMS_PER_PAGE - 1;
+
+    const { data, error } = await supabase
+      .from("products")
+      .select("id, title, price, image_url, instructor, category")
+      .order("created_at", { ascending: false })
+      .range(from, to);
+
+    if (!error && data) {
+      if (append) {
+        setProducts(prev => [...prev, ...data]);
+      } else {
         setProducts(data);
+        setDisplayedCount(ITEMS_PER_PAGE);
       }
-      setLoading(false);
-    };
+      setHasMore(data.length === ITEMS_PER_PAGE);
+    } else {
+      setHasMore(false);
+    }
+    
+    setLoading(false);
+    setLoadingMore(false);
+  };
 
-    fetchProducts();
-  }, []);
+  // Initial fetch and reset when category or search changes
+  useEffect(() => {
+    setPage(0);
+    setDisplayedCount(ITEMS_PER_PAGE);
+    fetchProducts(0);
+  }, [selectedCategory, searchQuery]);
 
   // Map database categories to tab categories
   const getCategoryForTab = (category: string) => {
@@ -64,6 +92,25 @@ const Catalogue = () => {
     const matchesSearch = !searchQuery || item.title.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
+
+  // Display only the first displayedCount items
+  const displayedItems = filteredItems.slice(0, displayedCount);
+  const hasMoreToShow = displayedCount < filteredItems.length || hasMore;
+
+  const handleLoadMore = async () => {
+    // If we have more filtered items to show, just increase displayed count
+    if (displayedCount < filteredItems.length) {
+      setDisplayedCount(prev => Math.min(prev + ITEMS_PER_PAGE, filteredItems.length));
+    } 
+    // Otherwise, fetch more from database
+    else if (hasMore) {
+      const nextPage = page + 1;
+      setPage(nextPage);
+      await fetchProducts(nextPage, true);
+      // After fetching, increase displayed count to show new items
+      setDisplayedCount(prev => prev + ITEMS_PER_PAGE);
+    }
+  };
 
   useEffect(() => {
     const updateFromSession = (session: any) => {
@@ -164,13 +211,14 @@ const Catalogue = () => {
           {/* Product Grid - Responsive columns */}
           {!loading && (
             <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-6">
-              {filteredItems.map((product) => (
+              {displayedItems.map((product) => (
                 <ProductCard
                   key={product.id}
                   imageSrc={product.image_url || "/assets/dashboard-images/face.jpg"}
                   title={product.title}
                   subtitle={product.instructor || "—"}
                   price={`₦${product.price.toLocaleString()}`}
+                  productId={product.id}
                   onClick={() => navigate("/video-details", { 
                     state: { 
                       id: product.id, 
@@ -185,13 +233,17 @@ const Catalogue = () => {
             </div>
           )}
 
-          {!loading && filteredItems.length === 0 && (
+          {!loading && displayedItems.length === 0 && (
             <p className="text-gray-400 text-center py-8">No items found in this category.</p>
           )}
 
-          {!loading && filteredItems.length > 0 && (
-            <button className="flex justify-center items-center text-xs sm:text-sm w-full bg-gray-500/25 hover:bg-gray-500/35 transition-colors h-10 sm:h-12 mt-3 mb-6 sm:mb-10 rounded-sm font-nunito font-bold cursor-pointer active:scale-[0.98]">
-              Load More
+          {!loading && hasMoreToShow && (
+            <button 
+              onClick={handleLoadMore}
+              disabled={loadingMore}
+              className="flex justify-center items-center text-xs sm:text-sm w-full bg-gray-500/25 hover:bg-gray-500/35 transition-colors h-10 sm:h-12 mt-3 mb-6 sm:mb-10 rounded-sm font-nunito font-bold cursor-pointer active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loadingMore ? "Loading..." : "Load More"}
             </button>
           )}
         </div>

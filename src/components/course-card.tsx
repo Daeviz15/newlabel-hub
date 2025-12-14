@@ -3,6 +3,7 @@ import { Heart, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { OptimizedImage } from "@/components/ui/optimized-image";
+import { useSavedItems } from "@/hooks/use-saved-items";
 
 type ResumeCardProps = {
   imageSrc?: string;
@@ -76,6 +77,8 @@ type ProductCardProps = {
   priceAccent?: 'lime' | 'purple' | 'thc';
   onClick?: () => void;
   className?: string;
+  productId?: string;
+  onSaveToggle?: (productId: string, isSaved: boolean) => void;
 };
 
 export function ProductCard({
@@ -89,7 +92,24 @@ export function ProductCard({
   priceAccent = 'lime',
   onClick,
   className = "",
+  productId,
+  onSaveToggle,
 }: ProductCardProps) {
+  const { isItemSaved, toggleSavedItem } = useSavedItems();
+  const isSaved = productId ? isItemSaved(productId) : liked;
+
+  const handleSaveClick = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!productId) return;
+
+    const wasSaved = isSaved;
+    const success = await toggleSavedItem(productId);
+    if (success && onSaveToggle) {
+      // Pass the new state (opposite of what it was)
+      onSaveToggle(productId, !wasSaved);
+    }
+  };
+
   const priceBgClass =
     priceAccent === 'purple'
       ? 'bg-purple-500'
@@ -113,18 +133,34 @@ export function ProductCard({
           {price}
         </span>
       </div>
-      <button
-        aria-label={liked ? "Remove from favorites" : "Add to favorites"}
-        className="absolute right-3 top-3 z-10 inline-flex h-8 w-8 items-center justify-center rounded-full bg-black/60 ring-1 ring-white/10 transition-colors hover:bg-black/80"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <Heart
-          className={cn(
-            "h-4 w-4",
-            liked ? "fill-white text-white" : "text-white"
-          )}
-        />
-      </button>
+      {productId && (
+        <button
+          aria-label={isSaved ? "Remove from favorites" : "Add to favorites"}
+          className="absolute right-3 top-3 z-10 inline-flex h-8 w-8 items-center justify-center rounded-full bg-black/60 ring-1 ring-white/10 transition-colors hover:bg-black/80 hover:scale-110"
+          onClick={handleSaveClick}
+        >
+          <Heart
+            className={cn(
+              "h-4 w-4 transition-colors",
+              isSaved ? "fill-brand-green text-brand-green" : "text-white"
+            )}
+          />
+        </button>
+      )}
+      {!productId && (
+        <button
+          aria-label={liked ? "Remove from favorites" : "Add to favorites"}
+          className="absolute right-3 top-3 z-10 inline-flex h-8 w-8 items-center justify-center rounded-full bg-black/60 ring-1 ring-white/10 transition-colors hover:bg-black/80"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <Heart
+            className={cn(
+              "h-4 w-4",
+              liked ? "fill-white text-white" : "text-white"
+            )}
+          />
+        </button>
+      )}
 
       <div className="relative aspect-[4/5] w-full overflow-hidden bg-black/20">
         <OptimizedImage

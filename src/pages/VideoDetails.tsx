@@ -7,7 +7,7 @@ import { ShoppingCart, Heart, Play } from "lucide-react";
 import { CourseCard } from "@/components/course-card-interactive";
 import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/hooks/use-cart";
-import { addSaved, isItemSaved, removeSaved } from "@/hooks/use-saved";
+import { useSavedItems } from "@/hooks/use-saved-items";
 
 interface CourseData {
   id: string;
@@ -25,12 +25,12 @@ export default function VideoDetails() {
   const navigate = useNavigate();
   const courseData = location.state as CourseData;
   const { addItem } = useCart();
+  const { isItemSaved, toggleSavedItem } = useSavedItems();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [userName, setUserName] = useState<string | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const [isSaved, setIsSaved] = useState(false);
 
   useEffect(() => {
     const updateFromSession = (session: any) => {
@@ -65,13 +65,6 @@ export default function VideoDetails() {
     return () => subscription.unsubscribe();
   }, []);
 
-  useEffect(() => {
-    // Initialize saved state for this course
-    if (courseData?.id) {
-      setIsSaved(isItemSaved(courseData.id));
-    }
-  }, [courseData?.id]);
-
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     navigate("/login");
@@ -88,22 +81,12 @@ export default function VideoDetails() {
     navigate("/cart");
   };
 
-  const handleToggleSave = () => {
-    if (!courseData) return;
-    if (isSaved) {
-      removeSaved(courseData.id);
-      setIsSaved(false);
-    } else {
-      addSaved({
-        id: courseData.id,
-        title: courseData.title,
-        image: courseData.image,
-        creator: courseData.creator,
-        price: courseData.price,
-      });
-      setIsSaved(true);
-    }
+  const handleToggleSave = async () => {
+    if (!courseData?.id) return;
+    await toggleSavedItem(courseData.id);
   };
+
+  const isSaved = courseData?.id ? isItemSaved(courseData.id) : false;
 
   const handlePurchase = () => {
     navigate("/checkout", { state: { from: "video-details", item: courseData } });

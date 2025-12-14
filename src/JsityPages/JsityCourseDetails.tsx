@@ -7,7 +7,7 @@ import { ShoppingCart, Heart, Play } from "lucide-react";
 import { CourseCard } from "@/components/course-card-interactive";
 import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/hooks/use-cart";
-import { addSaved, isItemSaved, removeSaved } from "@/hooks/use-saved";
+import { useSavedItems } from "@/hooks/use-saved-items";
 
 import { JHomeHeader } from "./components/home-header";
 import { useUserProfile } from "@/hooks/use-user-profile";
@@ -29,6 +29,7 @@ export default function VideoDetails() {
   const navigate = useNavigate();
   const { addItem } = useCart();
   const profile = useUserProfile();
+  const { isItemSaved, toggleSavedItem } = useSavedItems();
 
   const [courseData, setCourseData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -105,6 +106,13 @@ export default function VideoDetails() {
     await supabase.auth.signOut();
     navigate("/login");
   };
+
+  const handleToggleSave = async () => {
+    if (!courseData?.id) return;
+    await toggleSavedItem(courseData.id);
+  };
+
+  const isSaved = courseData?.id ? isItemSaved(courseData.id) : false;
 
   const recommendedCourses = [
     {
@@ -285,13 +293,16 @@ export default function VideoDetails() {
                   <ShoppingCart className="w-4 h-4 mr-2" />
                   Add to cart
                 </Button>
-                <Button className="bg-neutral-800 hover:bg-neutral-700 text-white border border-white/10">
+                <Button 
+                  onClick={handleToggleSave}
+                  className="bg-neutral-800 hover:bg-neutral-700 text-white border border-white/10"
+                >
                   <Heart
                     className={`w-4 h-4 mr-2 ${
-                      isItemSaved ? "fill-purple-400 text-purple-400" : ""
+                      isSaved ? "fill-purple-400 text-purple-400" : ""
                     }`}
                   />
-                  {isItemSaved ? "Saved" : "Save"}
+                  {isSaved ? "Saved" : "Save"}
                 </Button>
               </div>
               <Button className="bg-purple-400 hover:bg-purple-500 text-black font-bold w-full">
