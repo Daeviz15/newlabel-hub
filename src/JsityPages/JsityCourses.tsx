@@ -1,56 +1,36 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserProfile } from "@/hooks/use-user-profile";
 import { JHomeHeader } from "./components/home-header";
 import JsityFooter from "./components/JsityFooter";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 
-const courseData = [
-  {
-    id: 1,
-    price: "$18",
-    lessons: "32 Lessons",
-    title: "The Future Of AI In Everyday Products",
-    instructor: "Ada Nwosu",
-    role: "Machine Learning Engineer At NovaTech",
-    image: "/assets/dashboard-images/face.jpg",
-  },
-  {
-    id: 2,
-    price: "$18",
-    lessons: "32 Lessons",
-    title: "The Future Of AI In Everyday Products",
-    instructor: "Ada Nwosu",
-    role: "Machine Learning Engineer At NovaTech",
-    image: "/assets/dashboard-images/firm.jpg",
-  },
-  {
-    id: 3,
-    price: "$18",
-    lessons: "32 Lessons",
-    title: "The Future Of AI In Everyday Products",
-    instructor: "Ada Nwosu",
-    role: "Machine Learning Engineer At NovaTech",
-    image: "/assets/dashboard-images/lady.jpg",
-  },
-  {
-    id: 4,
-    price: "$18",
-    lessons: "32 Lessons",
-    title: "The Future Of AI In Everyday Products",
-    instructor: "Ada Nwosu",
-    role: "Machine Learning Engineer At NovaTech",
-    image: "/assets/dashboard-images/only.jpg",
-  },
-];
+interface Product {
+  id: string;
+  title: string;
+  price: number;
+  image_url: string | null;
+  instructor: string | null;
+  instructor_role: string | null;
+  category: string;
+  duration: string | null;
+}
 
 const categories = ["All", "For You", "Trending", "New Releases"];
+
+const ITEMS_PER_PAGE = 12;
 
 export default function JsityCourses() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeCategory, setActiveCategory] = useState("For You");
+  const [activeCategory, setActiveCategory] = useState("All");
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
   const { userName, userEmail, avatarUrl } = useUserProfile();
 
   const handleSignOut = async () => {
@@ -58,8 +38,56 @@ export default function JsityCourses() {
     navigate("/login");
   };
 
-  // Display 12 courses (3 rows x 4 columns)
-  const displayedCourses = [...courseData, ...courseData, ...courseData];
+  const fetchProducts = async (pageNum: number, append = false) => {
+    if (append) setLoadingMore(true);
+    else setLoading(true);
+
+    const from = pageNum * ITEMS_PER_PAGE;
+    const to = from + ITEMS_PER_PAGE - 1;
+
+    const { data, error } = await supabase
+      .from("products")
+      .select("id, title, price, image_url, instructor, instructor_role, category, duration")
+      .eq("brand", "jsity")
+      .order("created_at", { ascending: false })
+      .range(from, to);
+
+    if (!error && data) {
+      if (append) {
+        setProducts(prev => [...prev, ...data]);
+      } else {
+        setProducts(data);
+      }
+      setHasMore(data.length === ITEMS_PER_PAGE);
+    }
+    setLoading(false);
+    setLoadingMore(false);
+  };
+
+  useEffect(() => {
+    setPage(0);
+    fetchProducts(0);
+  }, []);
+
+  const handleLoadMore = () => {
+    const nextPage = page + 1;
+    setPage(nextPage);
+    fetchProducts(nextPage, true);
+  };
+
+  const getCategoryForTab = (category: string) => {
+    const categoryMap: Record<string, string> = {
+      course: "For You",
+      podcast: "Trending",
+    };
+    return categoryMap[category] || "New Releases";
+  };
+
+  const filteredItems = products.filter(item => {
+    const matchesCategory = activeCategory === "All" || getCategoryForTab(item.category) === activeCategory;
+    const matchesSearch = !searchQuery || item.title.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
 
   return (
     <main className="bg-[#0b0b0b] text-white min-h-screen">
@@ -88,8 +116,8 @@ export default function JsityCourses() {
                 </h1>
               </div>
               <div>
-                <p className="text-[15px] sm:text-[15px] text-zinc-300  font-normal font-vietnam leading-[1.5]">
-                  Welcome to our online course page, where you can enhance your skills in design and development. Choose from our carefully curated selection of 10 courses designed to provide you with comprehensive knowledge and practical experience. Explore the courses below and find the perfect fit for your learning journey.
+                <p className="text-[15px] sm:text-[15px] text-zinc-300 font-normal font-vietnam leading-[1.5]">
+                  Welcome to our online course page, where you can enhance your skills in design and development. Choose from our carefully curated selection of courses designed to provide you with comprehensive knowledge and practical experience.
                 </p>
               </div>
             </div>
@@ -118,35 +146,67 @@ export default function JsityCourses() {
               ))}
             </div>
 
+            {/* Loading State */}
+            {loading && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {[...Array(8)].map((_, i) => (
+                  <div key={i} className="space-y-3">
+                    <Skeleton className="aspect-[3/4] w-full rounded-2xl bg-neutral-800" />
+                    <Skeleton className="h-4 w-3/4 bg-neutral-800" />
+                    <Skeleton className="h-4 w-1/2 bg-neutral-800" />
+                  </div>
+                ))}
+              </div>
+            )}
+
             {/* Course Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {displayedCourses.map((course, index) => (
-                <CourseCard
-                  key={`${course.id}-${index}`}
-                  course={course}
-                  onClick={() =>
-                    navigate("/jsity-course-details", {
-                      state: {
-                        id: course.id.toString(),
-                        image: course.image,
-                        title: course.title,
-                        creator: course.instructor,
-                        price: course.price,
-                        instructor: course.instructor,
-                        role: course.role,
-                      },
-                    })
-                  }
-                />
-              ))}
-            </div>
+            {!loading && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {filteredItems.map((product) => (
+                  <CourseCard
+                    key={product.id}
+                    course={{
+                      price: `₦${product.price.toLocaleString()}`,
+                      lessons: product.duration || "—",
+                      title: product.title,
+                      instructor: product.instructor || "—",
+                      role: product.instructor_role || "",
+                      image: product.image_url || "/assets/dashboard-images/face.jpg",
+                    }}
+                    onClick={() =>
+                      navigate("/jsity-course-details", {
+                        state: {
+                          id: product.id,
+                          image: product.image_url,
+                          title: product.title,
+                          creator: product.instructor,
+                          price: `₦${product.price.toLocaleString()}`,
+                          instructor: product.instructor,
+                          role: product.instructor_role,
+                        },
+                      })
+                    }
+                  />
+                ))}
+              </div>
+            )}
+
+            {!loading && filteredItems.length === 0 && (
+              <p className="text-gray-400 text-center py-8">No items found in this category.</p>
+            )}
 
             {/* Load More Button */}
-            <div className="mt-10 flex justify-center">
-              <button className="w-full max-w-7xl bg-[#1a1a1a] hover:bg-[#222] text-white font-vietnam font-semibold py-3 px-6 rounded-md transition-colors">
-                Load More
-              </button>
-            </div>
+            {!loading && filteredItems.length > 0 && hasMore && (
+              <div className="mt-10 flex justify-center">
+                <button 
+                  onClick={handleLoadMore}
+                  disabled={loadingMore}
+                  className="w-full max-w-7xl bg-[#1a1a1a] hover:bg-[#222] text-white font-vietnam font-semibold py-3 px-6 rounded-md transition-colors disabled:opacity-50"
+                >
+                  {loadingMore ? "Loading..." : "Load More"}
+                </button>
+              </div>
+            )}
           </section>
 
           <div className="h-16" />

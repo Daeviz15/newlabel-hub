@@ -1,9 +1,8 @@
 import { cn } from "@/lib/utils";
 import { Heart, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Navigate } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-
+import { OptimizedImage } from "@/components/ui/optimized-image";
 
 type ResumeCardProps = {
   imageSrc?: string;
@@ -14,15 +13,12 @@ type ResumeCardProps = {
 };
 
 export function ResumeCard({
-
-
   imageSrc = "/portrait-course-poster.png",
   title = "The Future Of AI In Everyday Products",
   percent = 72,
   brand = "jsty",
   onClick,
 }: ResumeCardProps) {
-
   const clamped = Math.max(0, Math.min(100, percent));
   return (
     <div
@@ -33,11 +29,11 @@ export function ResumeCard({
         {brand}
       </div>
       <div className="relative aspect-[4/5] w-full overflow-hidden bg-black/20">
-        <img
+        <OptimizedImage
           src={imageSrc || "/placeholder.svg"}
           alt={`${title} poster`}
           className="h-full w-full object-cover"
-          loading="lazy"
+          containerClassName="h-full w-full"
         />
       </div>
       <div className="space-y-2 p-4">
@@ -131,11 +127,11 @@ export function ProductCard({
       </button>
 
       <div className="relative aspect-[4/5] w-full overflow-hidden bg-black/20">
-        <img
+        <OptimizedImage
           src={imageSrc || "/placeholder.svg"}
           alt={`${title} poster`}
           className="h-full w-full object-cover"
-          loading="lazy"
+          containerClassName="h-full w-full"
         />
       </div>
       <div className="space-y-1 p-4">
@@ -184,11 +180,11 @@ export function TopPick({
     >
       <div className="grid grid-cols-1 gap-6 md:grid-cols-[420px_1fr]">
         <div className="relative aspect-[4/4.5] w-full overflow-hidden rounded-xl bg-black/20 md:aspect-[4/3]">
-          <img
+          <OptimizedImage
             src={imageSrc || "/placeholder.svg"}
             alt="Top pick portrait"
             className={`h-full w-full ${imageObjectClass} object-center`}
-            loading="lazy"
+            containerClassName="h-full w-full"
           />
         </div>
         <div className="flex flex-col justify-center">
