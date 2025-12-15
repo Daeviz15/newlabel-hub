@@ -88,6 +88,17 @@ export default function VideoDetails() {
     navigate("/jcart");
   };
 
+  const handlePurchaseNow = () => {
+    addItem({
+      id: courseData.id,
+      title: courseData.title,
+      price: parseFloat(courseData.price.replace(/[^\d.]/g, "")),
+      image: courseData.image,
+      creator: courseData.creator,
+    });
+    navigate("/Jcheckout");
+  };
+
   const handleStartLearning = () =>
     navigate("/jsity-video-player", {
       state: {
@@ -305,7 +316,10 @@ export default function VideoDetails() {
                   {isSaved ? "Saved" : "Save"}
                 </Button>
               </div>
-              <Button className="bg-purple-400 hover:bg-purple-500 text-black font-bold w-full">
+              <Button
+                onClick={handlePurchaseNow}
+                className="bg-purple-400 hover:bg-purple-500 text-black font-bold w-full"
+              >
                 Purchase now
               </Button>
             </div>
