@@ -11,12 +11,23 @@ import ChannelMetricsCarousel from "@/components/channel-metrics-carousel";
 import { PodcastCard } from "@/components/podcast-card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Mic } from "lucide-react";
+import type { Tables } from "@/integrations/supabase/types";
+
+type Product = Tables<"products">;
+
+interface ThcPodcastItem {
+  id: string;
+  title: string;
+  host: string;
+  episodeCount: number;
+  image: string;
+}
 
 export default function ThcPodcastDashboard() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const { userName, userEmail, avatarUrl } = useUserProfile();
-  const [podcasts, setPodcasts] = useState<any[]>([]);
+  const [podcasts, setPodcasts] = useState<ThcPodcastItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -29,7 +40,7 @@ export default function ThcPodcastDashboard() {
 
       if (data) {
         setPodcasts(
-          data.map((item) => ({
+          data.map((item: Product): ThcPodcastItem => ({
             id: item.id,
             title: item.title,
             host: item.instructor || "Host",
@@ -54,7 +65,7 @@ export default function ThcPodcastDashboard() {
           table: "products",
         },
         (payload) => {
-          const newItem = payload.new as any;
+          const newItem = payload.new as Product;
           if (newItem.brand === "thc" || newItem.category === "thc") {
             setPodcasts((prev) => [
               {
@@ -187,14 +198,8 @@ function PodcastsGrid({
   items,
   navigate,
 }: {
-  items: {
-    id: number;
-    image: string;
-    title: string;
-    host: string;
-    episodeCount: number;
-  }[];
-  navigate: any;
+  items: ThcPodcastItem[];
+  navigate: (path: string, options?: { state?: unknown }) => void;
 }) {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
