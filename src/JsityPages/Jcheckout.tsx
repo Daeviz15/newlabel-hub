@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import * as React from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -32,6 +33,24 @@ export default function Jcheckout() {
   const { state: cartState, clearCart } = useCart();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+
+  // Add purple focus styles for this page only
+  React.useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      .jcheckout-page input:focus-visible,
+      .jcheckout-page textarea:focus-visible {
+        outline: none !important;
+        border-color: rgb(147 51 234) !important;
+        box-shadow: 0 0 0 2px rgb(147 51 234 / 0.2) !important;
+      }
+    `;
+    document.head.appendChild(style);
+
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
 
   const total = cartState.total;
 
@@ -116,7 +135,7 @@ export default function Jcheckout() {
   };
 
   return (
-    <>
+    <div className="jcheckout-page">
       <JHomeHeader
         search={searchQuery}
         onSearchChange={setSearchQuery}
@@ -307,6 +326,6 @@ export default function Jcheckout() {
       </main>
 
       <JsityFooter />
-    </>
+    </div>
   );
 }
