@@ -13,9 +13,9 @@ import Newsletter from "@/components/newsletter";
 
 const Index = () => {
   return (
-    <div>
-      <div className="min-h-screen mx-auto max-w-6xl bg-background">
-        <Header />
+    <div className="min-h-screen bg-background">
+      <Header />
+      <div className="mx-auto max-w-6xl">
         <HeroSection />
         <HowItWorks />
         <Ecosystem />

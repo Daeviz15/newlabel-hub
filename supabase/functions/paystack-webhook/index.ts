@@ -46,6 +46,16 @@ serve(async (req) => {
     const event = JSON.parse(body);
     console.log("Paystack webhook event:", event.event);
 
+    const metadata = event.data?.metadata ?? {};
+
+    // Short-circuit for donations – we don't currently persist them server-side
+    if (metadata.type === "donation") {
+      console.log(
+        `Received donation from user ${metadata.user_id} for amount ${metadata.donation_amount}`,
+      );
+      return new Response("OK", { status: 200 });
+    }
+
     // Only process successful charges
     if (event.event === "charge.success") {
       const { user_id, cart_items } = event.data.metadata;

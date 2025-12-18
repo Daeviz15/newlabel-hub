@@ -173,15 +173,13 @@ export default function ThcCourses() {
                       image: product.image_url || "/assets/dashboard-images/face.jpg",
                     }}
                     onClick={() =>
-                      navigate("/thc-course-details", {
+                      navigate("/thc-video-player", {
                         state: {
                           id: product.id,
-                          image: product.image_url,
+                          image: product.image_url || "/assets/dashboard-images/face.jpg",
                           title: product.title,
-                          creator: product.instructor,
-                          price: `₦${product.price.toLocaleString()}`,
-                          instructor: product.instructor,
-                          role: product.instructor_role,
+                          host: product.instructor || "Host",
+                          episodeCount: 1,
                         },
                       })
                     }

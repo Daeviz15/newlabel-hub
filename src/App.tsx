@@ -14,6 +14,7 @@ import Jcheckout from "./JsityPages/Jcheckout";
 import ThcDashboard from "./ThcPages/ThcDashboard";
 import ThcCourses from "./ThcPages/ThcCourses";
 import ThcVideoPlayer from "./ThcPages/ThcVideoPlayer";
+import ThcDonate from "./ThcPages/ThcDonate";
 import Tcheckout from "./ThcPages/Tcheckout";
 import Tabout from "./ThcPages/Tabout";
 import GDashboard from "./GospelLine/GDashboard";
@@ -104,7 +105,7 @@ const App = () => (
               {/* Routes for thc pages */}
               <Route path="/thc-dashboard" element={<ThcDashboard />} />
               <Route path="/thc-courses" element={<ThcCourses />} />
-      
+              <Route path="/thc-donate" element={<ThcDonate />} />
               <Route path="/thc-video-player" element={<ThcVideoPlayer />} />
               <Route path="/thc-cart" element={<CartPage />} />
               <Route path="/thc-checkout" element={<Tcheckout />} />

@@ -211,6 +211,13 @@ export function THomeHeader({
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+            {/* Donate button (desktop) */}
+            <button
+              onClick={() => navigate("/thc-donate")}
+              className="hidden lg:inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold font-vietnam bg-[linear-gradient(269.56deg,_#70E002_0.05%,_#61C802_20.26%,_#58B402_49.47%,_#4BA600_82.66%)] text-black shadow-sm hover:brightness-110 transition-all"
+            >
+              Donate
+            </button>
             {/* User info - hidden on small screens */}
             <div className="hidden leading-tight lg:block">
               <div className="text-sm font-semibold text-white font-vietnam transition-colors duration-200 hover:text-[#70E002]">
@@ -323,6 +330,15 @@ export function THomeHeader({
               {userEmail && (
                 <div className="text-xs text-zinc-400">{userEmail}</div>
               )}
+              <button
+                onClick={() => {
+                  navigate("/thc-donate");
+                  setIsMenuOpen(false);
+                }}
+                className="mt-3 inline-flex w-full items-center font-vietnam justify-center rounded-md bg-[#70E002] text-black transition-all duration-200 hover:bg-[#4BA600] py-2 text-sm"
+              >
+                Donate
+              </button>
               {onSignOut && (
                 <button
                   onClick={() => {

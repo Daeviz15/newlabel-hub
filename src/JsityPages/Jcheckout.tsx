@@ -145,17 +145,17 @@ export default function Jcheckout() {
         onSignOut={handleSignOut}
       />
 
-      <main className="container mx-auto px-4 py-12">
-        <h1 className="text-2xl font-vietnam font-bold mb-12">Checkout</h1>
+      <main className="container mx-auto px-4 py-6 sm:py-8 md:py-12">
+        <h1 className="text-xl sm:text-2xl font-vietnam font-bold mb-6 sm:mb-8 md:mb-12">Checkout</h1>
 
-        <div className="grid lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
           {/* Billing Details */}
-          <div className="bg-[#A3A3A3 10%] border border-zinc-800 rounded-lg p-8">
-            <h2 className="text-2xl font-vietnam font-semibold mb-6">
+          <div className="bg-[#A3A3A3 10%] border border-zinc-800 rounded-lg p-4 sm:p-6 md:p-8">
+            <h2 className="text-xl sm:text-2xl font-vietnam font-semibold mb-4 sm:mb-6">
               Billing Details
             </h2>
-            <form className="space-y-6">
-              <div className="grid grid-cols-2 gap-4">
+            <form className="space-y-4 sm:space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label
                     htmlFor="firstName"
@@ -271,8 +271,8 @@ export default function Jcheckout() {
           </div>
 
           {/* Order Summary */}
-          <div className="bg-[#A3A3A3 10%] border border-zinc-800 rounded-lg p-8 h-fit">
-            <h2 className="text-2xl font-vietnam font-semibold mb-6">
+          <div className="bg-[#A3A3A3 10%] border border-zinc-800 rounded-lg p-4 sm:p-6 md:p-8 h-fit">
+            <h2 className="text-xl sm:text-2xl font-vietnam font-semibold mb-4 sm:mb-6">
               Order Summary
             </h2>
             <div className="flex justify-between font-vietnam text-sm font-medium mb-6 pb-4 border-b border-zinc-800">
@@ -317,7 +317,7 @@ export default function Jcheckout() {
             <Button
               onClick={handlePayment}
               disabled={isProcessingPayment || cartState.items.length === 0}
-              className="w-full bg-purple-600 hover:bg-purple-400 font-vietnam font-semibold py-6 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-purple-600 hover:bg-purple-400 font-vietnam font-semibold py-4 sm:py-6 text-sm sm:text-base text-white disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isProcessingPayment ? "Processing..." : "Pay with Paystack"}
             </Button>

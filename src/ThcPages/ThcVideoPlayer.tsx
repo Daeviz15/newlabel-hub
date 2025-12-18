@@ -5,6 +5,7 @@ import ThcFooter from "./components/ThcFooter";
 import { supabase } from "@/integrations/supabase/client";
 import { Play, Pause, Volume2, Maximize } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
+import { Button } from "@/components/ui/button";
 
 interface PodcastData {
   id: string;
@@ -191,19 +192,36 @@ export default function ThcPodcastDetail() {
               className="w-40 h-40 rounded-lg object-cover border border-white/10"
             />
           </div>
-          <div className="flex-1">
-            <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
-              {podcastData.title}
-            </h1>
-            <p className="text-lg text-zinc-400 mb-4">{podcastData.host}</p>
-            <p className="text-sm text-zinc-500 mb-4">
-              {podcastData.episodeCount} Episodes
-            </p>
-            <p className="text-zinc-300 max-w-2xl">
-              Dive into fascinating conversations, expert insights, and untold
-              stories. Join us for thought-provoking discussions that challenge
-              perspectives and inspire change.
-            </p>
+          <div className="flex-1 space-y-4">
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
+                {podcastData.title}
+              </h1>
+              <p className="text-lg text-zinc-400 mb-1">{podcastData.host}</p>
+              <p className="text-sm text-zinc-500 mb-3">
+                {podcastData.episodeCount} Episodes
+              </p>
+              <p className="text-zinc-300 max-w-2xl">
+                Dive into fascinating conversations, expert insights, and untold
+                stories. Join us for thought-provoking discussions that challenge
+                perspectives and inspire change.
+              </p>
+            </div>
+            <div>
+              <Button
+                onClick={() =>
+                  navigate("/thc-donate", {
+                    state: {
+                      productId: podcastData.id,
+                      productTitle: podcastData.title,
+                    },
+                  })
+                }
+                className="inline-flex bg-[#70E002] hover:bg-[#4BA600] text-black font-semibold font-vietnam px-4 py-2 rounded-full text-sm"
+              >
+                Donate to this course
+              </Button>
+            </div>
           </div>
         </div>
 
