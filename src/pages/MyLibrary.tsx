@@ -6,9 +6,9 @@ import { useNavigate } from "react-router-dom";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { useUserProfile } from "@/hooks/use-user-profile";
-import { Loader2, Heart, ShoppingBag, Download } from "lucide-react";
+import { useWatchProgress } from "@/hooks/use-watch-progress";
+import { Loader2, Heart, ShoppingBag, Download, PlayCircle } from "lucide-react";
 import { EmptyState } from "@/components/ui/empty-state";
-
 interface Product {
   id: string;
   title: string;
@@ -40,6 +40,8 @@ export default function MyLibrary() {
   const [savedItems, setSavedItems] = useState<SavedItem[]>([]);
   const [purchases, setPurchases] = useState<Purchase[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
+  
+  const { watchProgress, isLoading: isLoadingProgress, getProgressPercent } = useWatchProgress(userId);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -131,11 +133,13 @@ export default function MyLibrary() {
 
   const tabs = [
     { id: "all", label: "All" },
+    { id: "continue", label: "Continue Watching" },
     { id: "purchased", label: "Purchased" },
     { id: "saved", label: "Saved" },
     { id: "downloads", label: "Downloads" },
   ];
 
+  const showContinue = activeTab === "all" || activeTab === "continue";
   const showPurchased = activeTab === "all" || activeTab === "purchased";
   const showSaved = activeTab === "all" || activeTab === "saved";
   const showDownloads = activeTab === "all" || activeTab === "downloads";
@@ -185,12 +189,60 @@ export default function MyLibrary() {
           ))}
         </div>
 
-        {isLoading ? (
+        {(isLoading || isLoadingProgress) ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="w-8 h-8 animate-spin text-brand-green" />
           </div>
         ) : (
           <>
+            {/* Continue Watching */}
+            {showContinue && (
+              <section className="mb-8 sm:mb-12">
+                <div className="flex items-center gap-2 mb-2">
+                  <PlayCircle className="w-5 h-5 text-brand-green" />
+                  <h2 className="text-foreground text-xl sm:text-2xl font-bold font-vietnam">
+                    Continue Watching
+                  </h2>
+                </div>
+                <p className="text-muted-foreground mb-4 sm:mb-6 text-sm sm:text-base font-vietnam">
+                  Pick up where you left off.
+                </p>
+                {watchProgress.length > 0 ? (
+                  <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                    {watchProgress.map((item) => (
+                      <ResumeCard
+                        key={item.id}
+                        imageSrc={item.course?.image_url || "/assets/dashboard-images/face.jpg"}
+                        title={item.lesson?.title || item.course?.title || "Untitled"}
+                        percent={getProgressPercent(item.progress_seconds, item.duration_seconds)}
+                        brand={item.course?.brand || "jsity"}
+                        onClick={() => navigate(`/video/${item.course_id}`, { 
+                          state: { 
+                            lessonId: item.lesson_id,
+                            startTime: item.progress_seconds 
+                          } 
+                        })}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center">
+                    <EmptyState
+                      icon={PlayCircle}
+                      title="No videos in progress"
+                      description="Start watching a course to track your progress here."
+                    />
+                    <Button
+                      onClick={() => navigate("/catalogue")}
+                      className="bg-brand-green hover:bg-brand-green-hover text-black font-vietnam mt-4"
+                    >
+                      Browse Courses
+                    </Button>
+                  </div>
+                )}
+              </section>
+            )}
+
             {/* Purchased */}
             {showPurchased && (
               <section className="mb-8 sm:mb-12">
