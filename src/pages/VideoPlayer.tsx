@@ -76,6 +76,14 @@ export default function VideoPlayer() {
     return () => subscription.unsubscribe();
   }, []);
 
+  // Format seconds to MM:SS
+  const formatTime = (seconds: number) => {
+    if (!seconds || isNaN(seconds)) return "0:00";
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
   // Save progress when video time updates (throttled to every 5 seconds)
   const saveProgress = useCallback(() => {
     if (!userId || !currentLessonId || !courseId || videoDuration === 0) return;
@@ -256,8 +264,36 @@ export default function VideoPlayer() {
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-3 sm:p-4 opacity-0 group-hover:opacity-100 transition-opacity">
             {/* Progress Bar */}
             <div className="mb-3 sm:mb-4">
-              <div className="w-full h-1 bg-white/20 rounded-full overflow-hidden">
-                <div className="h-full w-1/3 bg-lime-400 rounded-full"></div>
+              <div className="flex items-center gap-2 sm:gap-3">
+                <span className="text-xs text-white/80 font-mono min-w-[40px]">
+                  {formatTime(videoProgress)}
+                </span>
+                <div 
+                  className="flex-1 h-1.5 bg-white/20 rounded-full overflow-hidden cursor-pointer group/progress"
+                  onClick={(e) => {
+                    if (videoRef.current) {
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      const percent = (e.clientX - rect.left) / rect.width;
+                      videoRef.current.currentTime = percent * videoDuration;
+                    }
+                  }}
+                >
+                  <div 
+                    className="h-full bg-lime-400 rounded-full transition-all duration-100 relative"
+                    style={{ width: `${videoDuration > 0 ? (videoProgress / videoDuration) * 100 : 0}%` }}
+                  >
+                    <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-lime-400 rounded-full opacity-0 group-hover/progress:opacity-100 transition-opacity shadow-lg" />
+                  </div>
+                </div>
+                <span className="text-xs text-white/80 font-mono min-w-[40px] text-right">
+                  {formatTime(videoDuration)}
+                </span>
+              </div>
+              {/* Progress percentage badge */}
+              <div className="flex justify-end mt-1">
+                <span className="text-[10px] text-lime-400 font-medium">
+                  {videoDuration > 0 ? Math.round((videoProgress / videoDuration) * 100) : 0}% complete
+                </span>
               </div>
             </div>
 
