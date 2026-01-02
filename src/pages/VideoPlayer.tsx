@@ -1,11 +1,12 @@
-import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useState, useRef, useCallback } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { HomeHeader } from "@/components/home-header";
 import Footer from "@/components/Footer";
 import { CourseCard } from "@/components/course-card-interactive";
 import { supabase } from "@/integrations/supabase/client";
 import { Play, Pause, SkipBack, SkipForward, Volume2, Maximize, Settings } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
+import { useWatchProgress } from "@/hooks/use-watch-progress";
 
 interface CourseData {
   id: string;
@@ -16,19 +17,30 @@ interface CourseData {
   lessons?: number;
   date?: string;
   description?: string;
+  lessonId?: string;
+  startTime?: number;
 }
 
 export default function VideoPlayer() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { id: courseId } = useParams<{ id: string }>();
   const courseData = location.state as CourseData;
   const { addItem } = useCart();
 
+  const videoRef = useRef<HTMLVideoElement>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [userName, setUserName] = useState<string | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [currentLessonId, setCurrentLessonId] = useState<string | null>(courseData?.lessonId || null);
+  const [videoProgress, setVideoProgress] = useState(0);
+  const [videoDuration, setVideoDuration] = useState(0);
+  
+  const { updateProgress } = useWatchProgress(userId);
+  const lastSavedTime = useRef(0);
 
   useEffect(() => {
     const updateFromSession = (session: any) => {
@@ -36,6 +48,7 @@ export default function VideoPlayer() {
       setUserName(user?.user_metadata?.full_name || null);
       setUserEmail(user?.email || null);
       setAvatarUrl(user?.user_metadata?.avatar_url || null);
+      setUserId(user?.id || null);
 
       if (user) {
         supabase
@@ -63,7 +76,99 @@ export default function VideoPlayer() {
     return () => subscription.unsubscribe();
   }, []);
 
+  // Save progress when video time updates (throttled to every 5 seconds)
+  const saveProgress = useCallback(() => {
+    if (!userId || !currentLessonId || !courseId || videoDuration === 0) return;
+    
+    // Only save if at least 5 seconds have passed since last save
+    if (Math.abs(videoProgress - lastSavedTime.current) >= 5) {
+      updateProgress(currentLessonId, courseId, videoProgress, videoDuration);
+      lastSavedTime.current = videoProgress;
+    }
+  }, [userId, currentLessonId, courseId, videoProgress, videoDuration, updateProgress]);
+
+  // Handle video time update
+  const handleTimeUpdate = useCallback(() => {
+    if (videoRef.current) {
+      setVideoProgress(videoRef.current.currentTime);
+    }
+  }, []);
+
+  // Handle video loaded metadata
+  const handleLoadedMetadata = useCallback(() => {
+    if (videoRef.current) {
+      setVideoDuration(videoRef.current.duration);
+      
+      // If we have a start time from Continue Watching, seek to it
+      if (courseData?.startTime && courseData.startTime > 0) {
+        videoRef.current.currentTime = courseData.startTime;
+      }
+    }
+  }, [courseData?.startTime]);
+
+  // Save progress on pause or when leaving the page
+  const handlePause = useCallback(() => {
+    setIsPlaying(false);
+    if (userId && currentLessonId && courseId && videoDuration > 0) {
+      updateProgress(currentLessonId, courseId, videoProgress, videoDuration);
+    }
+  }, [userId, currentLessonId, courseId, videoProgress, videoDuration, updateProgress]);
+
+  const handlePlay = useCallback(() => {
+    setIsPlaying(true);
+  }, []);
+
+  // Save progress when leaving the page
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (userId && currentLessonId && courseId && videoDuration > 0) {
+        // Use sendBeacon for reliable saving on page unload
+        const data = JSON.stringify({
+          user_id: userId,
+          lesson_id: currentLessonId,
+          course_id: courseId,
+          progress_seconds: Math.floor(videoProgress),
+          duration_seconds: Math.floor(videoDuration),
+        });
+        navigator.sendBeacon?.('/api/save-progress', data);
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [userId, currentLessonId, courseId, videoProgress, videoDuration]);
+
+  // Periodic save while playing
+  useEffect(() => {
+    if (isPlaying) {
+      const interval = setInterval(saveProgress, 5000);
+      return () => clearInterval(interval);
+    }
+  }, [isPlaying, saveProgress]);
+
+  // Set lesson ID from first lesson if not provided
+  useEffect(() => {
+    if (!currentLessonId && courseId) {
+      supabase
+        .from("course_lessons")
+        .select("id")
+        .eq("course_id", courseId)
+        .order("order_number", { ascending: true })
+        .limit(1)
+        .maybeSingle()
+        .then(({ data }) => {
+          if (data?.id) {
+            setCurrentLessonId(data.id);
+          }
+        });
+    }
+  }, [currentLessonId, courseId]);
+
   const handleSignOut = async () => {
+    // Save progress before signing out
+    if (userId && currentLessonId && courseId && videoDuration > 0) {
+      await updateProgress(currentLessonId, courseId, videoProgress, videoDuration);
+    }
     await supabase.auth.signOut();
     navigate("/login");
   };
@@ -125,10 +230,14 @@ export default function VideoPlayer() {
         <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-black border border-white/10 group">
           {courseData.image ? (
             <video
+              ref={videoRef}
               src={courseData.image}
               className="h-full w-full object-cover"
               controls
-              autoPlay={isPlaying}
+              onTimeUpdate={handleTimeUpdate}
+              onLoadedMetadata={handleLoadedMetadata}
+              onPlay={handlePlay}
+              onPause={handlePause}
             />
           ) : (
             <div className="h-full w-full flex items-center justify-center bg-black/60">
