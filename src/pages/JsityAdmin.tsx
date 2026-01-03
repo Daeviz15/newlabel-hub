@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/select";
 import { PodcastList } from "@/components/admin/PodcastList";
 import { CreatePodcast } from "@/components/admin/CreatePodcast";
+import { AnalyticsDashboard } from "@/components/admin/AnalyticsDashboard";
 
 const JsityAdmin = () => {
   const { isAdmin, loading } = useAdmin();
@@ -75,77 +76,63 @@ const JsityAdmin = () => {
           </div>
         </div>
 
-        {selectedBrand === "jsity" ? (
-          <Tabs defaultValue="courses" className="w-full">
-            <TabsList className="grid w-full max-w-md grid-cols-2">
-              <TabsTrigger value="courses">Courses</TabsTrigger>
-              <TabsTrigger value="create">Create Course</TabsTrigger>
-            </TabsList>
+        <Tabs defaultValue="analytics" className="w-full">
+          <TabsList className="grid w-full max-w-lg grid-cols-3">
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            <TabsTrigger value="content">
+              {selectedBrand === "jsity" ? "Courses" : "Podcasts"}
+            </TabsTrigger>
+            <TabsTrigger value="create">
+              Create {selectedBrand === "jsity" ? "Course" : "Podcast"}
+            </TabsTrigger>
+          </TabsList>
 
-            <TabsContent value="courses" className="mt-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>All Courses</CardTitle>
-                  <CardDescription>
-                    Manage existing courses and their lessons
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <CoursesList />
-                </CardContent>
-              </Card>
-            </TabsContent>
+          <TabsContent value="analytics" className="mt-6">
+            <AnalyticsDashboard />
+          </TabsContent>
 
-            <TabsContent value="create" className="mt-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Create New Course</CardTitle>
-                  <CardDescription>
-                    Add a new course with lessons and content
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
+          <TabsContent value="content" className="mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>
+                  {selectedBrand === "jsity" ? "All Courses" : "All Podcasts"}
+                </CardTitle>
+                <CardDescription>
+                  {selectedBrand === "jsity"
+                    ? "Manage existing courses and their lessons"
+                    : "Manage existing podcasts and their episodes"}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {selectedBrand === "jsity" ? <CoursesList /> : <PodcastList />}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="create" className="mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>
+                  {selectedBrand === "jsity"
+                    ? "Create New Course"
+                    : "Create New Podcast Series"}
+                </CardTitle>
+                <CardDescription>
+                  {selectedBrand === "jsity"
+                    ? "Add a new course with lessons and content"
+                    : "Add a new podcast series with episodes"}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {selectedBrand === "jsity" ? (
                   <CreateCourse brand={selectedBrand} />
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
-        ) : (
-          <Tabs defaultValue="podcasts" className="w-full">
-            <TabsList className="grid w-full max-w-md grid-cols-2">
-              <TabsTrigger value="podcasts">Podcasts</TabsTrigger>
-              <TabsTrigger value="create">Create Podcast</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="podcasts" className="mt-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>All Podcasts</CardTitle>
-                  <CardDescription>
-                    Manage existing podcasts and their episodes
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <PodcastList />
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="create" className="mt-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Create New Podcast Series</CardTitle>
-                  <CardDescription>
-                    Add a new podcast series with episodes
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
+                ) : (
                   <CreatePodcast brand={selectedBrand} />
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
-        )}
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

@@ -2,7 +2,7 @@ NewLabel-Hub
 
 NewLabel-Hub is a digital platform for streaming videos, listening to podcasts, and purchasing digital courses. It provides a seamless and engaging experience for learners, creators, and entertainment enthusiasts by bringing multiple forms of content together in one place.
 
-🚀 Features
+Features
 
 🎬 Video Streaming – Watch high-quality video content on demand.
 

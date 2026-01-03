@@ -124,9 +124,9 @@ const HeroSection = () => {
                 />
               </motion.div>
 
-              {/* Top Left Floating Card - Now positioned relative to the padded container */}
+              {/* Top Left Floating Card - Hidden on mobile, visible on larger screens */}
               <motion.div
-                className="absolute top-20 left-[-20px] backdrop-blur-sm rounded-xl p-4 shadow-2xl border border-gray-700/50 max-w-[280px] z-10"
+                className="hidden md:block absolute top-20 left-0 lg:left-[-20px] backdrop-blur-sm rounded-xl p-3 lg:p-4 shadow-2xl border border-gray-700/50 max-w-[200px] lg:max-w-[280px] z-10"
                 initial={{ opacity: 0, x: -50, y: -20 }}
                 animate={{ opacity: 1, x: 0, y: 0 }}
                 transition={{
@@ -142,9 +142,9 @@ const HeroSection = () => {
                 </div>
               </motion.div>
 
-              {/* Bottom Right Floating Card - Now positioned relative to the padded container */}
+              {/* Bottom Right Floating Card - Hidden on mobile, visible on larger screens */}
               <motion.div
-                className="absolute bottom-14 right-[-20px] backdrop-blur-sm rounded-xl p-4 shadow-2xl border border-gray-700/50 max-w-[280px] z-10"
+                className="hidden md:block absolute bottom-14 right-0 lg:right-[-20px] backdrop-blur-sm rounded-xl p-3 lg:p-4 shadow-2xl border border-gray-700/50 max-w-[200px] lg:max-w-[280px] z-10"
                 initial={{ opacity: 0, x: 50, y: 20 }}
                 animate={{ opacity: 1, x: 0, y: 0 }}
                 transition={{
