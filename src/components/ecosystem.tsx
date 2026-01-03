@@ -11,23 +11,26 @@ export default function Ecosystem() {
     {
       name: "Jsity",
       logoType: null,
-      logoSrc: "/assets/jsity.png", // Fixed: removed /public/ - Next.js serves from public/ automatically
-      description: "Learn from industry experts and enhance your skills",
+      logoSrc: "/assets/jsity.png",
+      description: "Technology-focused courses in AI, software development, and digital innovation. Transform your tech career with expert-led training.",
       logoColor: "text-purple-400",
+      route: "/jdashboard",
     },
     {
       name: "GOSPELLINE",
       logoType: null,
-      logoSrc: "/assets/gospel.png", // Fixed: removed /public/
-      description: "Learn from industry experts and enhance your skills",
+      logoSrc: "/assets/gospel.png",
+      description: "Faith-based content featuring spiritual teachings, biblical studies, and inspirational podcasts to strengthen your journey.",
       logoColor: "text-blue-400",
+      route: "/gospel-dashboard",
     },
     {
       name: "The House Chronicles",
       subtitle: "thC",
-      logoSrc: null, // Changed from empty string to null so it's falsy
-      description: "Learn from industry experts and enhance your skills",
+      logoSrc: null,
+      description: "Real stories about life, relationships, and personal growth. Explore mental wellness and millennial experiences that matter.",
       logoColor: "text-green-400",
+      route: "/thc-dashboard",
     },
   ];
   const navigate = useNavigate(); 

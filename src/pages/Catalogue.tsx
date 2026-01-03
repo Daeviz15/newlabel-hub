@@ -6,6 +6,11 @@ import { useNavigate } from "react-router-dom";
 import Tab from "@/components/Tab";
 import { ProductCard } from "@/components/course-card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useUserProfile } from "@/hooks/use-user-profile";
+import { InlineLoader } from "@/components/ui/BrandedSpinner";
+import { useInfiniteQuery } from "@tanstack/react-query";
+
+// ... existing imports
 
 interface Product {
   id: string;
@@ -16,91 +21,82 @@ interface Product {
   category: string;
 }
 
+const ITEMS_PER_PAGE = 8;
+
 const Catalogue = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [userName, setUserName] = useState<string | null>(null);
-  const [userEmail, setUserEmail] = useState<string | null>(null);
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { userName, userEmail, avatarUrl } = useUserProfile();
+
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     navigate("/login");
   };
 
-  // Fetch products from Supabase
-  useEffect(() => {
-    const fetchProducts = async () => {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from("products")
-        .select("id, title, price, image_url, instructor, category")
-        .order("created_at", { ascending: false });
+  const fetchProducts = async ({ pageParam = 0 }) => {
+    const from = pageParam * ITEMS_PER_PAGE;
+    const to = from + ITEMS_PER_PAGE - 1;
 
-      if (!error && data) {
-        setProducts(data);
+    let query = supabase
+      .from("products")
+      .select("id, title, price, image_url, instructor, category", { count: "exact" })
+      .order("created_at", { ascending: false })
+      .range(from, to);
+
+    // Apply Search Filter
+    if (searchQuery) {
+      query = query.ilike("title", `%${searchQuery}%`);
+    }
+
+    // Apply Category Filter
+    if (selectedCategory !== "All") {
+      if (selectedCategory === "For You") {
+        query = query.eq("category", "course");
+      } else if (selectedCategory === "Trending") {
+        query = query.eq("category", "podcast");
+      } else if (selectedCategory === "New Releases") {
+        // "New Releases" in the old code effectively caught everything else.
+        // For strict SQL, we might need to negate the others, but often "New Releases" just means sorted by date.
+        // However, to match previous behavior of "buckets":
+        query = query.neq("category", "course").neq("category", "podcast");
       }
-      setLoading(false);
-    };
+    }
 
-    fetchProducts();
-  }, []);
+    const { data, error, count } = await query;
 
-  // Map database categories to tab categories
-  const getCategoryForTab = (category: string) => {
-    const categoryMap: Record<string, string> = {
-      course: "For You",
-      podcast: "Trending",
-      // Add more mappings as needed
+    if (error) throw error;
+
+    return {
+      data: data || [],
+      nextPage: data.length === ITEMS_PER_PAGE ? pageParam + 1 : undefined,
+      totalCount: count || 0,
     };
-    return categoryMap[category] || "New Releases";
   };
 
-  const filteredItems = products.filter(item => {
-    const matchesCategory = selectedCategory === "All" || getCategoryForTab(item.category) === selectedCategory;
-    const matchesSearch = !searchQuery || item.title.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+  } = useInfiniteQuery({
+    queryKey: ["products", selectedCategory, searchQuery],
+    queryFn: fetchProducts,
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) => lastPage.nextPage,
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
   });
 
-  useEffect(() => {
-    const updateFromSession = (session: any) => {
-      const user = session?.user || null;
-      if (user) {
-        const meta = user.user_metadata || {};
-        setUserEmail(user.email ?? null);
-        setUserName(meta.full_name || meta.name || user.email || null);
-        setAvatarUrl(meta.avatar_url || meta.picture || null);
-        setTimeout(async () => {
-          const { data, error } = await supabase
-            .from("profiles")
-            .select("full_name, avatar_url")
-            .eq("user_id", user.id)
-            .maybeSingle();
-          if (!error && data) {
-            if (data.full_name) setUserName(data.full_name);
-            if (data.avatar_url) setAvatarUrl(data.avatar_url);
-          }
-        }, 0);
-      }
-    };
+  const products = data?.pages.flatMap((page) => page.data) || [];
+  const loading = isLoading;
+  const loadingMore = isFetchingNextPage;
+  const hasMore = !!hasNextPage;
 
-    const { data: listener } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        updateFromSession(session);
-      }
-    );
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      updateFromSession(session);
-    });
-
-    return () => {
-      listener.subscription.unsubscribe();
-    };
-  }, []);
+  const handleLoadMore = () => {
+     fetchNextPage();
+  };
 
   return (
     <main className="bg-[#0b0b0b] text-white min-h-screen">
@@ -136,9 +132,16 @@ const Catalogue = () => {
 
         {/* Browse Section - Fully Responsive */}
         <div className="flex flex-col gap-6 sm:gap-8 pb-12 sm:pb-16">
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-nunito font-bold">
-            Browse by category
-          </h1>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-nunito font-bold">
+              Browse by category
+            </h1>
+            {!loading && (
+              <span className="text-gray-400 text-sm">
+                Showing {products.length} courses
+              </span>
+            )}
+          </div>
 
           {/* Tab Component - Horizontal scroll on mobile */}
           <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
@@ -164,7 +167,7 @@ const Catalogue = () => {
           {/* Product Grid - Responsive columns */}
           {!loading && (
             <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-6">
-              {filteredItems.map((product) => (
+              {products.map((product) => (
                 <ProductCard
                   key={product.id}
                   imageSrc={product.image_url || "/assets/dashboard-images/face.jpg"}
@@ -185,14 +188,33 @@ const Catalogue = () => {
             </div>
           )}
 
-          {!loading && filteredItems.length === 0 && (
+          {!loading && products.length === 0 && (
             <p className="text-gray-400 text-center py-8">No items found in this category.</p>
           )}
 
-          {!loading && filteredItems.length > 0 && (
-            <button className="flex justify-center items-center text-xs sm:text-sm w-full bg-gray-500/25 hover:bg-gray-500/35 transition-colors h-10 sm:h-12 mt-3 mb-6 sm:mb-10 rounded-sm font-nunito font-bold cursor-pointer active:scale-[0.98]">
-              Load More
+          {/* Load More Button with proper functionality */}
+          {!loading && hasMore && (
+            <button 
+              onClick={handleLoadMore}
+              disabled={loadingMore}
+              className="flex justify-center items-center text-xs sm:text-sm w-full bg-gray-500/25 hover:bg-gray-500/35 transition-colors h-10 sm:h-12 mt-3 mb-6 sm:mb-10 rounded-sm font-nunito font-bold cursor-pointer active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loadingMore ? (
+                <>
+                  <span className="mr-2"><InlineLoader /></span>
+                  Loading...
+                </>
+              ) : (
+                "Load More"
+              )}
             </button>
+          )}
+
+          {/* Show message when all items loaded */}
+          {!loading && products.length > 0 && !hasMore && (
+            <p className="text-gray-500 text-center text-sm py-4">
+              You've reached the end of the catalogue
+            </p>
           )}
         </div>
       </div>

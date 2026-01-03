@@ -11,6 +11,7 @@ import ChannelMetricsCarousel from "@/components/channel-metrics-carousel";
 import { PodcastCard } from "@/components/podcast-card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Mic } from "lucide-react";
+import { BrandedSpinner } from "@/components/ui/BrandedSpinner";
 
 export default function ThcPodcastDashboard() {
   const navigate = useNavigate();
@@ -115,8 +116,8 @@ export default function ThcPodcastDashboard() {
           </section>
 
           {loading ? (
-            <div className="py-20 text-center text-gray-400">
-              Loading podcasts...
+            <div className="py-20 flex justify-center">
+              <BrandedSpinner size="lg" message="Loading podcasts..." />
             </div>
           ) : filteredPodcasts.length === 0 ? (
             <div className="py-20">

@@ -9,6 +9,8 @@ import { useUserProfile } from "@/hooks/use-user-profile";
 import { THomeHeader } from "./components/home-header";
 import GFooter from "./components/GFooter";
 import ChannelMetricsCarousel from "@/components/channel-metrics-carousel";
+import { WeeklyTopPick } from "@/components/WeeklyTopPick";
+import { BrandedSpinner } from "@/components/ui/BrandedSpinner";
 import { EmptyState } from "@/components/ui/empty-state";
 
 export default function GDashboard() {
@@ -115,16 +117,14 @@ export default function GDashboard() {
           </section>
 
           {loading ? (
-            <div className="py-20 text-center text-gray-400">
-              Loading content...
+            <div className="py-20 flex justify-center">
+              <BrandedSpinner size="lg" message="Loading Gospeline content..." />
             </div>
           ) : filteredCourses.length === 0 ? (
             <div className="py-20">
               <EmptyState
                 title="No Gospeline content yet"
                 description="Faith-based content is being prepared for you."
-                // Actually I'll just import Cross if I can, but to be safe I'll use null or let it default to Database if I don't pass icon.
-                // Wait, I added Cross in imports.
               />
             </div>
           ) : (
@@ -157,16 +157,7 @@ export default function GDashboard() {
               </Section>
 
               <Section title="This week's top pick" description="">
-                {filteredCourses.length > 0 ? (
-                  <TopPick
-                    accent="lime"
-                    imageFit="cover"
-                    title={filteredCourses[0].title}
-                    author={filteredCourses[0].subtitle}
-                    authorRole={filteredCourses[0].role}
-                    imageSrc={filteredCourses[0].image}
-                  />
-                ) : null}
+                <WeeklyTopPick accent="lime" brand="gospeline" />
               </Section>
             </>
           )}

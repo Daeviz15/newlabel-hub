@@ -8,6 +8,7 @@ import { useUserProfile } from "@/hooks/use-user-profile";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import GFooter from "./components/GFooter";
+import { PageLoader } from "@/components/ui/BrandedSpinner";
 
 const GCourseDetails = () => {
   const location = useLocation();
@@ -54,7 +55,7 @@ const GCourseDetails = () => {
   }, [location.state]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <PageLoader message="Loading course details..." />;
   }
 
   if (!courseData) {

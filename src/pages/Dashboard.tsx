@@ -2,21 +2,16 @@
 
 import type React from "react";
 import { useState, useEffect } from "react";
-import { ProductCard, TopPick } from "@/components/course-card";
+import { ProductCard } from "@/components/course-card";
+import { WeeklyTopPick } from "@/components/WeeklyTopPick";
 import { HomeHeader } from "../components/home-header";
 import { supabase } from "@/integrations/supabase/client";
 import Footer from "@/components/Footer";
 import { useUserProfile } from "@/hooks/use-user-profile";
 import { useNavigate } from "react-router-dom";
 import ChannelMetricsCarousel from "@/components/channel-metrics-carousel";
+import { BrandedSpinner } from "@/components/ui/BrandedSpinner";
 
-const resumeItems = Array.from({ length: 4 }).map((_, i) => ({
-  id: i + 1,
-  image: "/assets/dashboard-images/face.jpg",
-  title: "The Future Of AI In Everyday Products",
-  percent: 72,
-  brand: "jsty",
-}));
 
 export default function Dashboard() {
   const router = useNavigate();
@@ -89,10 +84,6 @@ export default function Dashboard() {
   };
 
   const q = searchQuery.trim().toLowerCase();
-  const filteredResumeItems = resumeItems.filter(
-    (i) =>
-      i.title.toLowerCase().includes(q) || i.brand.toLowerCase().includes(q)
-  );
   const filteredCourses = courses.filter(
     (i) =>
       i.title.toLowerCase().includes(q) || i.subtitle.toLowerCase().includes(q)
@@ -136,7 +127,7 @@ export default function Dashboard() {
             description="Learn binge-worthy, career-building lessons from experts across tech media and business."
           >
             {loading ? (
-              <p className="text-gray-400">Loading courses...</p>
+              <div className="flex justify-center py-8"><BrandedSpinner size="md" /></div>
             ) : (
               <CardsGrid items={filteredCourses.slice(0, 4)} router={router} />
             )}
@@ -148,7 +139,7 @@ export default function Dashboard() {
             description="Learn binge-worthy, career-building lessons from experts across tech media and business."
           >
             {loading ? (
-              <p className="text-gray-400">Loading courses...</p>
+              <div className="flex justify-center py-8"><BrandedSpinner size="md" /></div>
             ) : (
               <CardsGrid items={filteredCourses} router={router} />
             )}
@@ -160,7 +151,7 @@ export default function Dashboard() {
             description="Learn binge-worthy, career-building lessons from experts across tech media and business."
           >
             {loading ? (
-              <p className="text-gray-400">Loading courses...</p>
+              <div className="flex justify-center py-8"><BrandedSpinner size="md" /></div>
             ) : (
               <CardsGrid items={filteredCourses.slice(0, 4)} router={router} />
             )}
@@ -168,7 +159,7 @@ export default function Dashboard() {
 
           {/* This week's top pick */}
           <section className="py-8">
-            <TopPick />
+            <WeeklyTopPick />
           </section>
 
           <div className="h-10" />

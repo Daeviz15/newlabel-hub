@@ -8,71 +8,165 @@ import { useCart } from "@/hooks/use-cart";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Check, X } from "lucide-react";
+import { Label } from "@/components/ui/label";
 import { HomeHeader } from "@/components/home-header";
 import Footer from "@/components/Footer";
+import { useUserProfile } from "@/hooks/use-user-profile";
 
-interface CartItem {
-  id: number;
-  title: string;
-  image: string;
-  quantity: number;
-  price: number;
+interface BillingDetails {
+  firstName: string;
+  lastName: string;
+  country: string;
+  street: string;
+  state: string;
+  phone: string;
+  email: string;
+  notes: string;
+}
+
+interface FormErrors {
+  firstName?: string;
+  lastName?: string;
+  country?: string;
+  street?: string;
+  state?: string;
+  phone?: string;
+  email?: string;
 }
 
 export default function CheckoutPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { state: cartState, clearCart } = useCart();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { userName, userEmail, avatarUrl } = useUserProfile();
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [userName, setUserName] = useState<string | null>(null);
-  const [userEmail, setUserEmail] = useState<string | null>(null);
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const total = cartState.total;
+
+  // Billing form state
+  const [billingDetails, setBillingDetails] = useState<BillingDetails>({
+    firstName: "",
+    lastName: "",
+    country: "Nigeria",
+    street: "",
+    state: "",
+    phone: "",
+    email: "",
+    notes: "",
+  });
+
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+
+  // Pre-fill email from user profile
+  useEffect(() => {
+    if (userEmail) {
+      setBillingDetails((prev) => ({ ...prev, email: userEmail }));
+    }
+    if (userName) {
+      const nameParts = userName.split(" ");
+      setBillingDetails((prev) => ({
+        ...prev,
+        firstName: nameParts[0] || "",
+        lastName: nameParts.slice(1).join(" ") || "",
+      }));
+    }
+  }, [userEmail, userName]);
+
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     navigate("/login");
   };
-  useEffect(() => {
-    const updateFromSession = (session: any) => {
-      const user = session?.user || null;
-      if (user) {
-        const meta = user.user_metadata || {};
-        setUserEmail(user.email ?? null);
-        setUserName(meta.full_name || meta.name || user.email || null);
-        setAvatarUrl(meta.avatar_url || meta.picture || null);
-        setTimeout(async () => {
-          const { data, error } = await supabase
-            .from("profiles")
-            .select("full_name, avatar_url")
-            .eq("user_id", user.id)
-            .maybeSingle();
-          if (!error && data) {
-            if (data.full_name) setUserName(data.full_name);
-            if (data.avatar_url) setAvatarUrl(data.avatar_url);
-          }
-        }, 0);
-      }
-    };
 
-    const { data: listener } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        updateFromSession(session);
-      }
-    );
+  // Validation functions
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      updateFromSession(session);
+  const validatePhone = (phone: string): boolean => {
+    const phoneRegex = /^[0-9+\-\s()]{10,15}$/;
+    return phoneRegex.test(phone);
+  };
+
+  const validateField = (name: keyof BillingDetails, value: string): string | undefined => {
+    switch (name) {
+      case "firstName":
+        return value.trim() ? undefined : "First name is required";
+      case "lastName":
+        return value.trim() ? undefined : "Last name is required";
+      case "country":
+        return value.trim() ? undefined : "Country is required";
+      case "street":
+        return value.trim() ? undefined : "Street address is required";
+      case "state":
+        return value.trim() ? undefined : "State is required";
+      case "phone":
+        if (!value.trim()) return "Phone number is required";
+        return validatePhone(value) ? undefined : "Enter a valid phone number";
+      case "email":
+        if (!value.trim()) return "Email is required";
+        return validateEmail(value) ? undefined : "Enter a valid email address";
+      default:
+        return undefined;
+    }
+  };
+
+  const validateForm = (): boolean => {
+    const newErrors: FormErrors = {};
+    let isValid = true;
+
+    (Object.keys(billingDetails) as (keyof BillingDetails)[]).forEach((key) => {
+      if (key !== "notes") {
+        const error = validateField(key, billingDetails[key]);
+        if (error) {
+          newErrors[key as keyof FormErrors] = error;
+          isValid = false;
+        }
+      }
     });
 
-    return () => {
-      listener.subscription.unsubscribe();
-    };
-  }, []);
+    setErrors(newErrors);
+    return isValid;
+  };
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setBillingDetails((prev) => ({ ...prev, [name]: value }));
+
+    // Clear error when user starts typing
+    if (errors[name as keyof FormErrors]) {
+      setErrors((prev) => ({ ...prev, [name]: undefined }));
+    }
+  };
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setTouched((prev) => ({ ...prev, [name]: true }));
+    const error = validateField(name as keyof BillingDetails, value);
+    setErrors((prev) => ({ ...prev, [name]: error }));
+  };
+
   async function handlePayment(event: React.MouseEvent<HTMLButtonElement>) {
     event.preventDefault();
+
+    // Validate form first
+    if (!validateForm()) {
+      toast({
+        title: "Please fill in all required fields",
+        description: "Check the form for errors and try again",
+        variant: "destructive",
+      });
+      // Mark all fields as touched to show errors
+      const allTouched: Record<string, boolean> = {};
+      Object.keys(billingDetails).forEach((key) => {
+        allTouched[key] = true;
+      });
+      setTouched(allTouched);
+      return;
+    }
 
     if (cartState.items.length === 0) {
       toast({
@@ -99,7 +193,7 @@ export default function CheckoutPage() {
         return;
       }
 
-      // Call edge function to initialize payment
+      // Call edge function to initialize payment with billing details
       const { data, error } = await supabase.functions.invoke(
         "initialize-payment",
         {
@@ -108,6 +202,16 @@ export default function CheckoutPage() {
               id: item.id,
               quantity: item.quantity,
             })),
+            billing_details: {
+              first_name: billingDetails.firstName,
+              last_name: billingDetails.lastName,
+              email: billingDetails.email,
+              phone: billingDetails.phone,
+              country: billingDetails.country,
+              state: billingDetails.state,
+              street: billingDetails.street,
+              notes: billingDetails.notes,
+            },
           },
         }
       );
@@ -147,6 +251,12 @@ export default function CheckoutPage() {
     }
   }, []);
 
+  const getInputClassName = (fieldName: keyof FormErrors) => {
+    const baseClass = "bg-zinc-900 border-zinc-800 font-vietnam text-white placeholder:text-zinc-600";
+    const errorClass = touched[fieldName] && errors[fieldName] ? "border-red-500 focus:border-red-500" : "";
+    return `${baseClass} ${errorClass}`;
+  };
+
   return (
     <>
       <HomeHeader
@@ -170,111 +280,142 @@ export default function CheckoutPage() {
             <form className="space-y-4 sm:space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label
-                    htmlFor="firstName"
-                    className="block font-vietnam text-sm mb-2"
-                  >
-                    First Name
-                  </label>
+                  <Label htmlFor="firstName" className="block font-vietnam text-sm mb-2">
+                    First Name <span className="text-red-500">*</span>
+                  </Label>
                   <Input
                     id="firstName"
+                    name="firstName"
+                    value={billingDetails.firstName}
+                    onChange={handleInputChange}
+                    onBlur={handleBlur}
                     placeholder="First name"
-                    className="bg-zinc-900 border-zinc-800 font-vietnam text-white placeholder:text-zinc-600"
+                    className={getInputClassName("firstName")}
                   />
+                  {touched.firstName && errors.firstName && (
+                    <p className="text-red-500 text-xs mt-1">{errors.firstName}</p>
+                  )}
                 </div>
                 <div>
-                  <label
-                    htmlFor="lastName"
-                    className="block font-vietnam text-sm mb-2"
-                  >
-                    Last Name
-                  </label>
+                  <Label htmlFor="lastName" className="block font-vietnam text-sm mb-2">
+                    Last Name <span className="text-red-500">*</span>
+                  </Label>
                   <Input
                     id="lastName"
+                    name="lastName"
+                    value={billingDetails.lastName}
+                    onChange={handleInputChange}
+                    onBlur={handleBlur}
                     placeholder="Last name"
-                    className="bg-zinc-900 border-zinc-800 font-vietnam text-white placeholder:text-zinc-600"
+                    className={getInputClassName("lastName")}
                   />
+                  {touched.lastName && errors.lastName && (
+                    <p className="text-red-500 text-xs mt-1">{errors.lastName}</p>
+                  )}
                 </div>
               </div>
 
               <div>
-                <label htmlFor="country" className="block text-sm mb-2">
-                  Country/Region
-                </label>
+                <Label htmlFor="country" className="block text-sm mb-2">
+                  Country/Region <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   id="country"
+                  name="country"
+                  value={billingDetails.country}
+                  onChange={handleInputChange}
+                  onBlur={handleBlur}
                   placeholder="Nigeria"
-                  className="bg-zinc-900 border-zinc-800 font-vietnam text-white placeholder:text-zinc-600"
+                  className={getInputClassName("country")}
                 />
+                {touched.country && errors.country && (
+                  <p className="text-red-500 text-xs mt-1">{errors.country}</p>
+                )}
               </div>
 
               <div>
-                <label
-                  htmlFor="street"
-                  className="block text-sm font-vietnam mb-2"
-                >
-                  Street Address
-                </label>
+                <Label htmlFor="street" className="block text-sm font-vietnam mb-2">
+                  Street Address <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   id="street"
+                  name="street"
+                  value={billingDetails.street}
+                  onChange={handleInputChange}
+                  onBlur={handleBlur}
                   placeholder="Street Address"
-                  className="bg-zinc-900 border-zinc-800 font-vietnam text-white placeholder:text-zinc-600"
+                  className={getInputClassName("street")}
                 />
+                {touched.street && errors.street && (
+                  <p className="text-red-500 text-xs mt-1">{errors.street}</p>
+                )}
               </div>
 
               <div>
-                <label
-                  htmlFor="state"
-                  className="block text-sm font-vietnam mb-2"
-                >
-                  State/County
-                </label>
+                <Label htmlFor="state" className="block text-sm font-vietnam mb-2">
+                  State/County <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   id="state"
+                  name="state"
+                  value={billingDetails.state}
+                  onChange={handleInputChange}
+                  onBlur={handleBlur}
                   placeholder="Lagos"
-                  className="bg-zinc-900 border-zinc-800 font-vietnam text-white placeholder:text-zinc-600"
+                  className={getInputClassName("state")}
                 />
+                {touched.state && errors.state && (
+                  <p className="text-red-500 text-xs mt-1">{errors.state}</p>
+                )}
               </div>
 
               <div>
-                <label
-                  htmlFor="phone"
-                  className="block font-vietnam text-sm mb-2"
-                >
-                  Phone Number
-                </label>
+                <Label htmlFor="phone" className="block font-vietnam text-sm mb-2">
+                  Phone Number <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   id="phone"
+                  name="phone"
                   type="tel"
+                  value={billingDetails.phone}
+                  onChange={handleInputChange}
+                  onBlur={handleBlur}
                   placeholder="Phone number"
-                  className="bg-zinc-900 border-zinc-800 font-vietnam text-white placeholder:text-zinc-600"
+                  className={getInputClassName("phone")}
                 />
+                {touched.phone && errors.phone && (
+                  <p className="text-red-500 text-xs mt-1">{errors.phone}</p>
+                )}
               </div>
 
               <div>
-                <label
-                  htmlFor="email"
-                  className="block font-vietnam text-sm mb-2"
-                >
-                  Email Address
-                </label>
+                <Label htmlFor="email" className="block font-vietnam text-sm mb-2">
+                  Email Address <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   id="email"
+                  name="email"
                   type="email"
+                  value={billingDetails.email}
+                  onChange={handleInputChange}
+                  onBlur={handleBlur}
                   placeholder="Your Email"
-                  className="bg-zinc-900 border-zinc-800 font-vietnam text-white placeholder:text-zinc-600"
+                  className={getInputClassName("email")}
                 />
+                {touched.email && errors.email && (
+                  <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+                )}
               </div>
 
               <div>
-                <label
-                  htmlFor="notes"
-                  className="block font-vietnam text-sm mb-2"
-                >
+                <Label htmlFor="notes" className="block font-vietnam text-sm mb-2">
                   Additional Notes
-                </label>
+                </Label>
                 <Textarea
                   id="notes"
+                  name="notes"
+                  value={billingDetails.notes}
+                  onChange={handleInputChange}
                   placeholder="Special notes for delivery"
                   rows={6}
                   className="bg-zinc-900 border-zinc-800 font-vietnam text-white placeholder:text-zinc-600 resize-none"
@@ -302,7 +443,7 @@ export default function CheckoutPage() {
                 cartState.items.map((item) => (
                   <div key={item.id} className="flex gap-4">
                     <img
-                      src={item.image || "/placeholder.svg"}
+                      src={item.image || "/assets/dashboard-images/face.jpg"}
                       alt={item.title}
                       className="w-16 h-16 object-cover rounded"
                     />
@@ -315,7 +456,7 @@ export default function CheckoutPage() {
                       </p>
                     </div>
                     <div className="text-sm font-vietnam font-semibold">
-                      {item.price}
+                      ₦{(item.price * item.quantity).toLocaleString()}
                     </div>
                   </div>
                 ))
@@ -324,7 +465,7 @@ export default function CheckoutPage() {
 
             <div className="flex justify-between text-lg font-vietnam font-semibold pt-4 border-t border-zinc-800 mb-6">
               <span>Total</span>
-              <span>₦{total.toFixed(2)}</span>
+              <span>₦{total.toLocaleString()}</span>
             </div>
 
             <Button

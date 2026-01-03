@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CartProvider } from "@/hooks/use-cart";
+import { PageLoader } from "@/components/ui/BrandedSpinner";
 import Jdashboard from "./JsityPages/JsityDashboard";
 import JsityCourses from "./JsityPages/JsityCourses";
 import JsityCourseDetails from "./JsityPages/JsityCourseDetails";
@@ -22,6 +23,9 @@ import GCourseDetails from "./GospelLine/GcourseDetails";
 import GVideoPlayer from "./GospelLine/GVideoPlayer";
 import Gcheckout from "./GospelLine/Gcheckout";
 import Gabout from "./GospelLine/Gabout";
+import { JcartPage } from "./JsityPages/JcartPage";
+import { TcartPage } from "./ThcPages/TcartPage";
+import { GcartPage } from "./GospelLine/GcartPage";
 import JsityAdmin from "./pages/JsityAdmin";
 import { CoursesList } from "./components/admin/CoursesList";
 import { CreateCourse } from "./components/admin/CreateCourse";
@@ -47,8 +51,13 @@ const MyLibrary = lazy(() => import("./pages/MyLibrary"));
 const AccountSetting = lazy(() => import("./pages/AccountSetting"));
 const VideoDetails = lazy(() => import("./pages/VideoDetails"));
 const VideoPlayer = lazy(() => import("./pages/VideoPlayer"));
+const FreeCourses = lazy(() => import("./pages/FreeCourses"));
+const Subsidiaries = lazy(() => import("./pages/Subsidiaries"));
+const NotFoundPage = lazy(() => import("./pages/404Page"));
 
 const queryClient = new QueryClient();
+
+import { PageTransitionLayout } from "@/components/layout/PageTransitionLayout";
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -57,13 +66,13 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Suspense fallback={null}>
-            <Routes>
+          <Routes>
+            <Route element={<PageTransitionLayout />}>
               <Route path="/" element={<Index />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<SignUp />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/contact" element={<ContactPage />} />
@@ -84,6 +93,8 @@ const App = () => (
               <Route path="/accountsetting" element={<AccountSetting />} />
               <Route path="/video-details" element={<VideoDetails />} />
               <Route path="/video-player" element={<VideoPlayer />} />
+              <Route path="/free-courses" element={<FreeCourses />} />
+              <Route path="/subsidiaries" element={<Subsidiaries />} />
 
               {/* Routes for jsity pages */}
               <Route path="/jdashboard" element={<Jdashboard />} />
@@ -96,36 +107,48 @@ const App = () => (
                 path="/jsity-video-player"
                 element={<JsityVideoPlayer />}
               />
-              <Route path="/jcart" element={<CartPage />} />
-              <Route path="/Jcheckout" element={<Jcheckout />} />
-              <Route path="/about-jsity" element={<Jabout />} />
-              <Route path="/jsity-admin" element={<JsityAdmin />} />
+              <Route path="/jabout" element={<Jabout />} />
+              <Route path="/jcheckout" element={<Jcheckout />} />
+              <Route path="/jcart" element={<JcartPage />} />
 
-              {/* Routes for thc pages */}
+              {/* Routes for Thc pages */}
+              <Route path="/thcdashboard" element={<ThcDashboard />} />
               <Route path="/thc-dashboard" element={<ThcDashboard />} />
+              <Route path="/thccourses" element={<ThcCourses />} />
               <Route path="/thc-courses" element={<ThcCourses />} />
-      
               <Route path="/thc-video-player" element={<ThcVideoPlayer />} />
-              <Route path="/thc-cart" element={<CartPage />} />
-              <Route path="/thc-checkout" element={<Tcheckout />} />
-              <Route path="/thc-about" element={<Tabout />} />
+              <Route path="/tcheckout" element={<Tcheckout />} />
+              <Route path="/tabout" element={<Tabout />} />
+              <Route path="/tcart" element={<TcartPage />} />
+              <Route path="/thc-cart" element={<TcartPage />} />
 
-              {/* Routes for gospel-line pages */}
+              {/* Routes for GospelLine pages */}
+              <Route path="/gdashboard" element={<GDashboard />} />
               <Route path="/gospel-dashboard" element={<GDashboard />} />
+              <Route path="/gcourses" element={<GCourses />} />
               <Route path="/gospel-courses" element={<GCourses />} />
               <Route
-                path="/gospel-course-details"
+                path="/gospelline-course-details"
                 element={<GCourseDetails />}
               />
-              <Route path="/gospel-video-player" element={<GVideoPlayer />} />
-              <Route path="/gospel-cart" element={<CartPage />} />
-              <Route path="/gospel-checkout" element={<Gcheckout />} />
-              <Route path="/gospel-about" element={<Gabout />} />
-              {/* admin */}
+              <Route
+                path="/gospelline-video-player"
+                element={<GVideoPlayer />}
+              />
+              <Route path="/gcheckout" element={<Gcheckout />} />
+              <Route path="/gabout" element={<Gabout />} />
+              <Route path="/gcart" element={<GcartPage />} />
+              <Route path="/gospel-cart" element={<GcartPage />} />
 
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
+              {/* Admin Routes */}
+              <Route path="/jsityadmin" element={<JsityAdmin />} />
+              <Route path="/admin/courses" element={<CoursesList />} />
+              <Route path="/admin/create-course" element={<CreateCourse />} />
+
+              <Route path="*" element={<NotFoundPage />} />
+              <Route path="/404" element={<NotFound />} />
+            </Route>
+          </Routes>
         </BrowserRouter>
       </CartProvider>
     </TooltipProvider>

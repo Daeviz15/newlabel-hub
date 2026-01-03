@@ -21,7 +21,7 @@ interface CartItem {
   image: string
 }
 
-export function JcartPage() {
+export function TcartPage() {
   const navigate = useNavigate();
   const { userName, userEmail, avatarUrl } = useUserProfile();
   const { state, updateQuantity: updateCartQuantity, removeItem: removeCartItem } = useCart();

@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { BookOpen } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserProfile } from "@/hooks/use-user-profile";
 import { THomeHeader } from "./components/home-header";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { InlineLoader } from "@/components/ui/BrandedSpinner";
 import GFooter from "./components/GFooter";
 
 interface Product {
@@ -26,11 +29,8 @@ export default function GCourses() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [page, setPage] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
+  /* import { useInfiniteQuery } from "@tanstack/react-query"; */
+
   const { userName, userEmail, avatarUrl } = useUserProfile();
 
   const handleSignOut = async () => {
@@ -38,41 +38,65 @@ export default function GCourses() {
     navigate("/login");
   };
 
-  const fetchProducts = async (pageNum: number, append = false) => {
-    if (append) setLoadingMore(true);
-    else setLoading(true);
-
-    const from = pageNum * ITEMS_PER_PAGE;
+  const fetchProducts = async ({ pageParam = 0 }) => {
+    const from = pageParam * ITEMS_PER_PAGE;
     const to = from + ITEMS_PER_PAGE - 1;
 
-    const { data, error } = await supabase
+    let query = supabase
       .from("products")
-      .select("id, title, price, image_url, instructor, instructor_role, category, duration")
+      .select("id, title, price, image_url, instructor, instructor_role, category, duration", { count: "exact" })
       .eq("brand", "gospel")
       .order("created_at", { ascending: false })
       .range(from, to);
 
-    if (!error && data) {
-      if (append) {
-        setProducts(prev => [...prev, ...data]);
-      } else {
-        setProducts(data);
-      }
-      setHasMore(data.length === ITEMS_PER_PAGE);
+    // Apply Search Filter
+    if (searchQuery) {
+      query = query.ilike("title", `%${searchQuery}%`);
     }
-    setLoading(false);
-    setLoadingMore(false);
+
+    // Apply Category Filter
+    if (activeCategory !== "All") {
+      if (activeCategory === "For You") {
+        query = query.eq("category", "course");
+      } else if (activeCategory === "Trending") {
+        query = query.eq("category", "podcast");
+      } else if (activeCategory === "New Releases") {
+        query = query.neq("category", "course").neq("category", "podcast");
+      }
+    }
+
+    const { data, error, count } = await query;
+
+    if (error) throw error;
+
+    return {
+      data: data || [],
+      nextPage: data.length === ITEMS_PER_PAGE ? pageParam + 1 : undefined,
+      totalCount: count || 0,
+    };
   };
 
-  useEffect(() => {
-    setPage(0);
-    fetchProducts(0);
-  }, []);
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+  } = useInfiniteQuery({
+    queryKey: ["gospel_courses", activeCategory, searchQuery],
+    queryFn: fetchProducts,
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) => lastPage.nextPage,
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const products = data?.pages.flatMap((page) => page.data) || [];
+  const loading = isLoading;
+  const loadingMore = isFetchingNextPage;
+  const hasMore = !!hasNextPage;
 
   const handleLoadMore = () => {
-    const nextPage = page + 1;
-    setPage(nextPage);
-    fetchProducts(nextPage, true);
+    fetchNextPage();
   };
 
   const getCategoryForTab = (category: string) => {
@@ -83,11 +107,8 @@ export default function GCourses() {
     return categoryMap[category] || "New Releases";
   };
 
-  const filteredItems = products.filter(item => {
-    const matchesCategory = activeCategory === "All" || getCategoryForTab(item.category) === activeCategory;
-    const matchesSearch = !searchQuery || item.title.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
+  // Removed local filtering
+
 
   return (
     <main className="bg-[#0b0b0b] text-white min-h-screen">
@@ -161,52 +182,89 @@ export default function GCourses() {
               </div>
             )}
 
-            {/* Course Grid */}
+{/* Course Grid */}
             {!loading && (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {filteredItems.map((product) => (
-                  <CourseCard
-                    key={product.id}
-                    course={{
-                      price: `₦${product.price.toLocaleString()}`,
-                      lessons: product.duration || "—",
-                      title: product.title,
-                      instructor: product.instructor || "—",
-                      role: product.instructor_role || "",
-                      image: product.image_url || "/assets/dashboard-images/face.jpg",
-                    }}
-                    onClick={() =>
-                      navigate("/gospel-course-details", {
-                        state: {
-                          id: product.id,
-                          image: product.image_url,
-                          title: product.title,
-                          creator: product.instructor,
-                          price: `₦${product.price.toLocaleString()}`,
-                          instructor: product.instructor,
-                          role: product.instructor_role,
-                        },
-                      })
-                    }
-                  />
+                {products.map((item) => (
+                  <div 
+                    key={item.id} 
+                    className="cursor-pointer group"
+                    onClick={() => navigate("/gospelline-course-details", {
+                      state: {
+                        id: item.id,
+                        image: item.image_url,
+                        title: item.title,
+                        creator: item.instructor,
+                        price: `₦${item.price.toLocaleString()}`,
+                        instructor: item.instructor,
+                        role: item.instructor_role,
+                      }
+                    })}
+                  >
+                     <div className="relative aspect-[3/4] overflow-hidden rounded-2xl mb-3">
+                      <img 
+                        src={item.image_url || "/assets/dashboard-images/face.jpg"}
+                        alt={item.title}
+                        className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60" />
+                      <div className="absolute bottom-4 left-4 right-4">
+                        <Badge className="bg-[#70E002] text-black hover:bg-[#70E002] border-none mb-2">
+                          {item.category === "course" ? "Course" : "Podcast"}
+                        </Badge>
+                      </div>
+                    </div>
+                    <h3 className="font-semibold text-lg leading-tight mb-1 group-hover:text-[#70E002] transition-colors line-clamp-2">
+                      {item.title}
+                    </h3>
+                    <p className="text-sm text-gray-400 mb-2">{item.instructor || "Instructor"}</p>
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-[#70E002]">
+                        ₦{item.price.toLocaleString()}
+                      </span>
+                      <span className="text-xs text-gray-500">{item.duration || "—"}</span>
+                    </div>
+                  </div>
                 ))}
               </div>
             )}
 
-            {!loading && filteredItems.length === 0 && (
-              <p className="text-gray-400 text-center py-8">No items found in this category.</p>
+            {/* Empty State */}
+            {!loading && products.length === 0 && (
+              <div className="flex flex-col items-center justify-center py-20 text-center">
+                <div className="bg-white/5 p-4 rounded-full mb-4">
+                  <BookOpen className="w-8 h-8 text-gray-400" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">No content found</h3>
+                <p className="text-gray-400 max-w-md">
+                  We couldn't find any content matching your criteria. Try adjusting your filters.
+                </p>
+              </div>
             )}
 
             {/* Load More Button */}
-            {!loading && filteredItems.length > 0 && hasMore && (
-              <div className="mt-10 flex justify-center">
-                <button 
+            {!loading && products.length > 0 && hasMore && (
+              <div className="flex justify-center mt-12 mb-20">
+                <button
                   onClick={handleLoadMore}
                   disabled={loadingMore}
-                  className="w-full max-w-7xl bg-[#1a1a1a] hover:bg-[#222] text-white font-vietnam font-semibold py-3 px-6 rounded-md transition-colors disabled:opacity-50"
+                  className="flex items-center gap-2 px-8 py-3 bg-white/10 hover:bg-white/20 text-white rounded-full font-medium transition-all transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {loadingMore ? "Loading..." : "Load More"}
+                  {loadingMore ? (
+                    <>
+                      <InlineLoader /> Loading...
+                    </>
+                  ) : (
+                    "Load More Content"
+                  )}
                 </button>
+              </div>
+            )}
+
+            {/* End of List Message */}
+            {!loading && products.length > 0 && !hasMore && (
+              <div className="text-center py-10 text-gray-500">
+                You've reached the end of the list
               </div>
             )}
           </section>

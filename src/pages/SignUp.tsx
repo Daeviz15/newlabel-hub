@@ -10,6 +10,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowUpRightIcon } from "@heroicons/react/24/outline";
 import { useToast } from "@/hooks/use-toast";
+import { PasswordStrength } from "@/components/PasswordStrength";
+import { InlineLoader } from "@/components/ui/BrandedSpinner";
 import icon from "/assets/Icon.png";
 import logo from "../assets/Logo.png";
 import logoOne from "/assets/logos.png";
@@ -314,6 +316,7 @@ const SignUp = () => {
                     )}
                   </button>
                 </div>
+                <PasswordStrength password={formData.password} />
               </div>
 
               <div className="space-y-2">
@@ -377,9 +380,16 @@ const SignUp = () => {
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-brand-green hover:bg-brand/90 text-black font-medium h-12 transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                className="w-full bg-brand-green hover:bg-brand/90 text-black font-medium h-12 transition-all duration-300 hover:scale-105 hover:shadow-lg rounded-full"
               >
-                {loading ? "Creating Account..." : "Sign Up"}
+                {loading ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <InlineLoader />
+                    <span>Creating Account...</span>
+                  </div>
+                ) : (
+                  "Sign Up"
+                )}
               </Button>
 
               <div className="relative">

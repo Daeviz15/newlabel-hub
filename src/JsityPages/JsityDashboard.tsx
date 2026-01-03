@@ -6,6 +6,8 @@ import { ProductCard, TopPick } from "@/components/course-card";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import JsityFooter from "./components/JsityFooter";
+import { WeeklyTopPick } from "@/components/WeeklyTopPick";
+import { BrandedSpinner } from "@/components/ui/BrandedSpinner";
 import { useUserProfile } from "@/hooks/use-user-profile";
 import { JHomeHeader } from "./components/home-header";
 import ChannelMetricsCarousel from "@/components/channel-metrics-carousel";
@@ -117,8 +119,8 @@ export default function Jdashboard() {
           </section>
 
           {loading ? (
-            <div className="py-20 text-center text-gray-400">
-              Loading content...
+            <div className="py-20 flex justify-center">
+              <BrandedSpinner size="lg" message="Loading courses..." />
             </div>
           ) : filteredCourses.length === 0 ? (
             <div className="py-20">

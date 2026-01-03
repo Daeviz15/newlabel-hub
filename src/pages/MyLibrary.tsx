@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { ResumeCard, ProductCard } from "@/components/course-card";
 import { HomeHeader } from "../components/home-header";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { useUserProfile } from "@/hooks/use-user-profile";
@@ -33,7 +33,9 @@ interface Purchase {
 
 export default function MyLibrary() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("all");
+  const [searchParams] = useSearchParams();
+  const initialTab = searchParams.get("tab") || "all";
+  const [activeTab, setActiveTab] = useState(initialTab);
   const { userName, userEmail, avatarUrl } = useUserProfile();
   
   const [isLoading, setIsLoading] = useState(true);

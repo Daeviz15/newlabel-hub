@@ -12,6 +12,7 @@ import { addSaved, isItemSaved, removeSaved } from "@/hooks/use-saved";
 import { JHomeHeader } from "./components/home-header";
 import { useUserProfile } from "@/hooks/use-user-profile";
 import JsityFooter from "./components/JsityFooter";
+import { PageLoader } from "@/components/ui/BrandedSpinner";
 
 interface CourseData {
   id: string;
@@ -69,7 +70,7 @@ export default function VideoDetails() {
   }, [location.state]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <PageLoader message="Loading course details..." />;
   }
 
   if (!courseData) {
