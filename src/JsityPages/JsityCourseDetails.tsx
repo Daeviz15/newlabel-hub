@@ -7,7 +7,7 @@ import { ShoppingCart, Heart, Play } from "lucide-react";
 import { CourseCard } from "@/components/course-card-interactive";
 import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/hooks/use-cart";
-import { addSaved, isItemSaved, removeSaved } from "@/hooks/use-saved";
+import { useSavedItems } from "@/hooks/use-saved-items";
 
 import { JHomeHeader } from "./components/home-header";
 import { useUserProfile } from "@/hooks/use-user-profile";
@@ -30,6 +30,7 @@ export default function VideoDetails() {
   const navigate = useNavigate();
   const { addItem } = useCart();
   const profile = useUserProfile();
+  const { isSaved, toggleSave } = useSavedItems();
 
   const [courseData, setCourseData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -212,6 +213,8 @@ export default function VideoDetails() {
     navigate("/login");
   };
 
+  const isCurrentCourseSaved = courseData ? isSaved(courseData.id) : false;
+
   const curriculum = [
     {
       section: "01",
@@ -359,13 +362,28 @@ export default function VideoDetails() {
                   <ShoppingCart className="w-4 h-4 mr-2" />
                   Add to cart
                 </Button>
-                <Button className="bg-neutral-800 hover:bg-neutral-700 text-white border border-white/10">
+                <Button 
+                  onClick={() => {
+                    if (courseData) {
+                      toggleSave({
+                        id: courseData.id,
+                        title: courseData.title,
+                        image: courseData.image,
+                        creator: courseData.creator,
+                        price: courseData.price,
+                      });
+                    }
+                  }}
+                  className={`bg-neutral-800 hover:bg-neutral-700 text-white border border-white/10 ${
+                    isCurrentCourseSaved ? "text-purple-400 border-purple-400/50" : ""
+                  }`}
+                >
                   <Heart
                     className={`w-4 h-4 mr-2 ${
-                      isItemSaved ? "fill-purple-400 text-purple-400" : ""
+                      isCurrentCourseSaved ? "fill-purple-400 text-purple-400" : ""
                     }`}
                   />
-                  {isItemSaved ? "Saved" : "Save"}
+                  {isCurrentCourseSaved ? "Saved" : "Save"}
                 </Button>
               </div>
               <Button 

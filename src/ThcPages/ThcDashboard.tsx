@@ -2,6 +2,7 @@
 
 import type React from "react";
 import { useState, useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import ThcFooter from "./components/ThcFooter";
@@ -17,35 +18,30 @@ export default function ThcPodcastDashboard() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const { userName, userEmail, avatarUrl } = useUserProfile();
-  const [podcasts, setPodcasts] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    const fetchPodcasts = async () => {
+  const { data: podcasts = [], isLoading: loading } = useQuery({
+    queryKey: ["thc-podcasts"],
+    queryFn: async () => {
       const { data } = await supabase
         .from("products")
         .select("*")
         .or("brand.eq.thc,category.eq.thc")
         .order("created_at", { ascending: false });
+      
+      return (data || []).map((item) => ({
+        id: item.id,
+        title: item.title,
+        host: item.instructor || "Host",
+        episodeCount: 1,
+        image: item.image_url || "/assets/dashboard-images/face.jpg",
+        description: item.description || "",
+      }));
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
 
-      if (data) {
-        setPodcasts(
-          data.map((item) => ({
-            id: item.id,
-            title: item.title,
-            host: item.instructor || "Host",
-            episodeCount: 1, // Default or fetch from related table if needed
-            image: item.image_url || "/assets/dashboard-images/face.jpg",
-            description: item.description || "",
-          }))
-        );
-      }
-      setLoading(false);
-    };
-
-    fetchPodcasts();
-
-    // Real-time subscription
+  useEffect(() => {
     const channel = supabase
       .channel("thc-products-changes")
       .on(
@@ -58,17 +54,17 @@ export default function ThcPodcastDashboard() {
         (payload) => {
           const newItem = payload.new as any;
           if (newItem.brand === "thc" || newItem.category === "thc") {
-            setPodcasts((prev) => [
-              {
+            queryClient.setQueryData(["thc-podcasts"], (oldData: any[] | undefined) => {
+              const newPodcast = {
                 id: newItem.id,
                 title: newItem.title,
                 host: newItem.instructor || "Host",
                 episodeCount: 1,
                 image: newItem.image_url || "/assets/dashboard-images/face.jpg",
                 description: newItem.description || "",
-              },
-              ...prev,
-            ]);
+              };
+              return oldData ? [newPodcast, ...oldData] : [newPodcast];
+            });
           }
         }
       )
@@ -77,7 +73,7 @@ export default function ThcPodcastDashboard() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [queryClient]);
 
   const getTimeBasedGreeting = () => {
     const hour = new Date().getHours();
@@ -97,7 +93,7 @@ export default function ThcPodcastDashboard() {
 
   const q = searchQuery.trim().toLowerCase();
   const filteredPodcasts = podcasts.filter(
-    (i) => i.title.toLowerCase().includes(q) || i.host.toLowerCase().includes(q)
+    (i: any) => i.title.toLowerCase().includes(q) || i.host.toLowerCase().includes(q)
   );
 
   return (
@@ -187,7 +183,7 @@ function PodcastsGrid({
   navigate,
 }: {
   items: {
-    id: number;
+    id: string;
     image: string;
     title: string;
     host: string;
@@ -201,6 +197,7 @@ function PodcastsGrid({
       {items.map((podcast) => (
         <PodcastCard
           key={podcast.id}
+          id={podcast.id.toString()}
           imageSrc={podcast.image}
           title={podcast.title}
           host={podcast.host}

@@ -5,13 +5,14 @@ interface UserProfile {
   userName: string | null;
   userEmail: string | null;
   avatarUrl: string | null;
+  userId: string | null;
   isLoading: boolean;
   refetch: () => void;
 }
 
 export function useUserProfile(): UserProfile {
   const [isLoading, setIsLoading] = useState(true);
-  const [profile, setProfile] = useState<Omit<UserProfile, 'refetch' | 'isLoading'>>({
+  const [profile, setProfile] = useState<Omit<UserProfile, 'refetch' | 'isLoading' | 'userId'>>({
     userName: null,
     userEmail: null,
     avatarUrl: null,
@@ -105,5 +106,5 @@ export function useUserProfile(): UserProfile {
     };
   }, [fetchProfileData]);
 
-  return { ...profile, isLoading, refetch };
+  return { ...profile, userId, isLoading, refetch };
 }

@@ -3,6 +3,7 @@ import { Heart, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { OptimizedImage } from "@/components/ui/optimized-image";
+import { useSavedItems } from "@/hooks/use-saved-items";
 
 type ResumeCardProps = {
   imageSrc?: string;
@@ -66,11 +67,11 @@ export function ResumeCard({
 }
 
 type ProductCardProps = {
+  id?: string;
   imageSrc?: string;
   title?: string;
   subtitle?: string;
   price?: string;
-  liked?: boolean;
   brand?: string;
   bgColor?: string;
   priceAccent?: 'lime' | 'purple' | 'thc';
@@ -79,17 +80,19 @@ type ProductCardProps = {
 };
 
 export function ProductCard({
+  id = "",
   imageSrc = "/studio-set-course-poster.png",
   title = "The Silent Trauma Of Millennials",
   subtitle = "The House Chronicles",
   price = "$18",
-  liked = false,
   brand = "",
   bgColor = "ring-lime-500",
   priceAccent = 'lime',
   onClick,
   className = "",
 }: ProductCardProps) {
+  const { isSaved, toggleSave } = useSavedItems();
+  const liked = id ? isSaved(id) : false;
   const priceBgClass =
     priceAccent === 'purple'
       ? 'bg-purple-500'
@@ -116,7 +119,18 @@ export function ProductCard({
       <button
         aria-label={liked ? "Remove from favorites" : "Add to favorites"}
         className="absolute right-3 top-3 z-10 inline-flex h-8 w-8 items-center justify-center rounded-full bg-black/60 ring-1 ring-white/10 transition-colors hover:bg-black/80"
-        onClick={(e) => e.stopPropagation()}
+        onClick={(e) => {
+          e.stopPropagation();
+          if (id) {
+            toggleSave({
+              id,
+              title,
+              image: imageSrc,
+              creator: subtitle,
+              price
+            });
+          }
+        }}
       >
         <Heart
           className={cn(

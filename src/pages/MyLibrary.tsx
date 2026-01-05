@@ -9,6 +9,7 @@ import { useUserProfile } from "@/hooks/use-user-profile";
 import { useWatchProgress } from "@/hooks/use-watch-progress";
 import { Loader2, Heart, ShoppingBag, Download, PlayCircle } from "lucide-react";
 import { EmptyState } from "@/components/ui/empty-state";
+import { useSavedItems } from "@/hooks/use-saved-items";
 interface Product {
   id: string;
   title: string;
@@ -39,7 +40,7 @@ export default function MyLibrary() {
   const { userName, userEmail, avatarUrl } = useUserProfile();
   
   const [isLoading, setIsLoading] = useState(true);
-  const [savedItems, setSavedItems] = useState<SavedItem[]>([]);
+  const { savedItems, isLoading: isLoadingSaved } = useSavedItems();
   const [purchases, setPurchases] = useState<Purchase[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
   
@@ -63,26 +64,8 @@ export default function MyLibrary() {
     const fetchLibraryData = async () => {
       setIsLoading(true);
       try {
-        // Fetch saved items with product details
-        const { data: savedData, error: savedError } = await supabase
-          .from("saved_items")
-          .select(`
-            id,
-            product_id,
-            products (
-              id,
-              title,
-              image_url,
-              instructor,
-              price,
-              brand
-            )
-          `)
-          .eq("user_id", userId);
-
-        if (savedError) throw savedError;
-        setSavedItems((savedData as unknown as SavedItem[]) || []);
-
+        // Saved items fetched via hook
+        
         // Fetch purchases with product details
         const { data: purchaseData, error: purchaseError } = await supabase
           .from("purchases")
@@ -119,19 +102,7 @@ export default function MyLibrary() {
     navigate("/login");
   };
 
-  const handleRemoveSaved = async (productId: string) => {
-    if (!userId) return;
-    
-    const { error } = await supabase
-      .from("saved_items")
-      .delete()
-      .eq("user_id", userId)
-      .eq("product_id", productId);
-
-    if (!error) {
-      setSavedItems(prev => prev.filter(item => item.product_id !== productId));
-    }
-  };
+  // handleRemoveSaved removed as ProductCard handles it internally via useSavedItems
 
   const tabs = [
     { id: "all", label: "All" },
@@ -303,14 +274,51 @@ export default function MyLibrary() {
                 {savedItems.length > 0 ? (
                   <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                     {savedItems.map((item) => (
-                      <ProductCard
-                        key={item.id}
-                        imageSrc={item.products?.image_url || "/assets/dashboard-images/face.jpg"}
-                        title={item.products?.title || "Untitled"}
-                        subtitle={item.products?.instructor || ""}
-                        price={`₦${item.products?.price?.toLocaleString() || "0"}`}
-                        onClick={() => navigate(`/video-details/${item.product_id}`)}
-                      />
+                        <ProductCard
+                          key={item.id}
+                          id={item.id}
+                          imageSrc={item.image}
+                          title={item.title}
+                          subtitle={item.creator}
+                          price={item.price}
+                          brand={item.brand}
+                          onClick={() => {
+                            if (item.brand === 'thc') {
+                               navigate("/thc-video-player", {
+                                  state: {
+                                    id: item.id,
+                                    image: item.image,
+                                    title: item.title,
+                                    host: item.creator,
+                                    episodeCount: 1, 
+                                    description: item.description || "",
+                                  }
+                               });
+                            } else if (item.brand === 'jsity') {
+                               navigate("/jsity-course-details", {
+                                  state: {
+                                    id: item.id,
+                                    image: item.image,
+                                    title: item.title,
+                                    creator: item.creator,
+                                    price: item.price,
+                                    instructor: item.creator,
+                                    role: "Instructor" // Default
+                                  }
+                               });
+                            } else {
+                               navigate("/video-details", { 
+                                  state: { 
+                                    id: item.id,
+                                    image: item.image,
+                                    title: item.title,
+                                    creator: item.creator,
+                                    price: item.price
+                                  } 
+                               });
+                            }
+                          }}
+                        />
                     ))}
                   </div>
                 ) : (

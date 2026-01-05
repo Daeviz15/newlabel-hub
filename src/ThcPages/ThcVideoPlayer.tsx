@@ -6,6 +6,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { Play, Pause, Volume2, Maximize, Lock } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
 import { useToast } from "@/hooks/use-toast";
+import { useSavedItems } from "@/hooks/use-saved-items";
+import { Heart } from "lucide-react";
+import { BrandedSpinner } from "@/components/ui/BrandedSpinner";
 
 interface PodcastData {
   id: string;
@@ -13,16 +16,18 @@ interface PodcastData {
   title: string;
   host: string;
   episodeCount: number;
+  description?: string;
 }
 
 interface Episode {
-  id: number;
+  id: string | number;
   title: string;
   description: string;
   duration: string;
   releaseDate: string;
   image: string;
   episodeNumber: number;
+  videoUrl?: string;
 }
 
 export default function ThcPodcastDetail() {
@@ -31,6 +36,7 @@ export default function ThcPodcastDetail() {
   const podcastData = location.state as PodcastData;
   const { addItem } = useCart();
   const { toast } = useToast();
+  const { isSaved, toggleSave } = useSavedItems();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [userName, setUserName] = useState<string | null>(null);
@@ -41,59 +47,42 @@ export default function ThcPodcastDetail() {
   const [currentEpisodeIndex, setCurrentEpisodeIndex] = useState(0);
   const [hasPurchased, setHasPurchased] = useState(false);
   const [isLoadingAccess, setIsLoadingAccess] = useState(true);
+  const [isLoadingEpisodes, setIsLoadingEpisodes] = useState(true);
 
-  const episodes: Episode[] = [
-    {
-      id: 1,
-      episodeNumber: podcastData?.episodeCount || 100,
-      title: "The Beginning of Everything",
-      description:
-        "In this groundbreaking first episode, we explore the origins of modern technology and how it shaped our world.",
-      duration: "1:45:23",
-      releaseDate: "Nov 14, 2025",
-      image: podcastData?.image || "/assets/podcast-episode.jpg",
-    },
-    {
-      id: 2,
-      episodeNumber: (podcastData?.episodeCount || 100) - 1,
-      title: "Breaking the Barriers",
-      description:
-        "Discover how innovators around the world are breaking through traditional boundaries and creating new possibilities.",
-      duration: "2:12:15",
-      releaseDate: "Nov 12, 2025",
-      image: "/assets/dashboard-images/face.jpg",
-    },
-    {
-      id: 3,
-      episodeNumber: (podcastData?.episodeCount || 100) - 2,
-      title: "Voices of Change",
-      description:
-        "We sit down with thought leaders who are reshaping industries and challenging the status quo.",
-      duration: "1:58:45",
-      releaseDate: "Nov 10, 2025",
-      image: "/assets/dashboard-images/firm.jpg",
-    },
-    {
-      id: 4,
-      episodeNumber: (podcastData?.episodeCount || 100) - 3,
-      title: "The Future is Now",
-      description:
-        "Exploring the technologies and ideas that will define the next decade and beyond.",
-      duration: "2:05:32",
-      releaseDate: "Nov 8, 2025",
-      image: "/assets/dashboard-images/lady.jpg",
-    },
-    {
-      id: 5,
-      episodeNumber: (podcastData?.episodeCount || 100) - 4,
-      title: "Stories Untold",
-      description:
-        "Behind every success is a story waiting to be told. Listen to the personal journeys of industry pioneers.",
-      duration: "1:52:10",
-      releaseDate: "Nov 6, 2025",
-      image: "/assets/dashboard-images/only.jpg",
-    },
-  ];
+  const [episodes, setEpisodes] = useState<Episode[]>([]);
+
+  useEffect(() => {
+    const fetchEpisodes = async () => {
+      if (!podcastData?.id) {
+         setIsLoadingEpisodes(false);
+         return;
+      }
+
+      const { data, error } = await supabase
+        .from("course_lessons")
+        .select("*")
+        .eq("course_id", podcastData.id)
+        .order("order_number", { ascending: true });
+
+      if (data) {
+        setEpisodes(
+          data.map((episode) => ({
+            id: episode.id,
+            episodeNumber: episode.order_number,
+            title: episode.title,
+            description: episode.description || "",
+            duration: episode.duration || "0:00",
+            releaseDate: new Date(episode.created_at).toLocaleDateString(),
+            image: podcastData.image || "/placeholder.svg",
+            videoUrl: episode.video_url,
+          }))
+        );
+      }
+      setIsLoadingEpisodes(false);
+    };
+
+    fetchEpisodes();
+  }, [podcastData?.id]);
 
   const currentEpisode = episodes[currentEpisodeIndex];
 
@@ -255,96 +244,134 @@ export default function ThcPodcastDetail() {
             />
           </div>
           <div className="flex-1">
-            <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
+            <h1 className="text-3xl md:text-4xl font-bold text-white mb-2 flex items-center gap-4">
               {podcastData.title}
+              <button
+                onClick={() => {
+                   if (podcastData) {
+                      toggleSave({
+                        id: podcastData.id,
+                        title: podcastData.title,
+                        image: podcastData.image,
+                        creator: podcastData.host,
+                        price: "Free", // Podcasts might be free or have a price
+                      });
+                   }
+                }}
+                className="p-2 rounded-full hover:bg-white/10 transition-colors"
+              >
+                <Heart 
+                  className={`w-6 h-6 ${isSaved(podcastData.id) ? "fill-[#70E002] text-[#70E002]" : "text-zinc-400"}`} 
+                />
+              </button>
             </h1>
             <p className="text-lg text-zinc-400 mb-4">{podcastData.host}</p>
             <p className="text-sm text-zinc-500 mb-4">
               {podcastData.episodeCount} Episodes
             </p>
             <p className="text-zinc-300 max-w-2xl">
-              Dive into fascinating conversations, expert insights, and untold
-              stories. Join us for thought-provoking discussions that challenge
-              perspectives and inspire change.
+              {podcastData.description || "Dive into fascinating conversations, expert insights, and untold stories. Join us for thought-provoking discussions that challenge perspectives and inspire change."}
             </p>
           </div>
         </div>
 
         {/* Current Episode Player */}
-        <div className="mb-12 rounded-xl overflow-hidden border border-white/10 bg-[#151515]">
-          <div className="relative aspect-video w-full overflow-hidden bg-black">
-            <img
-              src={currentEpisode.image || "/placeholder.svg"}
-              alt={currentEpisode.title}
-              className="h-full w-full object-cover"
-            />
-
-            {/* Play/Pause Overlay */}
-            <button
-              onClick={() => setIsPlaying(!isPlaying)}
-              className="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-black/40 transition-colors"
-            >
-              {!isPlaying && (
-                <div className="w-20 h-20 rounded-full bg-[#70E002] flex items-center justify-center hover:scale-110 transition-transform">
-                  <Play className="w-10 h-10 text-black fill-black ml-1" />
-                </div>
-              )}
-            </button>
-
-            {/* Episode Info Overlay */}
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-6">
-              <p className="text-sm font-medium text-zinc-400 mb-2">
-                Episode {currentEpisode.episodeNumber}
-              </p>
-              <p className="text-white font-semibold text-lg">
-                {currentEpisode.title}
-              </p>
-            </div>
-          </div>
-
-          {/* Episode Controls */}
-          <div className="p-6 border-t border-white/10">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex-1">
-                <p className="text-sm text-zinc-400 mb-2">
-                  {currentEpisode.releaseDate}
-                </p>
-                <p className="text-white font-semibold">
-                  {currentEpisode.title}
-                </p>
-              </div>
-              <p className="text-sm text-zinc-400 font-mono">
-                {currentEpisode.duration}
-              </p>
-            </div>
-
-            {/* Progress Bar */}
-            <div className="mb-4">
-              <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden">
-                <div className="h-full w-1/3 bg-[#70E002] rounded-full"></div>
-              </div>
-            </div>
-
-            {/* Playback Controls */}
-            <div className="flex items-center justify-center gap-6">
-              <button className="text-zinc-400 hover:text-[#70E002] transition-colors">
-                <Volume2 className="w-5 h-5" />
-              </button>
-              <button
-                onClick={() => setIsPlaying(!isPlaying)}
-                className="bg-[#70E002] hover:bg-[#65cc00] text-black rounded-full p-3 transition-colors"
-              >
-                {isPlaying ? (
-                  <Pause className="w-6 h-6" />
+        <div className="mb-12 rounded-xl overflow-hidden border border-white/10 bg-[#151515] max-w-4xl mx-auto shadow-2xl shadow-black/50">
+          {isLoadingEpisodes ? (
+             <div className="aspect-video w-full flex items-center justify-center bg-zinc-900">
+               <BrandedSpinner size="lg" message="Loading player..." />
+             </div>
+          ) : !currentEpisode ? (
+             <div className="aspect-video w-full flex items-center justify-center bg-zinc-900 text-zinc-400">
+                <p>No episodes available for this podcast.</p>
+             </div>
+          ) : (
+            <>
+              <div className="relative aspect-video w-full overflow-hidden bg-black">
+                {isPlaying && currentEpisode?.videoUrl ? (
+                   <video
+                     src={currentEpisode.videoUrl}
+                     controls
+                     autoPlay
+                     className="w-full h-full object-contain"
+                     onEnded={() => setIsPlaying(false)}
+                   />
                 ) : (
-                  <Play className="w-6 h-6 ml-1" />
+                    <>
+                        <img
+                          src={currentEpisode?.image || podcastData.image || "/placeholder.svg"}
+                          alt={currentEpisode?.title}
+                          className="h-full w-full object-cover opacity-60"
+                        />
+                        {/* Play/Pause Overlay */}
+                        <button
+                          onClick={() => setIsPlaying(true)}
+                          className="absolute inset-0 flex items-center justify-center hover:bg-black/20 transition-colors group"
+                        >
+                            <div className="w-20 h-20 rounded-full bg-[#70E002] flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg shadow-[#70E002]/20">
+                              <Play className="w-10 h-10 text-black fill-black ml-1" />
+                            </div>
+                        </button>
+                        {/* Episode Info Overlay */}
+                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/80 to-transparent p-8">
+                          {currentEpisode && (
+                              <>
+                                  <p className="text-sm font-medium text-[#70E002] mb-2 font-mono">
+                                    Episode {currentEpisode.episodeNumber}
+                                  </p>
+                                  <p className="text-white font-bold text-2xl md:text-3xl leading-tight">
+                                    {currentEpisode.title}
+                                  </p>
+                              </>
+                          )}
+                        </div>
+                    </>
                 )}
-              </button>
-              <button className="text-zinc-400 hover:text-[#70E002] transition-colors">
-                <Maximize className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
+              </div>
+
+              {/* Episode Controls */}
+              <div className="p-6 border-t border-white/10">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex-1">
+                    <p className="text-sm text-zinc-400 mb-2">
+                       {currentEpisode.releaseDate}
+                    </p>
+                    <p className="text-white font-semibold">
+                       {currentEpisode.title}
+                    </p>
+                  </div>
+                  <p className="text-sm text-zinc-400 font-mono">
+                     {currentEpisode.duration}
+                  </p>
+                </div>
+                {/* Progress Bar (Mock for now or hook to video) */}
+                <div className="mb-4">
+                  <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden">
+                    <div className="h-full w-0 bg-[#70E002] rounded-full"></div>
+                  </div>
+                </div>
+                {/* Playback Controls */}
+                <div className="flex items-center justify-center gap-6">
+                  <button className="text-zinc-400 hover:text-[#70E002] transition-colors">
+                    <Volume2 className="w-5 h-5" />
+                  </button>
+                  <button
+                    onClick={() => setIsPlaying(!isPlaying)}
+                    className="bg-[#70E002] hover:bg-[#65cc00] text-black rounded-full p-3 transition-colors"
+                  >
+                    {isPlaying ? (
+                      <Pause className="w-6 h-6" />
+                    ) : (
+                      <Play className="w-6 h-6 ml-1" />
+                    )}
+                  </button>
+                  <button className="text-zinc-400 hover:text-[#70E002] transition-colors">
+                    <Maximize className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
         </div>
 
         {/* Episodes List */}

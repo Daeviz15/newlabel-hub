@@ -10,8 +10,6 @@ import { useUserProfile } from "@/hooks/use-user-profile";
 import { InlineLoader } from "@/components/ui/BrandedSpinner";
 import { useInfiniteQuery } from "@tanstack/react-query";
 
-// ... existing imports
-
 interface Product {
   id: string;
   title: string;
@@ -19,6 +17,8 @@ interface Product {
   image_url: string | null;
   instructor: string | null;
   category: string;
+  brand: string | null;
+  description: string | null;
 }
 
 const ITEMS_PER_PAGE = 8;
@@ -41,7 +41,7 @@ const Catalogue = () => {
 
     let query = supabase
       .from("products")
-      .select("id, title, price, image_url, instructor, category", { count: "exact" })
+      .select("id, title, price, image_url, instructor, category, brand, description", { count: "exact" })
       .order("created_at", { ascending: false })
       .range(from, to);
 
@@ -170,19 +170,48 @@ const Catalogue = () => {
               {products.map((product) => (
                 <ProductCard
                   key={product.id}
+                  id={product.id}
                   imageSrc={product.image_url || "/assets/dashboard-images/face.jpg"}
                   title={product.title}
                   subtitle={product.instructor || "—"}
                   price={`₦${product.price.toLocaleString()}`}
-                  onClick={() => navigate("/video-details", { 
-                    state: { 
-                      id: product.id, 
-                      image: product.image_url, 
-                      title: product.title, 
-                      creator: product.instructor, 
-                      price: `₦${product.price.toLocaleString()}` 
-                    } 
-                  })}
+                  brand={product.brand}
+                  onClick={() => {
+                    if (product.brand === 'thc') {
+                       navigate("/thc-video-player", {
+                          state: {
+                            id: product.id,
+                            image: product.image_url,
+                            title: product.title,
+                            host: product.instructor,
+                            episodeCount: 1, // You might need to fetch this or default it
+                            description: product.description || "",
+                          }
+                       });
+                    } else if (product.brand === 'jsity') {
+                       navigate("/jsity-course-details", {
+                          state: {
+                            id: product.id,
+                            image: product.image_url,
+                            title: product.title,
+                            creator: product.instructor,
+                            price: `₦${product.price.toLocaleString()}`,
+                            instructor: product.instructor,
+                            role: "Instructor" // Defaulting as we don't have role here
+                          }
+                       });
+                    } else {
+                       navigate("/video-details", { 
+                          state: { 
+                            id: product.id, 
+                            image: product.image_url, 
+                            title: product.title, 
+                            creator: product.instructor, 
+                            price: `₦${product.price.toLocaleString()}` 
+                          } 
+                       });
+                    }
+                  }}
                 />
               ))}
             </div>

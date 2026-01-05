@@ -236,7 +236,7 @@ export default function VideoPlayer() {
       {/* Video Player Section */}
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 lg:pt-28 pb-8 sm:pb-12">
         {/* Video Player */}
-        <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-black border border-white/10">
+        <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-black border border-white/10 max-w-4xl mx-auto shadow-2xl shadow-black/50">
           {isLoadingAccess ? (
             <div className="h-full w-full flex items-center justify-center bg-gray-900/50 backdrop-blur-sm">
               <div className="flex flex-col items-center gap-4">

@@ -27,7 +27,7 @@ import { BrandedSpinner } from "@/components/ui/BrandedSpinner";
 const podcastSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters"),
   description: z.string().min(10, "Description must be at least 10 characters"),
-  price: z.number().min(0, "Price must be positive"),
+  price: z.number().min(0, "Price must be positive").optional(),
   instructor: z.string().min(2, "Host name is required"),
   instructor_role: z.string().min(2, "Host role is required"), // e.g. "Main Host"
   level: z.string().min(1, "Genre is required"),
@@ -193,7 +193,7 @@ export const CreatePodcast = ({
           {
             title: data.title,
             description: data.description,
-            price: data.price,
+            price: data.price ?? 0,
             instructor: data.instructor,
             instructor_role: data.instructor_role,
             level: data.level,
@@ -337,9 +337,10 @@ export const CreatePodcast = ({
                             placeholder="0"
                             className="bg-zinc-800/50 border-zinc-700 focus:border-purple-500 text-white placeholder:text-zinc-500"
                             {...field}
-                            onChange={(e) =>
-                              field.onChange(Number.parseFloat(e.target.value))
-                            }
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              field.onChange(val === "" ? undefined : Number.parseFloat(val));
+                            }}
                           />
                         </FormControl>
                         <FormMessage />

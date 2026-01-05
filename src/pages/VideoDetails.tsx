@@ -7,7 +7,7 @@ import { ShoppingCart, Heart, Play, Loader2 } from "lucide-react";
 import { CourseCard } from "@/components/course-card-interactive";
 import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/hooks/use-cart";
-import { addSaved, isItemSaved, removeSaved } from "@/hooks/use-saved";
+import { useSavedItems } from "@/hooks/use-saved-items";
 import { useUserProfile } from "@/hooks/use-user-profile";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -38,7 +38,8 @@ export default function VideoDetails() {
   const { userName, userEmail, avatarUrl } = useUserProfile();
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [isSaved, setIsSaved] = useState(false);
+  const { isSaved, toggleSave } = useSavedItems();
+  const isCurrentCourseSaved = courseData ? isSaved(courseData.id) : false;
   const [recommendedCourses, setRecommendedCourses] = useState<RecommendedCourse[]>([]);
   const [isLoadingRecommended, setIsLoadingRecommended] = useState(true);
 
@@ -76,12 +77,7 @@ export default function VideoDetails() {
     fetchRecommendedCourses();
   }, [courseData?.id]);
 
-  useEffect(() => {
-    // Initialize saved state for this course
-    if (courseData?.id) {
-      setIsSaved(isItemSaved(courseData.id));
-    }
-  }, [courseData?.id]);
+  // Removed manual saving logic effects
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -99,22 +95,7 @@ export default function VideoDetails() {
     navigate("/cart");
   };
 
-  const handleToggleSave = () => {
-    if (!courseData) return;
-    if (isSaved) {
-      removeSaved(courseData.id);
-      setIsSaved(false);
-    } else {
-      addSaved({
-        id: courseData.id,
-        title: courseData.title,
-        image: courseData.image,
-        creator: courseData.creator,
-        price: courseData.price,
-      });
-      setIsSaved(true);
-    }
-  };
+  // Removed manual handleToggleSave
 
   const handlePurchase = () => {
     navigate("/checkout", { state: { from: "video-details", item: courseData } });
@@ -204,13 +185,25 @@ export default function VideoDetails() {
                   Add to cart
                 </Button>
                 <Button
-                  onClick={handleToggleSave}
-                  className="bg-neutral-800 hover:bg-neutral-700 text-white border border-white/10"
+                  onClick={() => {
+                    if (courseData) {
+                      toggleSave({
+                        id: courseData.id,
+                        title: courseData.title,
+                        image: courseData.image,
+                        creator: courseData.creator,
+                        price: courseData.price,
+                      });
+                    }
+                  }}
+                  className={`bg-neutral-800 hover:bg-neutral-700 text-white border border-white/10 ${
+                    isCurrentCourseSaved ? "text-lime-400 border-lime-400/50" : ""
+                  }`}
                 >
                   <Heart
-                    className={`w-4 h-4 mr-2 ${isSaved ? "fill-lime-400 text-lime-400" : ""}`}
+                    className={`w-4 h-4 mr-2 ${isCurrentCourseSaved ? "fill-lime-400 text-lime-400" : ""}`}
                   />
-                  {isSaved ? "Saved" : "Save"}
+                  {isCurrentCourseSaved ? "Saved" : "Save"}
                 </Button>
               </div>
               <Button

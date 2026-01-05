@@ -221,6 +221,7 @@ function CardsGrid({
         <ProductCard
           key={it.id}
           imageSrc={it.image}
+          id={String(it.id)}
           title={it.title}
           subtitle={it.subtitle}
           price={it.price}

@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useUserProfile } from "@/hooks/use-user-profile";
 import { JHomeHeader } from "./components/home-header";
 import JsityFooter from "./components/JsityFooter";
+import { ProductCard } from "@/components/course-card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { InlineLoader } from "@/components/ui/BrandedSpinner";
@@ -184,16 +185,16 @@ export default function JsityCourses() {
             {!loading && (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {products.map((product) => (
-                  <CourseCard
+                  <ProductCard
                     key={product.id}
-                    course={{
-                      price: `₦${product.price.toLocaleString()}`,
-                      lessons: product.duration || "—",
-                      title: product.title,
-                      instructor: product.instructor || "—",
-                      role: product.instructor_role || "",
-                      image: product.image_url || "/assets/dashboard-images/face.jpg",
-                    }}
+                    id={product.id}
+                    price={`₦${product.price.toLocaleString()}`}
+                    imageSrc={product.image_url || "/assets/dashboard-images/face.jpg"}
+                    title={product.title}
+                    subtitle={product.instructor || "Instructor"}
+                    priceAccent="purple"
+                    bgColor="ring-purple-500"
+                    brand="jsity"
                     onClick={() =>
                       navigate("/jsity-course-details", {
                         state: {
@@ -258,60 +259,5 @@ export default function JsityCourses() {
         <JsityFooter />
       </div>
     </main>
-  );
-}
-
-function CourseCard({
-  course,
-  onClick,
-}: {
-  course: {
-    price: string;
-    lessons: string;
-    title: string;
-    instructor: string;
-    role: string;
-    image: string;
-  };
-  onClick: () => void;
-}) {
-  return (
-    <div
-      onClick={onClick}
-      className="group relative overflow-hidden rounded-2xl bg-[#151515] border border-white/10 cursor-pointer hover:ring-2 hover:ring-purple-500 transition-all"
-    >
-      {/* Image */}
-      <div className="relative aspect-[3/4] w-full overflow-hidden bg-black/20">
-        <img
-          src={course.image}
-          alt={course.title}
-          className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
-          loading="lazy"
-        />
-        
-        {/* Badges */}
-        <div className="absolute top-3 left-3 flex items-center gap-2">
-          <Badge className="bg-white/90 text-black text-xs font-semibold px-2 py-1 rounded-md hover:bg-white/90">
-            {course.price}
-          </Badge>
-        </div>
-        <div className="absolute top-3 right-3">
-          <Badge className="bg-[linear-gradient(269.56deg,_rgba(161,54,255,1)_0.05%,_rgba(149,44,242,1)_20.26%,_rgba(123,37,199,1)_49.47%,_rgba(98,17,169,1)_82.66%)] text-white text-xs font-semibold px-3 py-1 rounded-full border-none hover:bg-[linear-gradient(269.56deg,_rgba(161,54,255,1)_0.05%,_rgba(149,44,242,1)_20.26%,_rgba(123,37,199,1)_49.47%,_rgba(98,17,169,1)_82.66%)]">
-            {course.lessons}
-          </Badge>
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className="p-4 space-y-2">
-        <h3 className="text-base font-semibold text-white line-clamp-2 leading-snug font-vietnam">
-          {course.title}
-        </h3>
-        <div className="space-y-1">
-          <p className="text-sm font-semibold text-white font-vietnam">{course.instructor}</p>
-          <p className="text-xs text-zinc-400 font-vietnam">{course.role}</p>
-        </div>
-      </div>
-    </div>
   );
 }

@@ -2,6 +2,7 @@
 
 import type React from "react";
 import { useState, useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ProductCard, TopPick } from "@/components/course-card";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -17,20 +18,18 @@ export default function Jdashboard() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const { userName, userEmail, avatarUrl } = useUserProfile();
-  const [courses, setCourses] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    const fetchCourses = async () => {
+  const { data: courses = [], isLoading: loading } = useQuery({
+    queryKey: ["jsity-courses"],
+    queryFn: async () => {
       const { data } = await supabase
         .from("products")
         .select("*")
         .or("brand.eq.jsity,category.eq.jsity")
         .order("created_at", { ascending: false });
 
-      if (data) {
-        setCourses(
-          data.map((course) => ({
+        return (data || []).map((course) => ({
             id: course.id,
             price: `₦${course.price}`,
             title: course.title,
@@ -38,14 +37,12 @@ export default function Jdashboard() {
             role: course.instructor_role || "Expert",
             image: course.image_url || "/assets/dashboard-images/face.jpg",
             description: course.description || "",
-          }))
-        );
-      }
-      setLoading(false);
-    };
+        }));
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
 
-    fetchCourses();
-
+  useEffect(() => {
     const channel = supabase
       .channel("jsity-products-changes")
       .on(
@@ -58,19 +55,18 @@ export default function Jdashboard() {
         (payload) => {
           const newCourse = payload.new as any;
           if (newCourse.brand === "jsity" || newCourse.category === "jsity") {
-            setCourses((prev) => [
-              {
-                id: newCourse.id,
-                price: `₦${newCourse.price}`,
-                title: newCourse.title,
-                subtitle: newCourse.instructor || "Instructor",
-                role: newCourse.instructor_role || "Expert",
-                image:
-                  newCourse.image_url || "/assets/dashboard-images/face.jpg",
-                description: newCourse.description || "",
-              },
-              ...prev,
-            ]);
+             queryClient.setQueryData(["jsity-courses"], (oldData: any[] | undefined) => {
+                const newCourseFormatted = {
+                    id: newCourse.id,
+                    price: `₦${newCourse.price}`,
+                    title: newCourse.title,
+                    subtitle: newCourse.instructor || "Instructor",
+                    role: newCourse.instructor_role || "Expert",
+                    image: newCourse.image_url || "/assets/dashboard-images/face.jpg",
+                    description: newCourse.description || "",
+                };
+                return oldData ? [newCourseFormatted, ...oldData] : [newCourseFormatted];
+             });
           }
         }
       )
@@ -79,7 +75,7 @@ export default function Jdashboard() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [queryClient]);
 
   const getTimeBasedGreeting = () => {
     const hour = new Date().getHours();
@@ -99,7 +95,7 @@ export default function Jdashboard() {
 
   const q = searchQuery.trim().toLowerCase();
   const filteredCourses = courses.filter(
-    (i) =>
+    (i: any) =>
       i.title.toLowerCase().includes(q) || i.subtitle.toLowerCase().includes(q)
   );
 
@@ -210,6 +206,7 @@ function CardsGrid({ items, navigate }: { items: any[]; navigate: any }) {
       {items.map((it) => (
         <ProductCard
           key={it.id}
+          id={it.id}
           imageSrc={it.image}
           title={it.title}
           subtitle={it.subtitle}

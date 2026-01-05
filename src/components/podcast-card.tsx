@@ -2,23 +2,28 @@ import { cn } from "@/lib/utils";
 import { Heart, Play, Headphones } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
+import { useSavedItems } from "@/hooks/use-saved-items";
+
 type PodcastCardProps = {
+  id: string;
   imageSrc?: string;
   title?: string;
   host?: string;
   episodeCount?: number;
-  liked?: boolean;
   onClick?: () => void;
 };
 
 export function PodcastCard({
+  id,
   imageSrc = "/podcast-cover-art.png",
   title = "The Weekly Podcast",
   host = "Amazing Host",
   episodeCount = 24,
-  liked = false,
   onClick,
 }: PodcastCardProps) {
+  const { isSaved, toggleSave } = useSavedItems();
+  const liked = isSaved(id);
+
   return (
     <div
       className="group relative overflow-hidden rounded-xl border border-white/10 bg-[#151515] hover:ring-4 hover:ring-[#70E002] transition-all cursor-pointer"
@@ -36,12 +41,21 @@ export function PodcastCard({
       <button
         aria-label={liked ? "Remove from favorites" : "Add to favorites"}
         className="absolute right-3 top-3 z-10 inline-flex h-8 w-8 items-center justify-center rounded-full bg-black/60 ring-1 ring-white/10 transition-colors hover:bg-black/80"
-        onClick={(e) => e.stopPropagation()}
+        onClick={(e) => {
+          e.stopPropagation();
+          toggleSave({
+            id,
+            title,
+            image: imageSrc,
+            creator: host,
+            price: "Free" 
+          });
+        }}
       >
         <Heart
           className={cn(
             "h-4 w-4",
-            liked ? "fill-white text-white" : "text-white"
+            liked ? "fill-[#70E002] text-[#70E002]" : "text-white"
           )}
         />
       </button>

@@ -9,12 +9,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import GFooter from "./components/GFooter";
 import { PageLoader } from "@/components/ui/BrandedSpinner";
+import { useSavedItems } from "@/hooks/use-saved-items";
+import { Heart } from "lucide-react";
 
 const GCourseDetails = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { addItem } = useCart();
   const profile = useUserProfile();
+  const { isSaved, toggleSave } = useSavedItems();
 
   const [courseData, setCourseData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -248,7 +251,26 @@ const GCourseDetails = () => {
               >
                 Add to Cart ({courseData.price})
               </Button>
-            </div>
+              <Button
+                variant="outline"
+                onClick={() => {
+                   if (courseData) {
+                      toggleSave({
+                        id: courseData.id,
+                        title: courseData.title,
+                        image: courseData.image,
+                        creator: courseData.creator,
+                        price: courseData.price,
+                      });
+                   }
+                }}
+                className={`border-gray-700 hover:border-[#70E002] hover:bg-[#70E002] hover:text-black px-4 py-3 rounded-xl ${
+                    courseData && isSaved(courseData.id) ? "bg-[#70E002]/20 border-[#70E002] text-[#70E002]" : ""
+                }`}
+              >
+                 <Heart className={`w-5 h-5 ${courseData && isSaved(courseData.id) ? "fill-current" : ""}`} />
+              </Button>
+            </div> // End of buttons div 
           </div>
         </div>
       </div>
