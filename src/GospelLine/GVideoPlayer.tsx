@@ -11,8 +11,10 @@ import {
   Volume2,
   Maximize,
   Settings,
+  Lock,
 } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
+import { useToast } from "@/hooks/use-toast";
 import GFooter from "./components/GFooter";
 
 interface CourseData {
@@ -32,11 +34,18 @@ export default function GVideoPlayer() {
   const courseData = location.state as CourseData;
   const { addItem } = useCart();
 
+  const { toast } = useToast();
+
   const [searchQuery, setSearchQuery] = useState("");
   const [userName, setUserName] = useState<string | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [allLessons, setAllLessons] = useState<any[]>([]);
+  const [currentLesson, setCurrentLesson] = useState<any>(null);
+  const [hasPurchased, setHasPurchased] = useState(false);
+  const [isLoadingAccess, setIsLoadingAccess] = useState(true);
 
   useEffect(() => {
     const updateFromSession = (session: any) => {
@@ -44,6 +53,7 @@ export default function GVideoPlayer() {
       setUserName(user?.user_metadata?.full_name || null);
       setUserEmail(user?.email || null);
       setAvatarUrl(user?.user_metadata?.avatar_url || null);
+      setUserId(user?.id || null);
 
       if (user) {
         supabase
@@ -76,37 +86,108 @@ export default function GVideoPlayer() {
     navigate("/login");
   };
 
-  // Sample recommended courses
-  const recommendedCourses = [
-    {
-      id: "1",
-      image: "/assets/dashboard-images/face.jpg",
-      title: "The Future Of AI In Everyday Products",
-      creator: "Jsify",
-      price: "$18",
-    },
-    {
-      id: "2",
-      image: "/assets/gospel.png",
-      title: "Firm Foundation",
-      creator: "Faith Academy",
-      price: "$18",
-    },
-    {
-      id: "3",
-      image: "/assets/dashboard-images/lady.jpg",
-      title: "The Silent Trauma Of Millenials",
-      creator: "The House Chronicles",
-      price: "$18",
-    },
-    {
-      id: "4",
-      image: "/assets/dashboard-images/only.jpg",
-      title: "The Future Of AI In Everyday Products",
-      creator: "Jsify",
-      price: "$18",
-    },
-  ];
+  // Fetch lessons and check purchase status
+  useEffect(() => {
+    const fetchAccessData = async () => {
+      if (!courseData?.id) return;
+      
+      setIsLoadingAccess(true);
+      
+      try {
+        // Fetch all lessons for this course
+        const { data: lessonsData } = await supabase
+          .from('course_lessons')
+          .select('id, title, video_url, order_number, is_preview, duration')
+          .eq('course_id', courseData.id)
+          .order('order_number', { ascending: true });
+
+        if (lessonsData) {
+          setAllLessons(lessonsData);
+          
+          // Set current lesson - prefer preview for unpurchased users
+          if (lessonsData.length > 0) {
+            const initialLesson = lessonsData.find(l => l.is_preview) || lessonsData[0];
+            setCurrentLesson(initialLesson);
+          }
+        }
+
+        // Check if user has purchased this course
+        if (userId) {
+          const { data: purchaseData } = await supabase
+            .from("purchases")
+            .select("id")
+            .eq("user_id", userId)
+            .eq("product_id", courseData.id)
+            .maybeSingle();
+
+          setHasPurchased(!!purchaseData);
+        } else {
+          setHasPurchased(false);
+        }
+      } catch (err) {
+        console.error("Error fetching access data:", err);
+      } finally {
+        setIsLoadingAccess(false);
+      }
+    };
+
+    fetchAccessData();
+  }, [courseData?.id, userId]);
+
+  // Handle lesson selection with access control
+  const handleLessonSelect = (lesson: any) => {
+    const canAccess = hasPurchased || lesson.is_preview;
+    
+    if (!canAccess) {
+      toast({
+        title: "Content Locked 🔒",
+        description: "Purchase this course to unlock all lessons.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setCurrentLesson(lesson);
+  };
+
+  const [recommendedCourses, setRecommendedCourses] = useState<any[]>([]);
+  const [isLoadingRecommendations, setIsLoadingRecommendations] = useState(true);
+
+  // Fetch similar Gospel courses
+  useEffect(() => {
+    const fetchRecommendedCourses = async () => {
+      if (!courseData?.id) return;
+      
+      setIsLoadingRecommendations(true);
+      try {
+        const { data, error } = await supabase
+          .from("products")
+          .select("id, title, image_url, instructor, price")
+          .eq("brand", "gospeline")
+          .neq("id", courseData.id)
+          .limit(4)
+          .order("created_at", { ascending: false });
+
+        if (data && !error) {
+          setRecommendedCourses(
+            data.map((item) => ({
+              id: item.id,
+              image: item.image_url || "/assets/gospel.png",
+              title: item.title,
+              creator: item.instructor || "Gospeline",
+              price: `₦${item.price}`,
+            }))
+          );
+        }
+      } catch (err) {
+        console.error("Error fetching recommendations:", err);
+      } finally {
+        setIsLoadingRecommendations(false);
+      }
+    };
+
+    fetchRecommendedCourses();
+  }, [courseData?.id]);
 
   if (!courseData) {
     return (
@@ -204,15 +285,86 @@ export default function GVideoPlayer() {
               {userName || "John Doe"}
             </span>
             <span>•</span>
-            <span>{courseData.lessons || 32} Lessons</span>
+            <span>{allLessons.length || courseData.lessons || 0} Lessons</span>
             <span>•</span>
             <span>{courseData.date || "12-08-2025"}</span>
           </div>
           <p className="text-sm sm:text-base text-gray-300 leading-relaxed max-w-4xl">
-            {courseData.description ||
-              "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."}
+            {courseData.description || "No description available for this course."}
           </p>
         </div>
+
+        {/* Lessons List */}
+        {allLessons.length > 0 && (
+          <div className="mt-8 space-y-2">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold">Course Lessons</h2>
+              {hasPurchased && (
+                <span className="text-xs text-[#70E002] bg-[#70E002]/10 px-2 py-1 rounded-full">
+                  Purchased ✓
+                </span>
+              )}
+            </div>
+            {isLoadingAccess ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#70E002]"></div>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {allLessons.map((lesson: any, index: number) => {
+                  const canAccess = hasPurchased || lesson.is_preview;
+                  const isActive = currentLesson?.id === lesson.id;
+                  
+                  return (
+                    <div
+                      key={lesson.id}
+                      onClick={() => handleLessonSelect(lesson)}
+                      className={`p-4 rounded-lg border cursor-pointer transition-all ${
+                        isActive
+                          ? "border-[#70E002] bg-[#70E002]/10"
+                          : "border-gray-800 hover:bg-gray-900 hover:border-[#70E002]"
+                      } ${!canAccess ? "opacity-60" : ""}`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
+                            isActive ? "bg-[#70E002] text-black" : "bg-white/10 text-white"
+                          }`}>
+                            {canAccess ? (
+                              index + 1
+                            ) : (
+                              <Lock className="w-3.5 h-3.5" />
+                            )}
+                          </div>
+                          <div>
+                            <h3 className={`font-medium ${isActive ? "text-[#70E002]" : "text-white"}`}>
+                              {lesson.title}
+                            </h3>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              {lesson.duration && (
+                                <span className="text-sm text-gray-400">{lesson.duration}</span>
+                              )}
+                              {lesson.is_preview && (
+                                <span className="text-xs text-[#70E002] bg-[#70E002]/10 px-1.5 py-0.5 rounded">
+                                  Preview
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        {canAccess ? (
+                          <Play className={`w-5 h-5 ${isActive ? "text-[#70E002]" : "text-gray-400"}`} />
+                        ) : (
+                          <Lock className="w-4 h-4 text-gray-500" />
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* You Might Also Like Section */}
@@ -220,61 +372,50 @@ export default function GVideoPlayer() {
         <h2 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8">
           You Might Also Like
         </h2>
-        <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-6">
-          {recommendedCourses.map((course) => (
-            <CourseCard
-              key={course.id}
-              id={course.id}
-              image={course.image}
-              title={course.title}
-              creator={course.creator}
-              price={course.price}
-              accent="lime"
-              onAddToCart={() => {
-                addItem({
-                  id: course.id,
-                  title: course.title,
-                  price: parseFloat(course.price.replace(/[^\d.]/g, "")),
-                  image: course.image,
-                  creator: course.creator,
-                });
-                navigate("/gospel-cart");
-              }}
-              onViewDetails={() =>
-                navigate("/gospel-course-details", { state: course })
-              }
-            />
-          ))}
-        </div>
-        <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-6 mt-4 sm:mt-6">
-          {recommendedCourses.map((course, idx) => (
-            <CourseCard
-              key={`${course.id}-${idx}`}
-              id={`${course.id}-${idx}`}
-              image={course.image}
-              title={course.title}
-              creator={course.creator}
-              price={course.price}
-              accent="lime"
-              onAddToCart={() => {
-                addItem({
-                  id: `${course.id}-${idx}`,
-                  title: course.title,
-                  price: parseFloat(course.price.replace(/[^\d.]/g, "")),
-                  image: course.image,
-                  creator: course.creator,
-                });
-                navigate("/cart");
-              }}
-              onViewDetails={() =>
-                navigate("/gospel-course-details", { state: course })
-              }
-            />
-          ))}
-        </div>
+        {isLoadingRecommendations ? (
+          <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-6">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="animate-pulse">
+                <div className="aspect-video bg-gray-800 rounded-lg mb-3"></div>
+                <div className="h-4 bg-gray-800 rounded w-3/4 mb-2"></div>
+                <div className="h-3 bg-gray-800 rounded w-1/2"></div>
+              </div>
+            ))}
+          </div>
+        ) : recommendedCourses.length === 0 ? (
+          <p className="text-gray-400 text-center py-8">No recommendations available yet.</p>
+        ) : (
+          <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-6">
+            {recommendedCourses.map((course) => (
+              <CourseCard
+                key={course.id}
+                id={course.id}
+                image={course.image}
+                title={course.title}
+                creator={course.creator}
+                price={course.price}
+                accent="lime"
+                onAddToCart={() => {
+                  addItem({
+                    id: course.id,
+                    title: course.title,
+                    price: parseFloat(course.price.replace(/[^\d.]/g, "")),
+                    image: course.image,
+                    creator: course.creator,
+                  });
+                  navigate("/gospel-cart");
+                }}
+                onViewDetails={() =>
+                  navigate("/gospelline-course-details", { state: course })
+                }
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       <GFooter />
     </main>
   );
 }
+

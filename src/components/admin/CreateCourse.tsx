@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Plus } from "lucide-react";
+import { Plus, Save, BookOpen, User, Settings, Image, Video, GraduationCap } from "lucide-react";
 import {
   Form,
   FormControl,
@@ -21,6 +21,8 @@ import {
 import { VideoUpload } from "./VideoUpload";
 import { ImageUpload } from "./ImageUpload";
 import { LessonForm } from "./LessonForm";
+import { AdminLayout } from "./AdminLayout";
+import { BrandedSpinner } from "@/components/ui/BrandedSpinner";
 import {
   Select,
   SelectContent,
@@ -49,6 +51,7 @@ interface Lesson {
   duration: string;
   videoFile: File | null;
   order_number: number;
+  is_preview?: boolean;
 }
 
 export const CreateCourse = ({
@@ -68,6 +71,7 @@ export const CreateCourse = ({
       videoFile: null,
       order_number: 1,
       id: `lesson-${Date.now()}`,
+      is_preview: false,
     },
   ]);
 
@@ -95,6 +99,7 @@ export const CreateCourse = ({
         videoFile: null,
         order_number: lessons.length + 1,
         id: `lesson-${Date.now()}`,
+        is_preview: false,
       },
     ]);
   };
@@ -276,6 +281,7 @@ export const CreateCourse = ({
               duration: lesson.duration,
               video_url: videoUrl,
               order_number: lesson.order_number,
+              is_preview: lesson.is_preview || false,
             });
 
           if (lessonError) {
@@ -322,6 +328,7 @@ export const CreateCourse = ({
           videoFile: null,
           order_number: 1,
           id: `lesson-${Date.now()}`,
+          is_preview: false,
         },
       ]);
     } catch (error: any) {
@@ -337,201 +344,268 @@ export const CreateCourse = ({
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="title"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Course Title</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="e.g., Advanced React Development"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="price"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Price (₦)</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    placeholder="10000"
-                    {...field}
-                    onChange={(e) =>
-                      field.onChange(Number.parseFloat(e.target.value))
-                    }
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="instructor"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Instructor Name</FormLabel>
-                <FormControl>
-                  <Input placeholder="John Doe" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="instructor_role"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Instructor Role</FormLabel>
-                <FormControl>
-                  <Input placeholder="Senior Developer" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="level"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Level</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Beginner, Intermediate, Advanced"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="duration"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Total Duration</FormLabel>
-                <FormControl>
-                  <Input placeholder="e.g., 5 hours" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="brand"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Platform Label</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select platform" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="jsity">Jsity</SelectItem>
-                    <SelectItem value="thc">THC</SelectItem>
-                    <SelectItem value="gospeline">Gospeline</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+    <AdminLayout>
+      <div className="max-w-5xl mx-auto space-y-8">
+        {/* Page Header */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-600 to-purple-800 flex items-center justify-center">
+              <BookOpen className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-white">Create New Course (Jsity)</h1>
+              <p className="text-zinc-400 text-sm">Fill in the details to publish a new course</p>
+            </div>
+          </div>
         </div>
 
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Description</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Describe what students will learn..."
-                  className="min-h-[100px]"
-                  {...field}
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            {/* Course Details Card */}
+            <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 overflow-hidden">
+              <div className="px-6 py-4 border-b border-zinc-800 flex items-center gap-3">
+                <Settings className="w-5 h-5 text-purple-400" />
+                <h2 className="font-semibold text-white">Course Details</h2>
+              </div>
+              <div className="p-6 space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="title"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-zinc-300">Course Title</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="e.g., Advanced React Development"
+                            className="bg-zinc-800/50 border-zinc-700 focus:border-purple-500 text-white placeholder:text-zinc-500"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="price"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-zinc-300">Price (₦)</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="10000"
+                            className="bg-zinc-800/50 border-zinc-700 focus:border-purple-500 text-white placeholder:text-zinc-500"
+                            {...field}
+                            onChange={(e) =>
+                              field.onChange(Number.parseFloat(e.target.value))
+                            }
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="level"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-zinc-300">Level</FormLabel>
+                        <FormControl>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <SelectTrigger className="bg-zinc-800/50 border-zinc-700 text-white">
+                              <SelectValue placeholder="Select level" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Beginner">Beginner</SelectItem>
+                              <SelectItem value="Intermediate">Intermediate</SelectItem>
+                              <SelectItem value="Advanced">Advanced</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="duration"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-zinc-300">Total Duration</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="e.g., 5 hours"
+                            className="bg-zinc-800/50 border-zinc-700 focus:border-purple-500 text-white placeholder:text-zinc-500"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-zinc-300">Description</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Describe what students will learn..."
+                          className="min-h-[120px] bg-zinc-800/50 border-zinc-700 focus:border-purple-500 text-white placeholder:text-zinc-500 resize-none"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+              </div>
+            </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <ImageUpload onFileSelect={setImageFile} currentFile={imageFile} />
-          <VideoUpload
-            label="Preview Video (5 mins)"
-            onFileSelect={setPreviewVideoFile}
-            currentFile={previewVideoFile}
-          />
-        </div>
+            {/* Instructor Card */}
+            <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 overflow-hidden">
+              <div className="px-6 py-4 border-b border-zinc-800 flex items-center gap-3">
+                <User className="w-5 h-5 text-purple-400" />
+                <h2 className="font-semibold text-white">Instructor Information</h2>
+              </div>
+              <div className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="instructor"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-zinc-300">Instructor Name</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="John Doe"
+                            className="bg-zinc-800/50 border-zinc-700 focus:border-purple-500 text-white placeholder:text-zinc-500"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-        <div className="border-t pt-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold">Course Lessons</h3>
-            <Button
-              type="button"
-              onClick={addLesson}
-              variant="outline"
-              size="sm"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Add Lesson
-            </Button>
-          </div>
+                  <FormField
+                    control={form.control}
+                    name="instructor_role"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-zinc-300">Instructor Role</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Senior Developer"
+                            className="bg-zinc-800/50 border-zinc-700 focus:border-purple-500 text-white placeholder:text-zinc-500"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+            </div>
 
-          <div className="space-y-4">
-            {lessons.map((lesson, index) => (
-              <LessonForm
-                key={lesson.id}
-                lesson={lesson}
-                index={index}
-                onUpdate={(field, value) =>
-                  updateLesson(lesson.id, field, value)
-                }
-                onRemove={() => removeLesson(lesson.id)}
-                showRemove={lessons.length > 1}
-              />
-            ))}
-          </div>
-        </div>
+            {/* Media Upload Card */}
+            <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 overflow-hidden">
+              <div className="px-6 py-4 border-b border-zinc-800 flex items-center gap-3">
+                <Image className="w-5 h-5 text-purple-400" />
+                <h2 className="font-semibold text-white">Course Media</h2>
+              </div>
+              <div className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-zinc-300">Course Thumbnail</label>
+                    <ImageUpload onFileSelect={setImageFile} currentFile={imageFile} />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-zinc-300">Preview Video (5 mins)</label>
+                    <VideoUpload
+                      label=""
+                      onFileSelect={setPreviewVideoFile}
+                      currentFile={previewVideoFile}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
 
-        <Button type="submit" disabled={loading} className="w-full">
-          {loading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Creating Course...
-            </>
-          ) : (
-            "Create Course"
-          )}
-        </Button>
-      </form>
-    </Form>
+            {/* Lessons Card */}
+            <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 overflow-hidden">
+              <div className="px-6 py-4 border-b border-zinc-800 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <GraduationCap className="w-5 h-5 text-purple-400" />
+                  <h2 className="font-semibold text-white">Course Lessons</h2>
+                  <span className="text-xs text-zinc-500 bg-zinc-800 px-2 py-1 rounded-full">
+                    {lessons.length} {lessons.length === 1 ? 'lesson' : 'lessons'}
+                  </span>
+                </div>
+                <Button
+                  type="button"
+                  onClick={addLesson}
+                  variant="outline"
+                  size="sm"
+                  className="border-purple-500/50 text-purple-400 hover:bg-purple-500/10"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Lesson
+                </Button>
+              </div>
+              <div className="p-6 space-y-4">
+                {lessons.map((lesson, index) => (
+                  <LessonForm
+                    key={lesson.id}
+                    lesson={lesson}
+                    index={index}
+                    onUpdate={(field, value) =>
+                      updateLesson(lesson.id, field, value)
+                    }
+                    onRemove={() => removeLesson(lesson.id)}
+                    showRemove={lessons.length > 1}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Submit Button */}
+            <div className="flex justify-end">
+              <Button
+                type="submit"
+                disabled={loading}
+                className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 text-base"
+              >
+                {loading ? (
+                  <div className="flex items-center gap-2">
+                    <BrandedSpinner size="sm" />
+                    <span>Creating Course...</span>
+                  </div>
+                ) : (
+                  <>
+                    <Save className="w-5 h-5 mr-2" />
+                    Create Course
+                  </>
+                )}
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </div>
+    </AdminLayout>
   );
 };

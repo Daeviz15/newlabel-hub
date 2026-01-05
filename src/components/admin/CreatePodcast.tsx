@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Plus } from "lucide-react";
+import { Plus, Save, Mic2, User, Settings, Image, Video, Disc } from "lucide-react";
 import {
   Form,
   FormControl,
@@ -21,13 +21,8 @@ import {
 import { VideoUpload } from "./VideoUpload";
 import { ImageUpload } from "./ImageUpload";
 import { EpisodeForm } from "./EpisodeForm";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { AdminLayout } from "./AdminLayout";
+import { BrandedSpinner } from "@/components/ui/BrandedSpinner";
 
 const podcastSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters"),
@@ -35,8 +30,8 @@ const podcastSchema = z.object({
   price: z.number().min(0, "Price must be positive"),
   instructor: z.string().min(2, "Host name is required"),
   instructor_role: z.string().min(2, "Host role is required"), // e.g. "Main Host"
-  level: z.string().min(1, "Category/Genre is required"), // Reusing 'level' for Genre
-  duration: z.string().min(1, "Total Duration is required"),
+  level: z.string().min(1, "Genre is required"),
+  duration: z.string().min(1, "Avg Duration is required"),
   brand: z.string().min(1, "Brand is required"),
 });
 
@@ -52,7 +47,7 @@ interface Episode {
 }
 
 export const CreatePodcast = ({
-  brand = "jsity",
+  brand = "thc",
 }: {
   brand?: "jsity" | "thc";
 }) => {
@@ -280,205 +275,266 @@ export const CreatePodcast = ({
         title: "Error",
         description: error.message || "An unexpected error occurred",
         variant: "destructive",
-      });
+        });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="title"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Podcast Series Title</FormLabel>
-                <FormControl>
-                  <Input placeholder="e.g., Tech Talk Daily" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="price"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Price (₦) - Optional</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    placeholder="0"
-                    {...field}
-                    onChange={(e) =>
-                      field.onChange(Number.parseFloat(e.target.value))
-                    }
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="instructor"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Host Name</FormLabel>
-                <FormControl>
-                  <Input placeholder="Jane Doe" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="instructor_role"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Role</FormLabel>
-                <FormControl>
-                  <Input placeholder="Host / Creator" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="level"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Genre</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Technology, Lifestyle, Comedy"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="duration"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Avg. Duration</FormLabel>
-                <FormControl>
-                  <Input placeholder="e.g., 45 mins per episode" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="brand"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Platform Label</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select platform" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="jsity">Jsity</SelectItem>
-                    <SelectItem value="thc">THC</SelectItem>
-                    <SelectItem value="gospeline">Gospeline</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+    <AdminLayout>
+      <div className="max-w-5xl mx-auto space-y-8">
+        {/* Page Header */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-600 to-purple-800 flex items-center justify-center">
+              <Mic2 className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-white">Create New Podcast Series (THC)</h1>
+              <p className="text-zinc-400 text-sm">Fill in the details to publish a new podcast series</p>
+            </div>
+          </div>
         </div>
 
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Series Description</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="What is this podcast series about?"
-                  className="min-h-[100px]"
-                  {...field}
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            {/* Podcast Details Card */}
+            <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 overflow-hidden">
+              <div className="px-6 py-4 border-b border-zinc-800 flex items-center gap-3">
+                <Settings className="w-5 h-5 text-purple-400" />
+                <h2 className="font-semibold text-white">Series Details</h2>
+              </div>
+              <div className="p-6 space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="title"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-zinc-300">Series Title</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="e.g., Tech Talk Daily"
+                            className="bg-zinc-800/50 border-zinc-700 focus:border-purple-500 text-white placeholder:text-zinc-500"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="price"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-zinc-300">Price (₦) - Optional</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="0"
+                            className="bg-zinc-800/50 border-zinc-700 focus:border-purple-500 text-white placeholder:text-zinc-500"
+                            {...field}
+                            onChange={(e) =>
+                              field.onChange(Number.parseFloat(e.target.value))
+                            }
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="level"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-zinc-300">Genre</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Technology, Lifestyle, Comedy"
+                            className="bg-zinc-800/50 border-zinc-700 focus:border-purple-500 text-white placeholder:text-zinc-500"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="duration"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-zinc-300">Avg. Duration</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="e.g., 45 mins per episode"
+                            className="bg-zinc-800/50 border-zinc-700 focus:border-purple-500 text-white placeholder:text-zinc-500"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-zinc-300">Series Description</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="What is this podcast series about?"
+                          className="min-h-[120px] bg-zinc-800/50 border-zinc-700 focus:border-purple-500 text-white placeholder:text-zinc-500 resize-none"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+              </div>
+            </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <ImageUpload onFileSelect={setImageFile} currentFile={imageFile} />
-          <VideoUpload
-            label="Series Trailer (Optional)"
-            onFileSelect={setPreviewVideoFile}
-            currentFile={previewVideoFile}
-          />
-        </div>
+            {/* Host Card */}
+            <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 overflow-hidden">
+              <div className="px-6 py-4 border-b border-zinc-800 flex items-center gap-3">
+                <User className="w-5 h-5 text-purple-400" />
+                <h2 className="font-semibold text-white">Host Information</h2>
+              </div>
+              <div className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="instructor"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-zinc-300">Host Name</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Jane Doe"
+                            className="bg-zinc-800/50 border-zinc-700 focus:border-purple-500 text-white placeholder:text-zinc-500"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-        <div className="border-t pt-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold">Episodes</h3>
-            <Button
-              type="button"
-              onClick={addEpisode}
-              variant="outline"
-              size="sm"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Add Episode
-            </Button>
-          </div>
+                  <FormField
+                    control={form.control}
+                    name="instructor_role"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-zinc-300">Role</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Host / Creator"
+                            className="bg-zinc-800/50 border-zinc-700 focus:border-purple-500 text-white placeholder:text-zinc-500"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+            </div>
 
-          <div className="space-y-4">
-            {episodes.map((episode, index) => (
-              <EpisodeForm
-                key={episode.id}
-                episode={episode}
-                index={index}
-                onUpdate={(field, value) =>
-                  updateEpisode(episode.id, field, value)
-                }
-                onRemove={() => removeEpisode(episode.id)}
-                showRemove={episodes.length > 1}
-              />
-            ))}
-          </div>
-        </div>
+            {/* Media Upload Card */}
+            <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 overflow-hidden">
+              <div className="px-6 py-4 border-b border-zinc-800 flex items-center gap-3">
+                <Image className="w-5 h-5 text-purple-400" />
+                <h2 className="font-semibold text-white">Podcast Media</h2>
+              </div>
+              <div className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-zinc-300">Cover Art</label>
+                    <ImageUpload onFileSelect={setImageFile} currentFile={imageFile} />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-zinc-300">Series Trailer (Optional)</label>
+                    <VideoUpload
+                      label=""
+                      onFileSelect={setPreviewVideoFile}
+                      currentFile={previewVideoFile}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
 
-        <Button type="submit" disabled={loading} className="w-full">
-          {loading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Creating Podcast...
-            </>
-          ) : (
-            "Create Podcast Series"
-          )}
-        </Button>
-      </form>
-    </Form>
+            {/* Episodes Card */}
+            <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 overflow-hidden">
+              <div className="px-6 py-4 border-b border-zinc-800 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Disc className="w-5 h-5 text-purple-400" />
+                  <h2 className="font-semibold text-white">Episodes</h2>
+                  <span className="text-xs text-zinc-500 bg-zinc-800 px-2 py-1 rounded-full">
+                    {episodes.length} {episodes.length === 1 ? 'episode' : 'episodes'}
+                  </span>
+                </div>
+                <Button
+                  type="button"
+                  onClick={addEpisode}
+                  variant="outline"
+                  size="sm"
+                  className="border-purple-500/50 text-purple-400 hover:bg-purple-500/10"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Episode
+                </Button>
+              </div>
+              <div className="p-6 space-y-4">
+                {episodes.map((episode, index) => (
+                  <EpisodeForm
+                    key={episode.id}
+                    episode={episode}
+                    index={index}
+                    onUpdate={(field, value) =>
+                      updateEpisode(episode.id, field, value)
+                    }
+                    onRemove={() => removeEpisode(episode.id)}
+                    showRemove={episodes.length > 1}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Submit Button */}
+            <div className="flex justify-end">
+              <Button
+                type="submit"
+                disabled={loading}
+                className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 text-base"
+              >
+                {loading ? (
+                  <div className="flex items-center gap-2">
+                    <BrandedSpinner size="sm" />
+                    <span>Creating Podcast...</span>
+                  </div>
+                ) : (
+                  <>
+                    <Save className="w-5 h-5 mr-2" />
+                    Create Podcast Series
+                  </>
+                )}
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </div>
+    </AdminLayout>
   );
 };

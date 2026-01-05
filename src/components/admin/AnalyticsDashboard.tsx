@@ -17,9 +17,11 @@ import {
   RefreshCw,
   Target,
   ArrowRightLeft,
+  BarChart3,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { AdminLayout } from "./AdminLayout";
 import {
   ChartContainer,
   ChartTooltip,
@@ -153,13 +155,15 @@ export function AnalyticsDashboard() {
 
   if (error) {
     return (
-      <div className="text-center py-8">
-        <p className="text-destructive mb-4">{error}</p>
-        <Button onClick={refetch} variant="outline">
-          <RefreshCw className="mr-2 h-4 w-4" />
-          Retry
-        </Button>
-      </div>
+      <AdminLayout>
+        <div className="text-center py-20">
+          <p className="text-destructive mb-4">{error}</p>
+          <Button onClick={refetch} variant="outline">
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Retry
+          </Button>
+        </div>
+      </AdminLayout>
     );
   }
 
@@ -175,14 +179,20 @@ export function AnalyticsDashboard() {
   };
 
   return (
+    <AdminLayout>
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold">Analytics Overview</h2>
-          <p className="text-muted-foreground">Last 30 days performance</p>
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-600 to-purple-800 flex items-center justify-center">
+            <BarChart3 className="w-6 h-6 text-white" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-white">Analytics Overview</h1>
+            <p className="text-zinc-400 text-sm">Last 30 days performance</p>
+          </div>
         </div>
-        <Button onClick={refetch} variant="outline" size="sm" disabled={loading}>
+        <Button onClick={refetch} variant="outline" size="sm" disabled={loading} className="border-zinc-700 text-zinc-300 hover:bg-zinc-800">
           <RefreshCw className={`mr-2 h-4 w-4 ${loading ? "animate-spin" : ""}`} />
           Refresh
         </Button>
@@ -489,5 +499,6 @@ export function AnalyticsDashboard() {
         </CardContent>
       </Card>
     </div>
+    </AdminLayout>
   );
 }

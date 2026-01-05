@@ -122,9 +122,18 @@ export default function VideoDetails() {
 
   if (!courseData) {
     return (
-      <div className="min-h-screen bg-[#0b0b0b] flex items-center justify-center">
-        <p className="text-white">No course data available</p>
-      </div>
+      <main className="min-h-screen bg-[#0b0b0b] flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-white mb-4">Course Not Found</h1>
+          <p className="text-gray-400 mb-6">The course you're looking for doesn't exist or has been removed.</p>
+          <button 
+            onClick={() => navigate("/dashboard")}
+            className="bg-lime-500 text-black px-6 py-2 rounded-lg hover:bg-lime-600 transition-colors"
+          >
+            Back to Dashboard
+          </button>
+        </div>
+      </main>
     );
   }
 

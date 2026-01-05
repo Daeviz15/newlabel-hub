@@ -11,7 +11,7 @@ import { BrandedSpinner } from "@/components/ui/BrandedSpinner";
 import { useUserProfile } from "@/hooks/use-user-profile";
 import { JHomeHeader } from "./components/home-header";
 import ChannelMetricsCarousel from "@/components/channel-metrics-carousel";
-import { EmptyState } from "@/components/ui/empty-state";
+import { EmptyCoursesGrid } from "@/components/ui/ContentComingSoon";
 
 export default function Jdashboard() {
   const navigate = useNavigate();
@@ -37,6 +37,7 @@ export default function Jdashboard() {
             subtitle: course.instructor || "Instructor",
             role: course.instructor_role || "Expert",
             image: course.image_url || "/assets/dashboard-images/face.jpg",
+            description: course.description || "",
           }))
         );
       }
@@ -66,6 +67,7 @@ export default function Jdashboard() {
                 role: newCourse.instructor_role || "Expert",
                 image:
                   newCourse.image_url || "/assets/dashboard-images/face.jpg",
+                description: newCourse.description || "",
               },
               ...prev,
             ]);
@@ -124,10 +126,7 @@ export default function Jdashboard() {
             </div>
           ) : filteredCourses.length === 0 ? (
             <div className="py-20">
-              <EmptyState
-                title="No Jsity content yet"
-                description="We're working on bringing you amazing courses. Stay tuned!"
-              />
+              <EmptyCoursesGrid message="No Jsity content yet - amazing courses coming soon!" />
             </div>
           ) : (
             <>
@@ -227,6 +226,7 @@ function CardsGrid({ items, navigate }: { items: any[]; navigate: any }) {
                 price: it.price,
                 instructor: it.subtitle,
                 role: it.role,
+                description: it.description,
               },
             })
           }

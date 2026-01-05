@@ -33,35 +33,80 @@ export default function VideoDetails() {
 
   const [courseData, setCourseData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [recommendedCourses, setRecommendedCourses] = useState<any[]>([]);
+  const [isLoadingRecommendations, setIsLoadingRecommendations] = useState(true);
 
   useEffect(() => {
     const fetchCourse = async () => {
-      // If we have data from navigation, use it
-      if (location.state) {
-        setCourseData(location.state);
-        setLoading(false);
-        return;
+      let currentData = location.state;
+
+      // Ensure we have something to display immediately
+      if (currentData) {
+        setCourseData(currentData);
+        if (currentData.description) {
+           setLoading(false);
+        }
       }
 
-      // Otherwise fetch from database
-      // You'd need to pass the product ID in the URL somehow
-      const { data } = await supabase
-        .from("products")
-        .select("*")
-        .limit(1)
-        .single();
+      const queryId = currentData?.id || currentData?.courseId;
 
-      if (data) {
-        setCourseData({
-          id: data.id,
-          image: data.image_url,
-          title: data.title,
-          creator: data.instructor,
-          price: `₦${data.price}`,
-          instructor: data.instructor,
-          students: 240,
-          rating: 4.8,
-        });
+      if (queryId) {
+        const { data, error } = await supabase
+          .from("products")
+          .select("*")
+          .eq("id", queryId)
+          .single();
+
+        // Fetch actual lesson count
+        const { count } = await supabase
+          .from("course_lessons")
+          .select("*", { count: "exact", head: true })
+          .eq("course_id", queryId);
+
+        if (data && !error) {
+          setCourseData(prev => ({
+            ...prev,
+            id: data.id,
+            image: data.image_url,
+            title: data.title,
+            creator: data.instructor,
+            price: `₦${data.price}`,
+            instructor: data.instructor,
+            students: 240,
+            rating: 4.8,
+            description: data.description || "",
+            lessons: count || 0,
+            date: new Date(data.created_at).toLocaleDateString('en-GB')
+          }));
+        }
+      } else if (!currentData) {
+         // Fallback fetch if NO state and NO ID
+          const { data, error } = await supabase
+            .from("products")
+            .select("*")
+            .eq("brand", "jsity")
+            .limit(1)
+            .single();
+          
+          if (data && !error) {
+             const { count } = await supabase
+              .from("course_lessons")
+              .select("*", { count: "exact", head: true })
+              .eq("course_id", data.id);
+
+            setCourseData({
+              id: data.id,
+              image: data.image_url,
+              title: data.title,
+              creator: data.instructor,
+              price: `₦${data.price}`,
+              instructor: data.instructor,
+              students: 240,
+              rating: 4.8,
+              description: data.description || "",
+              lessons: count || 0,
+            });
+          }
       }
       setLoading(false);
     };
@@ -69,12 +114,61 @@ export default function VideoDetails() {
     fetchCourse();
   }, [location.state]);
 
+  // Fetch similar Jsity courses
+  useEffect(() => {
+    const fetchRecommendedCourses = async () => {
+      if (!courseData?.id) return;
+      
+      setIsLoadingRecommendations(true);
+      try {
+        const { data, error } = await supabase
+          .from("products")
+          .select("id, title, image_url, instructor, price")
+          .eq("brand", "jsity")
+          .neq("id", courseData.id)
+          .limit(4)
+          .order("created_at", { ascending: false });
+
+        if (data && !error) {
+          setRecommendedCourses(
+            data.map((item) => ({
+              id: item.id,
+              image: item.image_url || "/assets/dashboard-images/face.jpg",
+              title: item.title,
+              creator: item.instructor || "Jsity",
+              price: `₦${item.price}`,
+            }))
+          );
+        }
+      } catch (err) {
+        console.error("Error fetching recommendations:", err);
+      } finally {
+        setIsLoadingRecommendations(false);
+      }
+    };
+
+    fetchRecommendedCourses();
+  }, [courseData?.id]);
+
   if (loading) {
     return <PageLoader message="Loading course details..." />;
   }
 
   if (!courseData) {
-    return <div>Course not found</div>;
+    return (
+      <main className="bg-[#0b0b0b] min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-white mb-4">Course Not Found</h1>
+          <p className="text-gray-400 mb-6">The course you're looking for doesn't exist or has been removed.</p>
+          <button 
+            onClick={() => navigate("/jdashboard")}
+            className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors"
+          >
+            Back to Jsity
+          </button>
+        </div>
+      </main>
+    );
   }
 
   const handleAddToCart = () => {
@@ -102,41 +196,21 @@ export default function VideoDetails() {
       },
     });
 
+  const handlePurchaseNow = () => {
+    addItem({
+      id: courseData.id,
+      title: courseData.title,
+      price: parseFloat(courseData.price.replace(/[^\d.]/g, "")),
+      image: courseData.image,
+      creator: courseData.creator,
+    });
+    navigate("/checkout");
+  };
+
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     navigate("/login");
   };
-
-  const recommendedCourses = [
-    {
-      id: "1",
-      image: "/assets/dashboard-images/face.jpg",
-      title: "The Future Of AI In Everyday Products",
-      creator: "Jsify",
-      price: "$18",
-    },
-    {
-      id: "2",
-      image: "/assets/gospel.png",
-      title: "Firm Foundation",
-      creator: "Faith Academy",
-      price: "$18",
-    },
-    {
-      id: "3",
-      image: "/assets/dashboard-images/lady.jpg",
-      title: "The Silent Trauma Of Millenials",
-      creator: "The House Chronicles",
-      price: "$18",
-    },
-    {
-      id: "4",
-      image: "/assets/dashboard-images/only.jpg",
-      title: "The Future Of AI In Everyday Products",
-      creator: "Jsify",
-      price: "$18",
-    },
-  ];
 
   const curriculum = [
     {
@@ -270,8 +344,7 @@ export default function VideoDetails() {
             </div>
 
             <p className="text-sm sm:text-base text-gray-300 leading-relaxed">
-              {courseData.description ||
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."}
+              {courseData.description || "No description available for this course."}
             </p>
 
             {/* Action Buttons */}
@@ -295,7 +368,10 @@ export default function VideoDetails() {
                   {isItemSaved ? "Saved" : "Save"}
                 </Button>
               </div>
-              <Button className="bg-purple-400 hover:bg-purple-500 text-black font-bold w-full">
+              <Button 
+                onClick={handlePurchaseNow}
+                className="bg-purple-400 hover:bg-purple-500 text-black font-bold w-full"
+              >
                 Purchase now
               </Button>
             </div>
@@ -308,60 +384,47 @@ export default function VideoDetails() {
         <h2 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8">
           You Might Also Like
         </h2>
-        <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-6">
-          {recommendedCourses.map((course) => (
-            <CourseCard
-              key={course.id}
-              id={course.id}
-              image={course.image}
-              title={course.title}
-              creator={course.creator}
-              price={course.price}
-              accent="purple"
-              className="hover:bg-purple-500/20"
-              onAddToCart={() => {
-                addItem({
-                  id: course.id,
-                  title: course.title,
-                  price: parseFloat(course.price.replace(/[^\d.]/g, "")),
-                  image: course.image,
-                  creator: course.creator,
-                });
-                navigate("/cart");
-              }}
-              onViewDetails={() =>
-                navigate("/jsity-course-details", { state: course })
-              }
-            />
-          ))}
-        </div>
-        <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-6 mt-4 sm:mt-6">
-          {recommendedCourses.map((course, idx) => (
-            <CourseCard
-              key={`${course.id}-${idx}`}
-              id={`${course.id}-${idx}`}
-              image={course.image}
-              title={course.title}
-              creator={course.creator}
-              price={course.price}
-              accent="purple"
-              className="hover:bg-purple-500/20"
-              onAddToCart={() => {
-                addItem({
-                  id: `${course.id}-${idx}`,
-                  title: course.title,
-                  price: parseFloat(course.price.replace(/[^\d.]/g, "")),
-                  image: course.image,
-                  creator: course.creator,
-                });
-                navigate("/cart");
-              }}
-              onViewDetails={() =>
-                navigate("/jsity-course-details", { state: course })
-              }
-            />
-          ))}
-        </div>
+        {isLoadingRecommendations ? (
+          <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-6">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="animate-pulse">
+                <div className="aspect-video bg-gray-800 rounded-lg mb-3"></div>
+                <div className="h-4 bg-gray-800 rounded w-3/4 mb-2"></div>
+                <div className="h-3 bg-gray-800 rounded w-1/2"></div>
+              </div>
+            ))}
+          </div>
+        ) : recommendedCourses.length === 0 ? (
+          <p className="text-gray-400 text-center py-8">No recommendations available yet.</p>
+        ) : (
+          <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-6">
+            {recommendedCourses.map((course) => (
+              <CourseCard
+                key={course.id}
+                id={course.id}
+                image={course.image}
+                title={course.title}
+                creator={course.creator}
+                price={course.price}
+                accent="purple"
+                className="hover:bg-purple-500/20"
+                onAddToCart={() => {
+                  addItem({
+                    id: course.id,
+                    title: course.title,
+                    price: parseFloat(course.price.replace(/[^\d.]/g, "")),
+                    image: course.image,
+                    creator: course.creator,
+                  });
+                  navigate("/jcart");
+                }}
+                onViewDetails={() =>
+                  navigate("/jsity-course-details", { state: course })
+                }
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       <JsityFooter />

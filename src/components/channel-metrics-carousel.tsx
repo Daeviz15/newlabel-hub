@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useCart } from "@/hooks/use-cart";
+import { useNavigate } from "react-router-dom";
 
 interface TrendingItem {
   id: string;
@@ -18,6 +20,19 @@ export default function ChannelMetricsCarousel({ accentColor = "green" }: Carous
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoPlay, setIsAutoPlay] = useState(true);
   const autoPlayRef = useRef<NodeJS.Timeout | null>(null);
+  const { addItem } = useCart();
+  const navigate = useNavigate();
+
+  const handleEnroll = (item: TrendingItem) => {
+    addItem({
+      id: item.id,
+      title: item.title,
+      price: parseFloat(item.price.replace(/[^\d.]/g, "")),
+      image: item.image,
+      creator: item.subtitle,
+    });
+    navigate("/checkout");
+  };
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -161,7 +176,10 @@ export default function ChannelMetricsCarousel({ accentColor = "green" }: Carous
                           <span className="text-xl md:text-3xl font-bold text-white">
                             {item.price}
                           </span>
-                          <button className={`px-6 md:px-8 py-2.5 md:py-3 rounded-xl font-bold text-sm md:text-base transition-all transform hover:scale-105 shadow-lg ${buttonColors[accentColor]}`}>
+                          <button 
+                            onClick={() => handleEnroll(item)}
+                            className={`px-6 md:px-8 py-2.5 md:py-3 rounded-xl font-bold text-sm md:text-base transition-all transform hover:scale-105 shadow-lg ${buttonColors[accentColor]}`}
+                          >
                             Enroll Now
                           </button>
                         </div>

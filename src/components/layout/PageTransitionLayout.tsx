@@ -6,25 +6,19 @@ import { PageLoader } from "@/components/ui/BrandedSpinner";
 const pageVariants = {
   initial: {
     opacity: 0,
-    y: 20,
-    scale: 0.99,
   },
   in: {
     opacity: 1,
-    y: 0,
-    scale: 1,
   },
   out: {
     opacity: 0,
-    y: -20,
-    scale: 0.99,
   },
 };
 
 const pageTransition = {
   type: "tween",
-  ease: "anticipate",
-  duration: 0.4,
+  ease: "easeOut",
+  duration: 0.3,
 } as const;
 
 export const PageTransitionLayout = ({ children }: { children?: ReactNode }) => {

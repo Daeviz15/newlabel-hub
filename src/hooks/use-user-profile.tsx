@@ -5,11 +5,13 @@ interface UserProfile {
   userName: string | null;
   userEmail: string | null;
   avatarUrl: string | null;
+  isLoading: boolean;
   refetch: () => void;
 }
 
 export function useUserProfile(): UserProfile {
-  const [profile, setProfile] = useState<Omit<UserProfile, 'refetch'>>({
+  const [isLoading, setIsLoading] = useState(true);
+  const [profile, setProfile] = useState<Omit<UserProfile, 'refetch' | 'isLoading'>>({
     userName: null,
     userEmail: null,
     avatarUrl: null,
@@ -34,18 +36,23 @@ export function useUserProfile(): UserProfile {
   };
 
   const fetchProfileData = useCallback(async (uid: string) => {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("full_name, avatar_url")
-      .eq("user_id", uid)
-      .maybeSingle();
-    
-    if (!error && data) {
-      setProfile((prev) => ({
-        ...prev,
-        userName: data.full_name || prev.userName,
-        avatarUrl: data.avatar_url || prev.avatarUrl,
-      }));
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("full_name, avatar_url")
+        .eq("user_id", uid)
+        .maybeSingle();
+      
+      if (!error && data) {
+        setProfile((prev) => ({
+          ...prev,
+          userName: data.full_name || prev.userName,
+          avatarUrl: data.avatar_url || prev.avatarUrl,
+        }));
+      }
+    } finally {
+      setIsLoading(false);
     }
   }, []);
 
@@ -98,5 +105,5 @@ export function useUserProfile(): UserProfile {
     };
   }, [fetchProfileData]);
 
-  return { ...profile, refetch };
+  return { ...profile, isLoading, refetch };
 }

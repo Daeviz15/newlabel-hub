@@ -11,7 +11,7 @@ import GFooter from "./components/GFooter";
 import ChannelMetricsCarousel from "@/components/channel-metrics-carousel";
 import { WeeklyTopPick } from "@/components/WeeklyTopPick";
 import { BrandedSpinner } from "@/components/ui/BrandedSpinner";
-import { EmptyState } from "@/components/ui/empty-state";
+import { EmptyCoursesGrid } from "@/components/ui/ContentComingSoon";
 
 export default function GDashboard() {
   const navigate = useNavigate();
@@ -37,6 +37,7 @@ export default function GDashboard() {
             subtitle: item.instructor || "Instructor",
             role: item.instructor_role || "Expert",
             image: item.image_url || "/assets/dashboard-images/face.jpg",
+            description: item.description || "",
           }))
         );
       }
@@ -65,6 +66,7 @@ export default function GDashboard() {
               subtitle: newItem.instructor || "Instructor",
               role: newItem.instructor_role || "Expert",
               image: newItem.image_url || "/assets/dashboard-images/face.jpg",
+              description: newItem.description || "",
             },
             ...prev,
           ]);
@@ -122,10 +124,7 @@ export default function GDashboard() {
             </div>
           ) : filteredCourses.length === 0 ? (
             <div className="py-20">
-              <EmptyState
-                title="No Gospeline content yet"
-                description="Faith-based content is being prepared for you."
-              />
+              <EmptyCoursesGrid message="Faith-based Gospeline content coming soon!" />
             </div>
           ) : (
             <>
@@ -204,6 +203,7 @@ function CardsGrid({
     title: string;
     subtitle: string;
     price: string;
+    description?: string;
   }[];
   navigate: any;
 }) {
@@ -227,6 +227,7 @@ function CardsGrid({
                 creator: it.subtitle,
                 price: it.price,
                 instructor: it.subtitle,
+                description: it.description,
               },
             })
           }

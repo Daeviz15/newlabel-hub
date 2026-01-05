@@ -9,7 +9,7 @@ import { useUserProfile } from "@/hooks/use-user-profile";
 import { THomeHeader } from "./components/home-header";
 import ChannelMetricsCarousel from "@/components/channel-metrics-carousel";
 import { PodcastCard } from "@/components/podcast-card";
-import { EmptyState } from "@/components/ui/empty-state";
+import { EmptyCoursesGrid } from "@/components/ui/ContentComingSoon";
 import { Mic } from "lucide-react";
 import { BrandedSpinner } from "@/components/ui/BrandedSpinner";
 
@@ -36,6 +36,7 @@ export default function ThcPodcastDashboard() {
             host: item.instructor || "Host",
             episodeCount: 1, // Default or fetch from related table if needed
             image: item.image_url || "/assets/dashboard-images/face.jpg",
+            description: item.description || "",
           }))
         );
       }
@@ -64,6 +65,7 @@ export default function ThcPodcastDashboard() {
                 host: newItem.instructor || "Host",
                 episodeCount: 1,
                 image: newItem.image_url || "/assets/dashboard-images/face.jpg",
+                description: newItem.description || "",
               },
               ...prev,
             ]);
@@ -121,11 +123,7 @@ export default function ThcPodcastDashboard() {
             </div>
           ) : filteredPodcasts.length === 0 ? (
             <div className="py-20">
-              <EmptyState
-                title="No THC content available"
-                description="New episodes and healing sessions are coming soon."
-                icon={Mic}
-              />
+              <EmptyCoursesGrid message="THC podcasts and healing sessions coming soon!" />
             </div>
           ) : (
             <>
@@ -194,6 +192,7 @@ function PodcastsGrid({
     title: string;
     host: string;
     episodeCount: number;
+    description?: string;
   }[];
   navigate: any;
 }) {
@@ -214,6 +213,7 @@ function PodcastsGrid({
                 title: podcast.title,
                 host: podcast.host,
                 episodeCount: podcast.episodeCount,
+                description: podcast.description,
               },
             })
           }

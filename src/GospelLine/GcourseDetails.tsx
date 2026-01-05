@@ -28,15 +28,15 @@ const GCourseDetails = () => {
         return;
       }
 
-      // Otherwise fetch from database
-      // You'd need to pass the product ID in the URL somehow
-      const { data } = await supabase
+      // Otherwise fetch a Gospel course from database as fallback
+      const { data, error } = await supabase
         .from("products")
         .select("*")
+        .eq("brand", "gospeline")
         .limit(1)
         .single();
 
-      if (data) {
+      if (data && !error) {
         setCourseData({
           id: data.id,
           image: data.image_url,
@@ -59,7 +59,20 @@ const GCourseDetails = () => {
   }
 
   if (!courseData) {
-    return <div>Course not found</div>;
+    return (
+      <main className="bg-[#0b0b0b] min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-white mb-4">Course Not Found</h1>
+          <p className="text-gray-400 mb-6">The course you're looking for doesn't exist or has been removed.</p>
+          <button 
+            onClick={() => navigate("/gospel-dashboard")}
+            className="bg-[#70E002] text-black px-6 py-2 rounded-lg hover:bg-[#5bc402] transition-colors"
+          >
+            Back to Gospeline
+          </button>
+        </div>
+      </main>
+    );
   }
 
   const handleAddToCart = () => {

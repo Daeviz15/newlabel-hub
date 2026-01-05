@@ -29,6 +29,11 @@ import { GcartPage } from "./GospelLine/GcartPage";
 import JsityAdmin from "./pages/JsityAdmin";
 import { CoursesList } from "./components/admin/CoursesList";
 import { CreateCourse } from "./components/admin/CreateCourse";
+import { CreatePodcast } from "./components/admin/CreatePodcast";
+import { PodcastList } from "./components/admin/PodcastList";
+import { AnalyticsDashboard } from "./components/admin/AnalyticsDashboard";
+import AdminLogin from "./pages/AdminLogin";
+import { AdminGuard } from "./components/auth/AdminGuard";
 
 const Index = lazy(() => import("./pages/Index"));
 const Login = lazy(() => import("./pages/Login"));
@@ -141,9 +146,13 @@ const App = () => (
               <Route path="/gospel-cart" element={<GcartPage />} />
 
               {/* Admin Routes */}
-              <Route path="/jsityadmin" element={<JsityAdmin />} />
-              <Route path="/admin/courses" element={<CoursesList />} />
-              <Route path="/admin/create-course" element={<CreateCourse />} />
+              <Route path="/admin-login" element={<AdminLogin />} />
+              <Route path="/jsityadmin" element={<AdminGuard><JsityAdmin /></AdminGuard>} />
+              <Route path="/admin/courses" element={<AdminGuard><CoursesList /></AdminGuard>} />
+              <Route path="/admin/create-course" element={<AdminGuard><CreateCourse /></AdminGuard>} />
+              <Route path="/admin/create-podcast" element={<AdminGuard><CreatePodcast /></AdminGuard>} />
+              <Route path="/admin/podcasts" element={<AdminGuard><PodcastList /></AdminGuard>} />
+              <Route path="/admin/analytics" element={<AdminGuard><AnalyticsDashboard /></AdminGuard>} />
 
               <Route path="*" element={<NotFoundPage />} />
               <Route path="/404" element={<NotFound />} />

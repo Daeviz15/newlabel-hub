@@ -11,12 +11,13 @@ import { useUserProfile } from "@/hooks/use-user-profile";
 import { useNavigate } from "react-router-dom";
 import ChannelMetricsCarousel from "@/components/channel-metrics-carousel";
 import { BrandedSpinner } from "@/components/ui/BrandedSpinner";
+import { EmptyCoursesGrid } from "@/components/ui/ContentComingSoon";
 
 
 export default function Dashboard() {
   const router = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
-  const { userName, userEmail, avatarUrl } = useUserProfile();
+  const { userName, userEmail, avatarUrl, isLoading: isProfileLoading } = useUserProfile();
   const [courses, setCourses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -114,6 +115,7 @@ export default function Dashboard() {
           userName={userName ?? undefined}
           userEmail={userEmail ?? undefined}
           avatarUrl={avatarUrl ?? undefined}
+          isLoading={isProfileLoading}
           onSignOut={handleSignOut}
         />
         <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
@@ -128,6 +130,8 @@ export default function Dashboard() {
           >
             {loading ? (
               <div className="flex justify-center py-8"><BrandedSpinner size="md" /></div>
+            ) : filteredCourses.length === 0 ? (
+              <EmptyCoursesGrid message="Trending courses coming soon!" />
             ) : (
               <CardsGrid items={filteredCourses.slice(0, 4)} router={router} />
             )}
@@ -140,6 +144,8 @@ export default function Dashboard() {
           >
             {loading ? (
               <div className="flex justify-center py-8"><BrandedSpinner size="md" /></div>
+            ) : filteredCourses.length === 0 ? (
+              <EmptyCoursesGrid message="New releases coming soon!" />
             ) : (
               <CardsGrid items={filteredCourses} router={router} />
             )}
@@ -152,6 +158,8 @@ export default function Dashboard() {
           >
             {loading ? (
               <div className="flex justify-center py-8"><BrandedSpinner size="md" /></div>
+            ) : filteredCourses.length === 0 ? (
+              <EmptyCoursesGrid message="Recommendations coming soon!" />
             ) : (
               <CardsGrid items={filteredCourses.slice(0, 4)} router={router} />
             )}

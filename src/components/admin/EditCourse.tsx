@@ -50,6 +50,7 @@ interface Lesson {
   videoFile: File | null;
   video_url?: string;
   order_number: number;
+  is_preview?: boolean;
 }
 
 interface EditCourseProps {
@@ -143,6 +144,7 @@ export const EditCourse = ({
           videoFile: null,
           video_url: l.video_url,
           order_number: l.order_number,
+          is_preview: l.is_preview || false,
         }));
 
         setLessons(formattedLessons);
@@ -175,6 +177,7 @@ export const EditCourse = ({
         videoFile: null,
         order_number: lessons.length + 1,
         id: `new-${Date.now()}`,
+        is_preview: false,
       },
     ]);
   };
@@ -299,6 +302,7 @@ export const EditCourse = ({
           duration: lesson.duration,
           video_url: videoUrl,
           order_number: i + 1, // Update order based on current index
+          is_preview: lesson.is_preview || false,
         };
 
         if (lesson.id.startsWith("new-")) {
