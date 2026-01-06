@@ -2,11 +2,14 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Edit, Trash2 } from "lucide-react";
+import { Edit, Trash2, PlusCircle, Mic2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { EditPodcast } from "./EditPodcast";
+import { AdminLayout } from "./AdminLayout";
+import { BrandedSpinner } from "@/components/ui/BrandedSpinner";
 import {
   Table,
   TableBody,
@@ -36,6 +39,7 @@ import {
 
 export const PodcastList = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const {
@@ -154,24 +158,57 @@ export const PodcastList = () => {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center py-8">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
+      <AdminLayout>
+        <div className="flex justify-center items-center py-20">
+          <BrandedSpinner size="lg" message="Loading podcasts..." />
+        </div>
+      </AdminLayout>
     );
   }
 
   if (!podcasts || podcasts.length === 0) {
     return (
-      <div className="text-center py-12 text-muted-foreground">
-        <p>
-          No podcasts found. Create your first podcast series to get started!
-        </p>
-      </div>
+      <AdminLayout>
+        <div className="text-center py-20">
+          <div className="max-w-md mx-auto space-y-4">
+            <div className="w-16 h-16 mx-auto rounded-full bg-purple-500/10 flex items-center justify-center">
+              <Mic2 className="w-8 h-8 text-purple-400" />
+            </div>
+            <h3 className="text-xl font-semibold text-white">No podcasts found</h3>
+            <p className="text-zinc-400">Create your first podcast series to get started!</p>
+            <Button
+              onClick={() => navigate("/admin/create-podcast")}
+              className="bg-purple-600 hover:bg-purple-700"
+            >
+              <PlusCircle className="w-4 h-4 mr-2" />
+              Create Podcast
+            </Button>
+          </div>
+        </div>
+      </AdminLayout>
     );
   }
 
   return (
-    <div className="rounded-md border">
+    <AdminLayout>
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-white">Podcasts</h1>
+            <p className="text-zinc-400 text-sm">Manage your podcast series</p>
+          </div>
+          <Button
+            onClick={() => navigate("/admin/create-podcast")}
+            className="bg-purple-600 hover:bg-purple-700"
+          >
+            <PlusCircle className="w-4 h-4 mr-2" />
+            New Podcast
+          </Button>
+        </div>
+
+        {/* Table */}
+        <div className="rounded-xl border border-zinc-800 overflow-hidden bg-zinc-900/50">
       <Table>
         <TableHeader>
           <TableRow>
@@ -226,6 +263,7 @@ export const PodcastList = () => {
           ))}
         </TableBody>
       </Table>
+        </div>
 
       <Dialog
         open={!!editingId}
@@ -250,6 +288,7 @@ export const PodcastList = () => {
           )}
         </DialogContent>
       </Dialog>
-    </div>
+      </div>
+    </AdminLayout>
   );
 };

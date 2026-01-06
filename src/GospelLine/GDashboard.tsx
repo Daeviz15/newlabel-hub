@@ -9,7 +9,9 @@ import { useUserProfile } from "@/hooks/use-user-profile";
 import { THomeHeader } from "./components/home-header";
 import GFooter from "./components/GFooter";
 import ChannelMetricsCarousel from "@/components/channel-metrics-carousel";
-import { EmptyState } from "@/components/ui/empty-state";
+import { WeeklyTopPick } from "@/components/WeeklyTopPick";
+import { BrandedSpinner } from "@/components/ui/BrandedSpinner";
+import { EmptyCoursesGrid } from "@/components/ui/ContentComingSoon";
 
 export default function GDashboard() {
   const navigate = useNavigate();
@@ -35,6 +37,7 @@ export default function GDashboard() {
             subtitle: item.instructor || "Instructor",
             role: item.instructor_role || "Expert",
             image: item.image_url || "/assets/dashboard-images/face.jpg",
+            description: item.description || "",
           }))
         );
       }
@@ -63,6 +66,7 @@ export default function GDashboard() {
               subtitle: newItem.instructor || "Instructor",
               role: newItem.instructor_role || "Expert",
               image: newItem.image_url || "/assets/dashboard-images/face.jpg",
+              description: newItem.description || "",
             },
             ...prev,
           ]);
@@ -115,17 +119,12 @@ export default function GDashboard() {
           </section>
 
           {loading ? (
-            <div className="py-20 text-center text-gray-400">
-              Loading content...
+            <div className="py-20 flex justify-center">
+              <BrandedSpinner size="lg" message="Loading Gospeline content..." />
             </div>
           ) : filteredCourses.length === 0 ? (
             <div className="py-20">
-              <EmptyState
-                title="No Gospeline content yet"
-                description="Faith-based content is being prepared for you."
-                // Actually I'll just import Cross if I can, but to be safe I'll use null or let it default to Database if I don't pass icon.
-                // Wait, I added Cross in imports.
-              />
+              <EmptyCoursesGrid message="Faith-based Gospeline content coming soon!" />
             </div>
           ) : (
             <>
@@ -157,16 +156,7 @@ export default function GDashboard() {
               </Section>
 
               <Section title="This week's top pick" description="">
-                {filteredCourses.length > 0 ? (
-                  <TopPick
-                    accent="lime"
-                    imageFit="cover"
-                    title={filteredCourses[0].title}
-                    author={filteredCourses[0].subtitle}
-                    authorRole={filteredCourses[0].role}
-                    imageSrc={filteredCourses[0].image}
-                  />
-                ) : null}
+                <WeeklyTopPick accent="lime" brand="gospeline" />
               </Section>
             </>
           )}
@@ -213,6 +203,7 @@ function CardsGrid({
     title: string;
     subtitle: string;
     price: string;
+    description?: string;
   }[];
   navigate: any;
 }) {
@@ -236,6 +227,7 @@ function CardsGrid({
                 creator: it.subtitle,
                 price: it.price,
                 instructor: it.subtitle,
+                description: it.description,
               },
             })
           }

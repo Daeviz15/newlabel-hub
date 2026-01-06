@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Trash2 } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Trash2, Eye } from "lucide-react";
 import { VideoUpload } from "./VideoUpload";
 
 interface Lesson {
@@ -16,6 +17,7 @@ interface Lesson {
   videoFile: File | null;
   video_url?: string;
   order_number: number;
+  is_preview?: boolean;
 }
 
 interface LessonFormProps {
@@ -36,7 +38,14 @@ export const LessonForm = ({
   return (
     <Card className="p-4">
       <div className="flex items-start justify-between mb-4">
-        <h4 className="font-medium">Lesson {index + 1}</h4>
+        <div className="flex items-center gap-2">
+          <h4 className="font-medium">Lesson {index + 1}</h4>
+          {lesson.is_preview && (
+            <span className="text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full">
+              Preview
+            </span>
+          )}
+        </div>
         {showRemove && (
           <Button
             type="button"
@@ -79,6 +88,24 @@ export const LessonForm = ({
           />
         </div>
 
+        {/* Preview Toggle */}
+        <div className="flex items-center space-x-3 p-3 bg-green-500/10 rounded-lg border border-green-500/20">
+          <Checkbox
+            id={`preview-${lesson.id}`}
+            checked={lesson.is_preview || false}
+            onCheckedChange={(checked) => onUpdate("is_preview", checked)}
+          />
+          <div className="flex-1">
+            <Label htmlFor={`preview-${lesson.id}`} className="text-sm font-medium cursor-pointer flex items-center gap-2">
+              <Eye className="h-4 w-4 text-green-400" />
+              Free Preview
+            </Label>
+            <p className="text-xs text-muted-foreground">
+              Allow non-purchasers to watch this lesson for free
+            </p>
+          </div>
+        </div>
+
         <VideoUpload
           label="Lesson Video"
           onFileSelect={(file) => onUpdate("videoFile", file)}
@@ -90,3 +117,4 @@ export const LessonForm = ({
     </Card>
   );
 };
+

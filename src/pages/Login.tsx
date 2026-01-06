@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ArrowUpRightIcon } from "@heroicons/react/24/outline";
 
 import { useToast } from "@/hooks/use-toast";
+import { InlineLoader } from "@/components/ui/BrandedSpinner";
 import logo from "../assets/Logo.png";
 import logoOne from "/assets/logos.png";
 import icon from "/assets/Icon.png";
@@ -283,9 +284,16 @@ const Login = () => {
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-brand-green hover:bg-brand-green text-black font-medium h-12 transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                className="w-full bg-brand-green hover:bg-brand-green/90 text-black font-medium h-12 transition-all duration-300 hover:scale-105 hover:shadow-lg rounded-full"
               >
-                {loading ? "Logging in..." : "Login"}
+                {loading ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <InlineLoader />
+                    <span>Logging in...</span>
+                  </div>
+                ) : (
+                  "Login"
+                )}
               </Button>
 
               <div className="relative">

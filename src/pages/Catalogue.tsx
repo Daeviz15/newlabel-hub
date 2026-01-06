@@ -6,6 +6,9 @@ import { useNavigate } from "react-router-dom";
 import Tab from "@/components/Tab";
 import { ProductCard } from "@/components/course-card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useUserProfile } from "@/hooks/use-user-profile";
+import { InlineLoader } from "@/components/ui/BrandedSpinner";
+import { useInfiniteQuery } from "@tanstack/react-query";
 
 interface Product {
   id: string;
@@ -14,6 +17,8 @@ interface Product {
   image_url: string | null;
   instructor: string | null;
   category: string;
+  brand: string | null;
+  description: string | null;
 }
 
 const ITEMS_PER_PAGE = 12;
@@ -22,132 +27,71 @@ const Catalogue = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [userName, setUserName] = useState<string | null>(null);
-  const [userEmail, setUserEmail] = useState<string | null>(null);
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [page, setPage] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
-  const [displayedCount, setDisplayedCount] = useState(ITEMS_PER_PAGE);
+  const { userName, userEmail, avatarUrl } = useUserProfile();
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     navigate("/login");
   };
 
-  // Fetch products from Supabase with pagination
-  const fetchProducts = async (pageNum: number, append = false) => {
-    if (append) {
-      setLoadingMore(true);
-    } else {
-      setLoading(true);
-    }
-
-    const from = pageNum * ITEMS_PER_PAGE;
+  const fetchProducts = async ({ pageParam = 0 }) => {
+    const from = pageParam * ITEMS_PER_PAGE;
     const to = from + ITEMS_PER_PAGE - 1;
 
-    const { data, error } = await supabase
+    let query = supabase
       .from("products")
-      .select("id, title, price, image_url, instructor, category")
+      .select("id, title, price, image_url, instructor, category, brand, description", { count: "exact" })
       .order("created_at", { ascending: false })
       .range(from, to);
 
-    if (!error && data) {
-      if (append) {
-        setProducts(prev => [...prev, ...data]);
-      } else {
-        setProducts(data);
-        setDisplayedCount(ITEMS_PER_PAGE);
-      }
-      setHasMore(data.length === ITEMS_PER_PAGE);
-    } else {
-      setHasMore(false);
+    // Apply Search Filter
+    if (searchQuery) {
+      query = query.ilike("title", `%${searchQuery}%`);
     }
-    
-    setLoading(false);
-    setLoadingMore(false);
-  };
 
-  // Initial fetch and reset when category or search changes
-  useEffect(() => {
-    setPage(0);
-    setDisplayedCount(ITEMS_PER_PAGE);
-    fetchProducts(0);
-  }, [selectedCategory, searchQuery]);
+    // Apply Category Filter
+    if (selectedCategory !== "All") {
+      if (selectedCategory === "For You") {
+        query = query.eq("category", "course");
+      } else if (selectedCategory === "Trending") {
+        query = query.eq("category", "podcast");
+      } else if (selectedCategory === "New Releases") {
+        query = query.neq("category", "course").neq("category", "podcast");
+      }
+    }
 
-  // Map database categories to tab categories
-  const getCategoryForTab = (category: string) => {
-    const categoryMap: Record<string, string> = {
-      course: "For You",
-      podcast: "Trending",
-      // Add more mappings as needed
+    const { data, error, count } = await query;
+    if (error) throw error;
+
+    return {
+      data: data || [],
+      nextPage: (data?.length || 0) === ITEMS_PER_PAGE ? pageParam + 1 : undefined,
+      totalCount: count || 0,
     };
-    return categoryMap[category] || "New Releases";
   };
 
-  const filteredItems = products.filter(item => {
-    const matchesCategory = selectedCategory === "All" || getCategoryForTab(item.category) === selectedCategory;
-    const matchesSearch = !searchQuery || item.title.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+  } = useInfiniteQuery({
+    queryKey: ["products", selectedCategory, searchQuery],
+    queryFn: fetchProducts,
+    initialPageParam: 0,
+    getNextPageParam: (lastPage: any) => lastPage.nextPage,
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
   });
 
-  // Display only the first displayedCount items
-  const displayedItems = filteredItems.slice(0, displayedCount);
-  const hasMoreToShow = displayedCount < filteredItems.length || hasMore;
+  const products = data?.pages.flatMap((page) => page.data) || [];
+  const loading = isLoading;
+  const loadingMore = isFetchingNextPage;
+  const hasMore = !!hasNextPage;
 
-  const handleLoadMore = async () => {
-    // If we have more filtered items to show, just increase displayed count
-    if (displayedCount < filteredItems.length) {
-      setDisplayedCount(prev => Math.min(prev + ITEMS_PER_PAGE, filteredItems.length));
-    } 
-    // Otherwise, fetch more from database
-    else if (hasMore) {
-      const nextPage = page + 1;
-      setPage(nextPage);
-      await fetchProducts(nextPage, true);
-      // After fetching, increase displayed count to show new items
-      setDisplayedCount(prev => prev + ITEMS_PER_PAGE);
-    }
+  const handleLoadMore = () => {
+    fetchNextPage();
   };
-
-  useEffect(() => {
-    const updateFromSession = (session: any) => {
-      const user = session?.user || null;
-      if (user) {
-        const meta = user.user_metadata || {};
-        setUserEmail(user.email ?? null);
-        setUserName(meta.full_name || meta.name || user.email || null);
-        setAvatarUrl(meta.avatar_url || meta.picture || null);
-        setTimeout(async () => {
-          const { data, error } = await supabase
-            .from("profiles")
-            .select("full_name, avatar_url")
-            .eq("user_id", user.id)
-            .maybeSingle();
-          if (!error && data) {
-            if (data.full_name) setUserName(data.full_name);
-            if (data.avatar_url) setAvatarUrl(data.avatar_url);
-          }
-        }, 0);
-      }
-    };
-
-    const { data: listener } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        updateFromSession(session);
-      }
-    );
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      updateFromSession(session);
-    });
-
-    return () => {
-      listener.subscription.unsubscribe();
-    };
-  }, []);
 
   return (
     <main className="bg-[#0b0b0b] text-white min-h-screen">
@@ -183,9 +127,16 @@ const Catalogue = () => {
 
         {/* Browse Section - Fully Responsive */}
         <div className="flex flex-col gap-6 sm:gap-8 pb-12 sm:pb-16">
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-nunito font-bold">
-            Browse by category
-          </h1>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-nunito font-bold">
+              Browse by category
+            </h1>
+            {!loading && (
+              <span className="text-gray-400 text-sm">
+                Showing {products.length} courses
+              </span>
+            )}
+          </div>
 
           {/* Tab Component - Horizontal scroll on mobile */}
           <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
@@ -211,40 +162,78 @@ const Catalogue = () => {
           {/* Product Grid - Responsive columns */}
           {!loading && (
             <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-6">
-              {displayedItems.map((product) => (
+              {products.map((product) => (
                 <ProductCard
                   key={product.id}
+                  id={product.id}
                   imageSrc={product.image_url || "/assets/dashboard-images/face.jpg"}
                   title={product.title}
                   subtitle={product.instructor || "—"}
                   price={`₦${product.price.toLocaleString()}`}
-                  productId={product.id}
-                  onClick={() => navigate("/video-details", { 
-                    state: { 
-                      id: product.id, 
-                      image: product.image_url, 
-                      title: product.title, 
-                      creator: product.instructor, 
-                      price: `₦${product.price.toLocaleString()}` 
-                    } 
-                  })}
+                  brand={product.brand || ""}
+                  onClick={() => {
+                    if (product.brand === 'thc') {
+                       navigate("/thc-video-player", {
+                          state: {
+                            id: product.id,
+                            image: product.image_url,
+                            title: product.title,
+                            host: product.instructor,
+                            episodeCount: 1, // You might need to fetch this or default it
+                            description: product.description || "",
+                          }
+                       });
+                    } else if (product.brand === 'jsity') {
+                       navigate("/jsity-course-details", {
+                          state: {
+                            id: product.id,
+                            image: product.image_url,
+                            title: product.title,
+                            creator: product.instructor,
+                            price: `₦${product.price.toLocaleString()}`,
+                            instructor: product.instructor,
+                            role: "Instructor" // Defaulting as we don't have role here
+                          }
+                       });
+                    } else {
+                       navigate("/video-details", { 
+                          state: { 
+                            id: product.id, 
+                            image: product.image_url, 
+                            title: product.title, 
+                            creator: product.instructor, 
+                            price: `₦${product.price.toLocaleString()}` 
+                          } 
+                       });
+                    }
+                  }}
                 />
               ))}
             </div>
           )}
 
-          {!loading && displayedItems.length === 0 && (
-            <p className="text-gray-400 text-center py-8">No items found in this category.</p>
-          )}
-
-          {!loading && hasMoreToShow && (
+          {!loading && hasMore && (
             <button 
               onClick={handleLoadMore}
               disabled={loadingMore}
               className="flex justify-center items-center text-xs sm:text-sm w-full bg-gray-500/25 hover:bg-gray-500/35 transition-colors h-10 sm:h-12 mt-3 mb-6 sm:mb-10 rounded-sm font-nunito font-bold cursor-pointer active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loadingMore ? "Loading..." : "Load More"}
+              {loadingMore ? (
+                <>
+                  <span className="mr-2"><InlineLoader /></span>
+                  Loading...
+                </>
+              ) : (
+                "Load More"
+              )}
             </button>
+          )}
+
+          {/* Show message when all items loaded */}
+          {!loading && products.length > 0 && !hasMore && (
+            <p className="text-gray-500 text-center text-sm py-4">
+              You've reached the end of the catalogue
+            </p>
           )}
         </div>
       </div>

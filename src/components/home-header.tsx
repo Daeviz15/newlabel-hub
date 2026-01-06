@@ -27,6 +27,7 @@ export function HomeHeader({
   userName,
   userEmail,
   avatarUrl,
+  isLoading,
   onSignOut,
 }: {
   search: string;
@@ -34,6 +35,7 @@ export function HomeHeader({
   userName?: string;
   userEmail?: string;
   avatarUrl?: string;
+  isLoading?: boolean;
   onSignOut?: () => void;
 }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -155,7 +157,7 @@ export function HomeHeader({
           </a>
           <button
             aria-label="Favorites"
-            onClick={() => navigate("/mylibrary")}
+            onClick={() => navigate("/mylibrary?tab=saved")}
             className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-[#1a1a1a] text-white ring-1 ring-white/10 transition-all duration-200 hover:bg-[#222] hover:scale-105 sm:h-9 sm:w-9"
           >
             <div className="relative">
@@ -182,21 +184,34 @@ export function HomeHeader({
                   aria-label="Open profile menu"
                   className="relative h-8 w-8 overflow-hidden rounded-full ring-1 ring-white/10 transition-all duration-200 hover:ring-2 hover:ring-lime-500/30 sm:h-9 sm:w-9"
                 >
-                  <img
-                    src={avatarUrl || "/assets/dashboard-images/face.jpg"}
-                    alt={userName ? `${userName} avatar` : "User avatar"}
-                    className="h-full w-full object-cover transition-transform duration-200 hover:scale-110"
-                    loading="lazy"
-                  />
+                  {isLoading ? (
+                    <div className="h-full w-full bg-zinc-700 animate-pulse" />
+                  ) : (
+                    <img
+                      src={avatarUrl || "/assets/dashboard-images/face.jpg"}
+                      alt={userName ? `${userName} avatar` : "User avatar"}
+                      className="h-full w-full object-cover transition-transform duration-200 hover:scale-110"
+                      loading="lazy"
+                    />
+                  )}
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel>
-                  <div className="text-sm font-semibold">
-                    {userName ?? "Guest"}
-                  </div>
-                  {userEmail && (
-                    <div className="text-xs text-zinc-400">{userEmail}</div>
+                  {isLoading ? (
+                    <div className="space-y-2">
+                      <div className="h-4 w-24 bg-zinc-700 rounded animate-pulse" />
+                      <div className="h-3 w-32 bg-zinc-800 rounded animate-pulse" />
+                    </div>
+                  ) : (
+                    <>
+                      <div className="text-sm font-semibold">
+                        {userName ?? "Guest"}
+                      </div>
+                      {userEmail && (
+                        <div className="text-xs text-zinc-400">{userEmail}</div>
+                      )}
+                    </>
                   )}
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
@@ -214,10 +229,19 @@ export function HomeHeader({
             </DropdownMenu>
             {/* User info - hidden on small screens */}
             <div className="hidden leading-tight lg:block">
-              <div className="text-sm font-semibold text-white font-vietnam transition-colors duration-200 hover:text-lime-400">
-                {userName ?? "Guest"}
-              </div>
-              <div className="text-[11px] text-zinc-400">{userEmail ?? ""}</div>
+              {isLoading ? (
+                <div className="space-y-1.5">
+                  <div className="h-4 w-20 bg-zinc-700 rounded animate-pulse" />
+                  <div className="h-3 w-28 bg-zinc-800 rounded animate-pulse" />
+                </div>
+              ) : (
+                <>
+                  <div className="text-sm font-semibold text-white font-vietnam transition-colors duration-200 hover:text-lime-400">
+                    {userName ?? "Guest"}
+                  </div>
+                  <div className="text-[11px] text-zinc-400">{userEmail ?? ""}</div>
+                </>
+              )}
             </div>
           </div>
 

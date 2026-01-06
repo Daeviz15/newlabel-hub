@@ -4,6 +4,8 @@ export type SavedItem = {
   image: string;
   creator: string;
   price: string;
+  brand?: string;
+  description?: string;
 };
 
 const STORAGE_KEY = "saved_items";

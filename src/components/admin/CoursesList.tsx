@@ -2,11 +2,14 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Edit, Trash2 } from "lucide-react";
+import { Edit, Trash2, PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { EditCourse } from "./EditCourse";
+import { AdminLayout } from "./AdminLayout";
+import { BrandedSpinner } from "@/components/ui/BrandedSpinner";
 import {
   Table,
   TableBody,
@@ -36,6 +39,7 @@ import {
 
 export const CoursesList = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const {
@@ -154,78 +158,115 @@ export const CoursesList = () => {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center py-8">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
+      <AdminLayout>
+        <div className="flex justify-center items-center py-20">
+          <BrandedSpinner size="lg" message="Loading courses..." />
+        </div>
+      </AdminLayout>
     );
   }
 
   if (!courses || courses.length === 0) {
     return (
-      <div className="text-center py-12 text-muted-foreground">
-        <p>No courses found. Create your first course to get started!</p>
-      </div>
+      <AdminLayout>
+        <div className="text-center py-20">
+          <div className="max-w-md mx-auto space-y-4">
+            <div className="w-16 h-16 mx-auto rounded-full bg-purple-500/10 flex items-center justify-center">
+              <PlusCircle className="w-8 h-8 text-purple-400" />
+            </div>
+            <h3 className="text-xl font-semibold text-white">No courses found</h3>
+            <p className="text-zinc-400">Create your first course to get started!</p>
+            <Button
+              onClick={() => navigate("/admin/create-course")}
+              className="bg-purple-600 hover:bg-purple-700"
+            >
+              <PlusCircle className="w-4 h-4 mr-2" />
+              Create Course
+            </Button>
+          </div>
+        </div>
+      </AdminLayout>
     );
   }
 
   return (
-    <div className="rounded-md border">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Title</TableHead>
-            <TableHead>Instructor</TableHead>
-            <TableHead>Price</TableHead>
-            <TableHead>Students</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {courses.map((course) => (
-            <TableRow key={course.id}>
-              <TableCell className="font-medium">{course.title}</TableCell>
-              <TableCell>{course.instructor || "N/A"}</TableCell>
-              <TableCell>₦{course.price.toLocaleString()}</TableCell>
-              <TableCell>{course.students || 0}</TableCell>
-              <TableCell className="text-right">
-                <div className="flex justify-end gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setEditingId(course.id)}
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="destructive" size="sm">
-                        <Trash2 className="h-4 w-4" />
+    <AdminLayout>
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-white">Courses</h1>
+            <p className="text-zinc-400 text-sm">Manage your course catalog</p>
+          </div>
+          <Button
+            onClick={() => navigate("/admin/create-course")}
+            className="bg-purple-600 hover:bg-purple-700"
+          >
+            <PlusCircle className="w-4 h-4 mr-2" />
+            New Course
+          </Button>
+        </div>
+
+        {/* Table */}
+        <div className="rounded-xl border border-zinc-800 overflow-hidden bg-zinc-900/50">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Title</TableHead>
+                <TableHead>Instructor</TableHead>
+                <TableHead>Price</TableHead>
+                <TableHead>Students</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {courses.map((course) => (
+                <TableRow key={course.id}>
+                  <TableCell className="font-medium">{course.title}</TableCell>
+                  <TableCell>{course.instructor || "N/A"}</TableCell>
+                  <TableCell>₦{course.price.toLocaleString()}</TableCell>
+                  <TableCell>{course.students || 0}</TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setEditingId(course.id)}
+                      >
+                        <Edit className="h-4 w-4" />
                       </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Delete Course?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          This will permanently delete "{course.title}" and all
-                          its lessons. This action cannot be undone.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={() => handleDelete(course.id)}
-                        >
-                          Delete
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="destructive" size="sm">
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete Course?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This will permanently delete "{course.title}" and all
+                              its lessons. This action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => handleDelete(course.id)}
+                            >
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
 
       <Dialog
         open={!!editingId}
@@ -250,6 +291,6 @@ export const CoursesList = () => {
           )}
         </DialogContent>
       </Dialog>
-    </div>
+    </AdminLayout>
   );
 };

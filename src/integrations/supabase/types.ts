@@ -312,6 +312,60 @@ export type Database = {
         }
         Relationships: []
       }
+      watch_progress: {
+        Row: {
+          completed: boolean
+          course_id: string
+          created_at: string
+          duration_seconds: number
+          id: string
+          last_watched_at: string
+          lesson_id: string
+          progress_seconds: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean
+          course_id: string
+          created_at?: string
+          duration_seconds?: number
+          id?: string
+          last_watched_at?: string
+          lesson_id: string
+          progress_seconds?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed?: boolean
+          course_id?: string
+          created_at?: string
+          duration_seconds?: number
+          id?: string
+          last_watched_at?: string
+          lesson_id?: string
+          progress_seconds?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "watch_progress_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "watch_progress_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "course_lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

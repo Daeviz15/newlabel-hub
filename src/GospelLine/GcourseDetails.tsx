@@ -8,12 +8,16 @@ import { useUserProfile } from "@/hooks/use-user-profile";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import GFooter from "./components/GFooter";
+import { PageLoader } from "@/components/ui/BrandedSpinner";
+import { useSavedItems } from "@/hooks/use-saved-items";
+import { Heart } from "lucide-react";
 
 const GCourseDetails = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { addItem } = useCart();
   const profile = useUserProfile();
+  const { isSaved, toggleSave } = useSavedItems();
 
   const [courseData, setCourseData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -27,15 +31,15 @@ const GCourseDetails = () => {
         return;
       }
 
-      // Otherwise fetch from database
-      // You'd need to pass the product ID in the URL somehow
-      const { data } = await supabase
+      // Otherwise fetch a Gospel course from database as fallback
+      const { data, error } = await supabase
         .from("products")
         .select("*")
+        .eq("brand", "gospeline")
         .limit(1)
         .single();
 
-      if (data) {
+      if (data && !error) {
         setCourseData({
           id: data.id,
           image: data.image_url,
@@ -54,11 +58,24 @@ const GCourseDetails = () => {
   }, [location.state]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <PageLoader message="Loading course details..." />;
   }
 
   if (!courseData) {
-    return <div>Course not found</div>;
+    return (
+      <main className="bg-[#0b0b0b] min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-white mb-4">Course Not Found</h1>
+          <p className="text-gray-400 mb-6">The course you're looking for doesn't exist or has been removed.</p>
+          <button 
+            onClick={() => navigate("/gospel-dashboard")}
+            className="bg-[#70E002] text-black px-6 py-2 rounded-lg hover:bg-[#5bc402] transition-colors"
+          >
+            Back to Gospeline
+          </button>
+        </div>
+      </main>
+    );
   }
 
   const handleAddToCart = () => {
@@ -234,7 +251,26 @@ const GCourseDetails = () => {
               >
                 Add to Cart ({courseData.price})
               </Button>
-            </div>
+              <Button
+                variant="outline"
+                onClick={() => {
+                   if (courseData) {
+                      toggleSave({
+                        id: courseData.id,
+                        title: courseData.title,
+                        image: courseData.image,
+                        creator: courseData.creator,
+                        price: courseData.price,
+                      });
+                   }
+                }}
+                className={`border-gray-700 hover:border-[#70E002] hover:bg-[#70E002] hover:text-black px-4 py-3 rounded-xl ${
+                    courseData && isSaved(courseData.id) ? "bg-[#70E002]/20 border-[#70E002] text-[#70E002]" : ""
+                }`}
+              >
+                 <Heart className={`w-5 h-5 ${courseData && isSaved(courseData.id) ? "fill-current" : ""}`} />
+              </Button>
+            </div> // End of buttons div 
           </div>
         </div>
       </div>
