@@ -1,62 +1,31 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import * as React from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useCart } from "@/hooks/use-cart";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Check, X } from "lucide-react";
-import { HomeHeader } from "@/components/home-header";
-import Footer from "@/components/Footer";
 import { useUserProfile } from "@/hooks/use-user-profile";
+import { CheckoutForm } from "@/components/checkout";
 import { JHomeHeader } from "./components/home-header";
 import JsityFooter from "./components/JsityFooter";
+import type { BillingDetails, CartItem } from "@/types/checkout";
 
-interface CartItem {
-  id: number;
-  title: string;
-  image: string;
-  quantity: number;
-  price: number;
-}
+const BRAND_COLOR = "#8B5CF6"; // Jsity purple
 
 export default function Jcheckout() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [activeCategory, setActiveCategory] = useState("For You");
-  const { userName, userEmail, avatarUrl } = useUserProfile();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { state: cartState, clearCart } = useCart();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
-  // Add purple focus styles for this page only
-  React.useEffect(() => {
-    const style = document.createElement('style');
-    style.textContent = `
-      .jcheckout-page input:focus-visible,
-      .jcheckout-page textarea:focus-visible {
-        outline: none !important;
-        border-color: rgb(147 51 234) !important;
-        box-shadow: 0 0 0 2px rgb(147 51 234 / 0.2) !important;
-      }
-    `;
-    document.head.appendChild(style);
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate("/login");
+  };
 
-    return () => {
-      document.head.removeChild(style);
-    };
-  }, []);
-
-  const total = cartState.total;
-
-  async function handlePayment(event: React.MouseEvent<HTMLButtonElement>) {
-    event.preventDefault();
-
+  const handlePayment = async (billingDetails: BillingDetails) => {
     if (cartState.items.length === 0) {
       toast({
         title: "Cart is empty",
@@ -66,12 +35,11 @@ export default function Jcheckout() {
       return;
     }
 
-    setIsProcessingPayment(true);
-
     try {
       const {
         data: { user },
       } = await supabase.auth.getUser();
+      
       if (!user) {
         toast({
           title: "Authentication required",
@@ -82,7 +50,6 @@ export default function Jcheckout() {
         return;
       }
 
-      // Call edge function to initialize payment
       const { data, error } = await supabase.functions.invoke(
         "initialize-payment",
         {
@@ -91,6 +58,16 @@ export default function Jcheckout() {
               id: item.id,
               quantity: item.quantity,
             })),
+            billing_details: {
+              first_name: billingDetails.firstName,
+              last_name: billingDetails.lastName,
+              email: billingDetails.email,
+              phone: billingDetails.phone,
+              country: billingDetails.country,
+              state: billingDetails.state,
+              street: billingDetails.street,
+              notes: billingDetails.notes,
+            },
           },
         }
       );
@@ -98,7 +75,6 @@ export default function Jcheckout() {
       if (error) throw error;
 
       if (data.authorization_url) {
-        // Redirect to Paystack payment page
         window.location.href = data.authorization_url;
       } else {
         throw new Error("No payment URL received");
@@ -107,14 +83,11 @@ export default function Jcheckout() {
       console.error("Payment initialization error:", error);
       toast({
         title: "Payment failed",
-        description:
-          error.message || "Failed to initialize payment. Please try again.",
+        description: error.message || "Failed to initialize payment. Please try again.",
         variant: "destructive",
       });
-    } finally {
-      setIsProcessingPayment(false);
     }
-  }
+  };
 
   // Check for payment success callback
   useEffect(() => {
@@ -125,37 +98,42 @@ export default function Jcheckout() {
         title: "Payment successful!",
         description: "Your courses have been added to your library",
       });
-      // Clean up URL
       window.history.replaceState({}, "", "/mylibrary");
     }
-  }, []);
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    navigate("/login");
-  };
+  }, [clearCart, toast]);
+
+  // Map cart items to the expected type
+  const cartItems: CartItem[] = cartState.items.map((item) => ({
+    id: item.id,
+    title: item.title,
+    image: item.image,
+    quantity: item.quantity,
+    price: item.price,
+    creator: item.creator,
+  }));
 
   return (
-    <div className="jcheckout-page">
+    <>
       <JHomeHeader
-        search={searchQuery}
-        onSearchChange={setSearchQuery}
+        search=""
+        onSearchChange={() => {}}
         userName={userName ?? undefined}
         userEmail={userEmail ?? undefined}
         avatarUrl={avatarUrl ?? undefined}
         onSignOut={handleSignOut}
       />
 
-      <main className="container mx-auto px-4 py-6 sm:py-8 md:py-12">
-        <h1 className="text-xl sm:text-2xl font-vietnam font-bold mb-6 sm:mb-8 md:mb-12">Checkout</h1>
+      <main className="container mx-auto px-4 py-12">
+        <h1 className="text-2xl font-vietnam font-bold mb-12">Checkout</h1>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
+        <div className="grid lg:grid-cols-2 gap-8">
           {/* Billing Details */}
-          <div className="bg-[#A3A3A3 10%] border border-zinc-800 rounded-lg p-4 sm:p-6 md:p-8">
-            <h2 className="text-xl sm:text-2xl font-vietnam font-semibold mb-4 sm:mb-6">
+          <div className="bg-[#A3A3A3 10%] border border-zinc-800 rounded-lg p-8">
+            <h2 className="text-2xl font-vietnam font-semibold mb-6">
               Billing Details
             </h2>
-            <form className="space-y-4 sm:space-y-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <form className="space-y-6">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label
                     htmlFor="firstName"
@@ -271,8 +249,8 @@ export default function Jcheckout() {
           </div>
 
           {/* Order Summary */}
-          <div className="bg-[#A3A3A3 10%] border border-zinc-800 rounded-lg p-4 sm:p-6 md:p-8 h-fit">
-            <h2 className="text-xl sm:text-2xl font-vietnam font-semibold mb-4 sm:mb-6">
+          <div className="bg-[#A3A3A3 10%] border border-zinc-800 rounded-lg p-8 h-fit">
+            <h2 className="text-2xl font-vietnam font-semibold mb-6">
               Order Summary
             </h2>
             <div className="flex justify-between font-vietnam text-sm font-medium mb-6 pb-4 border-b border-zinc-800">
@@ -317,7 +295,7 @@ export default function Jcheckout() {
             <Button
               onClick={handlePayment}
               disabled={isProcessingPayment || cartState.items.length === 0}
-              className="w-full bg-purple-600 hover:bg-purple-400 font-vietnam font-semibold py-4 sm:py-6 text-sm sm:text-base text-white disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-purple-600 hover:bg-purple-400 font-vietnam font-semibold py-6 text-white disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isProcessingPayment ? "Processing..." : "Pay with Paystack"}
             </Button>
@@ -326,6 +304,6 @@ export default function Jcheckout() {
       </main>
 
       <JsityFooter />
-    </div>
+    </>
   );
 }

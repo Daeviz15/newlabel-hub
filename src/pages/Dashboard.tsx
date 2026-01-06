@@ -2,26 +2,22 @@
 
 import type React from "react";
 import { useState, useEffect } from "react";
-import { ProductCard, TopPick } from "@/components/course-card";
+import { ProductCard } from "@/components/course-card";
+import { WeeklyTopPick } from "@/components/WeeklyTopPick";
 import { HomeHeader } from "../components/home-header";
 import { supabase } from "@/integrations/supabase/client";
 import Footer from "@/components/Footer";
 import { useUserProfile } from "@/hooks/use-user-profile";
 import { useNavigate } from "react-router-dom";
 import ChannelMetricsCarousel from "@/components/channel-metrics-carousel";
+import { BrandedSpinner } from "@/components/ui/BrandedSpinner";
+import { EmptyCoursesGrid } from "@/components/ui/ContentComingSoon";
 
-const resumeItems = Array.from({ length: 4 }).map((_, i) => ({
-  id: i + 1,
-  image: "/assets/dashboard-images/face.jpg",
-  title: "The Future Of AI In Everyday Products",
-  percent: 72,
-  brand: "jsty",
-}));
 
 export default function Dashboard() {
   const router = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
-  const { userName, userEmail, avatarUrl } = useUserProfile();
+  const { userName, userEmail, avatarUrl, isLoading: isProfileLoading } = useUserProfile();
   const [courses, setCourses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -89,10 +85,6 @@ export default function Dashboard() {
   };
 
   const q = searchQuery.trim().toLowerCase();
-  const filteredResumeItems = resumeItems.filter(
-    (i) =>
-      i.title.toLowerCase().includes(q) || i.brand.toLowerCase().includes(q)
-  );
   const filteredCourses = courses.filter(
     (i) =>
       i.title.toLowerCase().includes(q) || i.subtitle.toLowerCase().includes(q)
@@ -123,6 +115,7 @@ export default function Dashboard() {
           userName={userName ?? undefined}
           userEmail={userEmail ?? undefined}
           avatarUrl={avatarUrl ?? undefined}
+          isLoading={isProfileLoading}
           onSignOut={handleSignOut}
         />
         <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
@@ -136,7 +129,9 @@ export default function Dashboard() {
             description="Learn binge-worthy, career-building lessons from experts across tech media and business."
           >
             {loading ? (
-              <p className="text-gray-400">Loading courses...</p>
+              <div className="flex justify-center py-8"><BrandedSpinner size="md" /></div>
+            ) : filteredCourses.length === 0 ? (
+              <EmptyCoursesGrid message="Trending courses coming soon!" />
             ) : (
               <CardsGrid items={filteredCourses.slice(0, 4)} router={router} />
             )}
@@ -148,7 +143,9 @@ export default function Dashboard() {
             description="Learn binge-worthy, career-building lessons from experts across tech media and business."
           >
             {loading ? (
-              <p className="text-gray-400">Loading courses...</p>
+              <div className="flex justify-center py-8"><BrandedSpinner size="md" /></div>
+            ) : filteredCourses.length === 0 ? (
+              <EmptyCoursesGrid message="New releases coming soon!" />
             ) : (
               <CardsGrid items={filteredCourses} router={router} />
             )}
@@ -160,7 +157,9 @@ export default function Dashboard() {
             description="Learn binge-worthy, career-building lessons from experts across tech media and business."
           >
             {loading ? (
-              <p className="text-gray-400">Loading courses...</p>
+              <div className="flex justify-center py-8"><BrandedSpinner size="md" /></div>
+            ) : filteredCourses.length === 0 ? (
+              <EmptyCoursesGrid message="Recommendations coming soon!" />
             ) : (
               <CardsGrid items={filteredCourses.slice(0, 4)} router={router} />
             )}
@@ -168,7 +167,7 @@ export default function Dashboard() {
 
           {/* This week's top pick */}
           <section className="py-8">
-            <TopPick />
+            <WeeklyTopPick />
           </section>
 
           <div className="h-10" />
@@ -222,6 +221,7 @@ function CardsGrid({
         <ProductCard
           key={it.id}
           imageSrc={it.image}
+          id={String(it.id)}
           title={it.title}
           subtitle={it.subtitle}
           price={it.price}

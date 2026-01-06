@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useCart } from "@/hooks/use-cart";
+import { useNavigate } from "react-router-dom";
 
 interface TrendingItem {
   id: string;
@@ -7,6 +9,7 @@ interface TrendingItem {
   title: string;
   subtitle: string;
   image: string;
+  category?: string;
 }
 
 interface CarouselProps {
@@ -18,6 +21,19 @@ export default function ChannelMetricsCarousel({ accentColor = "green" }: Carous
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoPlay, setIsAutoPlay] = useState(true);
   const autoPlayRef = useRef<NodeJS.Timeout | null>(null);
+  const { addItem } = useCart();
+  const navigate = useNavigate();
+
+  const handleEnroll = (item: TrendingItem) => {
+    addItem({
+      id: item.id,
+      title: item.title,
+      price: parseFloat(item.price.replace(/[^\d.]/g, "")),
+      image: item.image,
+      creator: item.subtitle,
+    });
+    navigate("/checkout");
+  };
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -34,6 +50,7 @@ export default function ChannelMetricsCarousel({ accentColor = "green" }: Carous
           title: course.title,
           subtitle: course.instructor || 'Expert Instructor',
           image: course.image_url || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=1920&h=600&fit=crop&q=80',
+          category: course.category,
         })));
       }
     };
@@ -142,7 +159,7 @@ export default function ChannelMetricsCarousel({ accentColor = "green" }: Carous
                         {/* Badge */}
                         <div className="inline-flex">
                           <span className={`px-4 py-1.5 backdrop-blur-md rounded-full text-xs font-semibold border ${badgeColors[accentColor]}`}>
-                            Featured Course
+                            {item.category === 'podcast' ? 'Featured Series' : 'Featured Course'}
                           </span>
                         </div>
 
@@ -157,14 +174,19 @@ export default function ChannelMetricsCarousel({ accentColor = "green" }: Carous
                         </p>
 
                         {/* Price and CTA */}
-                        <div className="flex items-center gap-4 md:gap-6 pt-2">
-                          <span className="text-xl md:text-3xl font-bold text-white">
-                            {item.price}
-                          </span>
-                          <button className={`px-6 md:px-8 py-2.5 md:py-3 rounded-xl font-bold text-sm md:text-base transition-all transform hover:scale-105 shadow-lg ${buttonColors[accentColor]}`}>
-                            Enroll Now
-                          </button>
-                        </div>
+                        {item.price !== "₦0" && (
+                          <div className="flex items-center gap-4 md:gap-6 pt-2">
+                            <span className="text-xl md:text-3xl font-bold text-white">
+                              {item.price}
+                            </span>
+                            <button 
+                              onClick={() => handleEnroll(item)}
+                              className={`px-6 md:px-8 py-2.5 md:py-3 rounded-xl font-bold text-sm md:text-base transition-all transform hover:scale-105 shadow-lg ${buttonColors[accentColor]}`}
+                            >
+                              Enroll Now
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>

@@ -27,6 +27,7 @@ export function HomeHeader({
   userName,
   userEmail,
   avatarUrl,
+  isLoading,
   onSignOut,
 }: {
   search: string;
@@ -34,6 +35,7 @@ export function HomeHeader({
   userName?: string;
   userEmail?: string;
   avatarUrl?: string;
+  isLoading?: boolean;
   onSignOut?: () => void;
 }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -105,16 +107,14 @@ export function HomeHeader({
 
         {/* Center: Search - Desktop */}
         <div
-          className={`mx-auto hidden w-full max-w-[480px] items-center rounded-full font-vietnam px-4 py-2 text-[13px] text-zinc-300 transition-all duration-300 lg:flex xl:max-w-[400px] ${
-            isSearchFocused
+          className={`mx-auto hidden w-full max-w-[480px] items-center rounded-full font-vietnam px-4 py-2 text-[13px] text-zinc-300 transition-all duration-300 lg:flex xl:max-w-[400px] ${isSearchFocused
               ? "bg-[#333] ring-2 ring-lime-500/30 shadow-lg shadow-lime-500/10"
               : "bg-[#2a2a2a] hover:bg-[#2f2f2f]"
-          }`}
+            }`}
         >
           <Search
-            className={`mr-2 h-4 w-4 font-vietnam transition-colors duration-200 ${
-              isSearchFocused ? "text-lime-400" : "text-zinc-400"
-            }`}
+            className={`mr-2 h-4 w-4 font-vietnam transition-colors duration-200 ${isSearchFocused ? "text-lime-400" : "text-zinc-400"
+              }`}
             aria-hidden="true"
           />
           <input
@@ -155,7 +155,7 @@ export function HomeHeader({
           </a>
           <button
             aria-label="Favorites"
-            onClick={() => navigate("/mylibrary")}
+            onClick={() => navigate("/mylibrary?tab=saved")}
             className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-[#1a1a1a] text-white ring-1 ring-white/10 transition-all duration-200 hover:bg-[#222] hover:scale-105 sm:h-9 sm:w-9"
           >
             <div className="relative">
@@ -182,21 +182,34 @@ export function HomeHeader({
                   aria-label="Open profile menu"
                   className="relative h-8 w-8 overflow-hidden rounded-full ring-1 ring-white/10 transition-all duration-200 hover:ring-2 hover:ring-lime-500/30 sm:h-9 sm:w-9"
                 >
-                  <img
-                    src={avatarUrl || "/assets/dashboard-images/face.jpg"}
-                    alt={userName ? `${userName} avatar` : "User avatar"}
-                    className="h-full w-full object-cover transition-transform duration-200 hover:scale-110"
-                    loading="lazy"
-                  />
+                  {isLoading ? (
+                    <div className="h-full w-full bg-zinc-700 animate-pulse" />
+                  ) : (
+                    <img
+                      src={avatarUrl || "/assets/dashboard-images/face.jpg"}
+                      alt={userName ? `${userName} avatar` : "User avatar"}
+                      className="h-full w-full object-cover transition-transform duration-200 hover:scale-110"
+                      loading="lazy"
+                    />
+                  )}
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel>
-                  <div className="text-sm font-semibold">
-                    {userName ?? "Guest"}
-                  </div>
-                  {userEmail && (
-                    <div className="text-xs text-zinc-400">{userEmail}</div>
+                  {isLoading ? (
+                    <div className="space-y-2">
+                      <div className="h-4 w-24 bg-zinc-700 rounded animate-pulse" />
+                      <div className="h-3 w-32 bg-zinc-800 rounded animate-pulse" />
+                    </div>
+                  ) : (
+                    <>
+                      <div className="text-sm font-semibold">
+                        {userName ?? "Guest"}
+                      </div>
+                      {userEmail && (
+                        <div className="text-xs text-zinc-400">{userEmail}</div>
+                      )}
+                    </>
                   )}
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
@@ -214,10 +227,19 @@ export function HomeHeader({
             </DropdownMenu>
             {/* User info - hidden on small screens */}
             <div className="hidden leading-tight lg:block">
-              <div className="text-sm font-semibold text-white font-vietnam transition-colors duration-200 hover:text-lime-400">
-                {userName ?? "Guest"}
-              </div>
-              <div className="text-[11px] text-zinc-400">{userEmail ?? ""}</div>
+              {isLoading ? (
+                <div className="space-y-1.5">
+                  <div className="h-4 w-20 bg-zinc-700 rounded animate-pulse" />
+                  <div className="h-3 w-28 bg-zinc-800 rounded animate-pulse" />
+                </div>
+              ) : (
+                <>
+                  <div className="text-sm font-semibold text-white font-vietnam transition-colors duration-200 hover:text-lime-400">
+                    {userName ?? "Guest"}
+                  </div>
+                  <div className="text-[11px] text-zinc-400">{userEmail ?? ""}</div>
+                </>
+              )}
             </div>
           </div>
 
@@ -238,9 +260,8 @@ export function HomeHeader({
 
       {/* Mobile Navigation Menu */}
       <div
-        className={`overflow-hidden transition-all duration-300 ease-in-out lg:hidden ${
-          isMenuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
-        }`}
+        className={`overflow-hidden transition-all duration-300 ease-in-out lg:hidden ${isMenuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+          }`}
       >
         <nav className="border-t border-white/10 bg-[#0c0c0c] px-4 py-4">
           <div className="space-y-3">
@@ -273,16 +294,14 @@ export function HomeHeader({
             >
               <span>NLTV</span>
               <ChevronDown
-                className={`h-4 w-4 transition-transform duration-200 ${
-                  isMobileChannelsOpen ? "rotate-180" : "group-hover:rotate-180"
-                }`}
+                className={`h-4 w-4 transition-transform duration-200 ${isMobileChannelsOpen ? "rotate-180" : "group-hover:rotate-180"
+                  }`}
               />
             </button>
             <div
               id="mobile-channels-submenu"
-              className={`overflow-hidden pl-3 ${
-                isMobileChannelsOpen ? "mt-2 max-h-40" : "max-h-0"
-              } transition-[max-height] duration-300 ease-in-out`}
+              className={`overflow-hidden pl-3 ${isMobileChannelsOpen ? "mt-2 max-h-40" : "max-h-0"
+                } transition-[max-height] duration-300 ease-in-out`}
             >
               <button
                 className="block w-full text-left py-2 text-sm text-zinc-300 hover:text-white"
@@ -343,16 +362,14 @@ export function HomeHeader({
       {/* Mobile Search Bar */}
       <div className="block w-full px-3 pb-3 sm:px-4 lg:hidden">
         <div
-          className={`flex items-center rounded-full font-vietnam px-4 py-2.5 text-[13px] text-zinc-300 transition-all duration-300 ${
-            isSearchFocused
+          className={`flex items-center rounded-full font-vietnam px-4 py-2.5 text-[13px] text-zinc-300 transition-all duration-300 ${isSearchFocused
               ? "bg-[#333] ring-2 ring-lime-500/30 shadow-lg shadow-lime-500/10"
               : "bg-[#2a2a2a]"
-          }`}
+            }`}
         >
           <Search
-            className={`mr-2 h-4 w-4 transition-colors duration-200 ${
-              isSearchFocused ? "text-lime-400" : "text-zinc-400"
-            }`}
+            className={`mr-2 h-4 w-4 transition-colors duration-200 ${isSearchFocused ? "text-lime-400" : "text-zinc-400"
+              }`}
             aria-hidden="true"
           />
           <input

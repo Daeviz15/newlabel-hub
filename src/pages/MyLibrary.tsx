@@ -2,12 +2,14 @@ import React, { useState, useEffect, useCallback } from "react";
 import { ResumeCard, ProductCard } from "@/components/course-card";
 import { HomeHeader } from "../components/home-header";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { useUserProfile } from "@/hooks/use-user-profile";
-import { Loader2, Heart, ShoppingBag, Download, Play } from "lucide-react";
+import { useWatchProgress } from "@/hooks/use-watch-progress";
+import { Loader2, Heart, ShoppingBag, Download, PlayCircle } from "lucide-react";
 import { EmptyState } from "@/components/ui/empty-state";
+import { useSavedItems } from "@/hooks/use-saved-items";
 
 interface Product {
   id: string;
@@ -41,14 +43,18 @@ interface VideoProgress {
 
 export default function MyLibrary() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("all");
+  const [searchParams] = useSearchParams();
+  const initialTab = searchParams.get("tab") || "all";
+  const [activeTab, setActiveTab] = useState(initialTab);
   const { userName, userEmail, avatarUrl } = useUserProfile();
-  
+
   const [isLoading, setIsLoading] = useState(true);
-  const [savedItems, setSavedItems] = useState<SavedItem[]>([]);
+  const { savedItems, isLoading: isLoadingSaved } = useSavedItems();
   const [purchases, setPurchases] = useState<Purchase[]>([]);
   const [videoProgress, setVideoProgress] = useState<VideoProgress[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
+
+  const { watchProgress, isLoading: isLoadingProgress, getProgressPercent } = useWatchProgress(userId);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -64,29 +70,9 @@ export default function MyLibrary() {
 
   const fetchLibraryData = useCallback(async () => {
     if (!userId) return;
-    
+
     setIsLoading(true);
     try {
-      // Fetch saved items with product details
-      const { data: savedData, error: savedError } = await supabase
-        .from("saved_items")
-        .select(`
-          id,
-          product_id,
-          products (
-            id,
-            title,
-            image_url,
-            instructor,
-            price,
-            brand
-          )
-        `)
-        .eq("user_id", userId);
-
-      if (savedError) throw savedError;
-      setSavedItems((savedData as unknown as SavedItem[]) || []);
-
       // Fetch purchases with product details
       const { data: purchaseData, error: purchaseError } = await supabase
         .from("purchases")
@@ -150,55 +136,6 @@ export default function MyLibrary() {
     navigate("/login");
   };
 
-  const handleRemoveSaved = async (productId: string) => {
-    if (!userId) return;
-    
-    const { error } = await supabase
-      .from("saved_items")
-      .delete()
-      .eq("user_id", userId)
-      .eq("product_id", productId);
-
-    if (!error) {
-      setSavedItems(prev => prev.filter(item => item.product_id !== productId));
-    }
-  };
-
-  const handleSaveToggle = async (productId: string, isSaved: boolean) => {
-    if (!isSaved) {
-      // Item was unsaved, update local state immediately for instant feedback
-      setSavedItems(prev => prev.filter(item => item.product_id !== productId));
-      
-      // Refetch saved items to ensure consistency with database
-      if (userId) {
-        const { data: savedData } = await supabase
-          .from("saved_items")
-          .select(`
-            id,
-            product_id,
-            products (
-              id,
-              title,
-              image_url,
-              instructor,
-              price,
-              brand
-            )
-          `)
-          .eq("user_id", userId);
-        
-        if (savedData) {
-          setSavedItems((savedData as unknown as SavedItem[]) || []);
-        }
-      }
-    } else {
-      // Item was saved, refetch to add it to the list if we're on the saved tab
-      if (userId) {
-        await fetchLibraryData();
-      }
-    }
-  };
-
   const tabs = [
     { id: "all", label: "All" },
     { id: "continue", label: "Continue Watching" },
@@ -207,7 +144,7 @@ export default function MyLibrary() {
     { id: "downloads", label: "Downloads" },
   ];
 
-  const showContinueWatching = activeTab === "all" || activeTab === "continue";
+  const showContinue = activeTab === "all" || activeTab === "continue";
   const showPurchased = activeTab === "all" || activeTab === "purchased";
   const showSaved = activeTab === "all" || activeTab === "saved";
   const showDownloads = activeTab === "all" || activeTab === "downloads";
@@ -221,7 +158,7 @@ export default function MyLibrary() {
       </div>
       <HomeHeader
         search=""
-        onSearchChange={() => {}}
+        onSearchChange={() => { }}
         userName={userName ?? undefined}
         userEmail={userEmail ?? undefined}
         avatarUrl={avatarUrl ?? undefined}
@@ -257,63 +194,48 @@ export default function MyLibrary() {
           ))}
         </div>
 
-        {isLoading ? (
+        {(isLoading || isLoadingProgress) ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="w-8 h-8 animate-spin text-brand-green" />
           </div>
         ) : (
           <>
             {/* Continue Watching */}
-            {showContinueWatching && (
+            {showContinue && (
               <section className="mb-8 sm:mb-12">
                 <div className="flex items-center gap-2 mb-2">
-                  <Play className="w-5 h-5 text-brand-green" />
+                  <PlayCircle className="w-5 h-5 text-brand-green" />
                   <h2 className="text-foreground text-xl sm:text-2xl font-bold font-vietnam">
                     Continue Watching
                   </h2>
                 </div>
                 <p className="text-muted-foreground mb-4 sm:mb-6 text-sm sm:text-base font-vietnam">
-                  Pick up where you left off in your courses.
+                  Pick up where you left off.
                 </p>
-                {videoProgress.length > 0 ? (
+                {watchProgress.length > 0 ? (
                   <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-                    {videoProgress.map((progress) => {
-                      const brand = progress.products?.brand?.toLowerCase();
-                      const playerRoute =
-                        brand === "jsity"
-                          ? "/jsity-video-player"
-                          : brand === "thc"
-                          ? "/thc-video-player"
-                          : brand === "gospel"
-                          ? "/gospel-video-player"
-                          : "/video-player";
-                      
-                      return (
-                        <ResumeCard
-                          key={progress.id}
-                          imageSrc={progress.products?.image_url || "/assets/dashboard-images/face.jpg"}
-                          title={progress.products?.title || "Untitled"}
-                          brand={progress.products?.brand || ""}
-                          percent={Math.round(progress.progress_percentage)}
-                          onClick={() => navigate(playerRoute, {
-                            state: {
-                              id: progress.product_id,
-                              image: progress.products?.image_url || "/assets/dashboard-images/face.jpg",
-                              title: progress.products?.title || "Untitled",
-                              creator: progress.products?.instructor || "",
-                              price: `₦${progress.products?.price?.toLocaleString() || "0"}`,
-                            }
-                          })}
-                        />
-                      );
-                    })}
+                    {watchProgress.map((item) => (
+                      <ResumeCard
+                        key={item.id}
+                        imageSrc={item.course?.image_url || "/assets/dashboard-images/face.jpg"}
+                        title={item.lesson?.title || item.course?.title || "Untitled"}
+                        percent={getProgressPercent(item.progress_seconds, item.duration_seconds)}
+                        brand={item.course?.brand || "jsity"}
+                        onClick={() => navigate(`/video/${item.course_id}`, {
+                          state: {
+                            lessonId: item.lesson_id,
+                            startTime: item.progress_seconds
+                          }
+                        })}
+                      />
+                    ))}
                   </div>
                 ) : (
                   <div className="flex flex-col items-center">
                     <EmptyState
-                      icon={Play}
-                      title="No courses in progress"
-                      description="Start watching a purchased course to see it here."
+                      icon={PlayCircle}
+                      title="No videos in progress"
+                      description="Start watching a course to track your progress here."
                     />
                     <Button
                       onClick={() => navigate("/catalogue")}
@@ -346,11 +268,11 @@ export default function MyLibrary() {
                         brand === "jsity"
                           ? "/jsity-video-player"
                           : brand === "thc"
-                          ? "/thc-video-player"
-                          : brand === "gospel"
-                          ? "/gospel-video-player"
-                          : "/video-player";
-                      
+                            ? "/thc-video-player"
+                            : brand === "gospel"
+                              ? "/gospel-video-player"
+                              : "/video-player";
+
                       return (
                         <ProductCard
                           key={purchase.id}
@@ -404,39 +326,53 @@ export default function MyLibrary() {
                 </p>
                 {savedItems.length > 0 ? (
                   <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-                    {savedItems.map((item) => {
-                      const brand = item.products?.brand?.toLowerCase();
-                      const detailsRoute =
-                        brand === "jsity"
-                          ? "/jsity-course-details"
-                          : brand === "thc"
-                          ? "/thc-video-player"
-                          : brand === "gospel"
-                          ? "/gospel-course-details"
-                          : "/video-details";
-                      
-                      return (
-                        <ProductCard
-                          key={item.id}
-                          imageSrc={item.products?.image_url || "/assets/dashboard-images/face.jpg"}
-                          title={item.products?.title || "Untitled"}
-                          subtitle={item.products?.instructor || ""}
-                          price={`₦${item.products?.price?.toLocaleString() || "0"}`}
-                          productId={item.product_id}
-                          liked={true}
-                          onClick={() => navigate(detailsRoute, {
-                            state: {
-                              id: item.product_id,
-                              image: item.products?.image_url || "/assets/dashboard-images/face.jpg",
-                              title: item.products?.title || "Untitled",
-                              creator: item.products?.instructor || "",
-                              price: `₦${item.products?.price?.toLocaleString() || "0"}`,
-                            }
-                          })}
-                          onSaveToggle={handleSaveToggle}
-                        />
-                      );
-                    })}
+                    {savedItems.map((item) => (
+                      <ProductCard
+                        key={item.id}
+                        id={item.id}
+                        imageSrc={item.image}
+                        title={item.title}
+                        subtitle={item.creator}
+                        price={item.price}
+                        brand={item.brand}
+                        onClick={() => {
+                          if (item.brand === 'thc') {
+                            navigate("/thc-video-player", {
+                              state: {
+                                id: item.id,
+                                image: item.image,
+                                title: item.title,
+                                host: item.creator,
+                                episodeCount: 1,
+                                description: item.description || "",
+                              }
+                            });
+                          } else if (item.brand === 'jsity') {
+                            navigate("/jsity-course-details", {
+                              state: {
+                                id: item.id,
+                                image: item.image,
+                                title: item.title,
+                                creator: item.creator,
+                                price: item.price,
+                                instructor: item.creator,
+                                role: "Instructor"
+                              }
+                            });
+                          } else {
+                            navigate("/video-details", {
+                              state: {
+                                id: item.id,
+                                image: item.image,
+                                title: item.title,
+                                creator: item.creator,
+                                price: item.price
+                              }
+                            });
+                          }
+                        }}
+                      />
+                    ))}
                   </div>
                 ) : (
                   <div className="flex flex-col items-center">

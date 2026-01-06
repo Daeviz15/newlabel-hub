@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { InlineLoader } from "@/components/ui/BrandedSpinner";
 import logo from "../assets/Logo.png";
 import logoOne from "/assets/logos.png";
 
@@ -186,9 +187,16 @@ const ForgotPassword = () => {
                 <Button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-brand-green hover:bg-brand-green text-black font-medium h-12 transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                  className="w-full bg-brand-green hover:bg-brand-green/90 text-black font-medium h-12 transition-all duration-300 hover:scale-105 hover:shadow-lg rounded-full"
                 >
-                  {loading ? "Sending..." : "Send Reset Link"}
+                  {loading ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <InlineLoader />
+                      <span>Sending...</span>
+                    </div>
+                  ) : (
+                    "Send Reset Link"
+                  )}
                 </Button>
 
                 <div className="text-center">
