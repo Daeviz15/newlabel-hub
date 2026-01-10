@@ -33,13 +33,6 @@ interface Purchase {
   products: Product;
 }
 
-interface VideoProgress {
-  id: string;
-  product_id: string;
-  progress_percentage: number;
-  last_watched_at: string;
-  products: Product;
-}
 
 export default function MyLibrary() {
   const navigate = useNavigate();
@@ -49,9 +42,9 @@ export default function MyLibrary() {
   const { userName, userEmail, avatarUrl } = useUserProfile();
 
   const [isLoading, setIsLoading] = useState(true);
-  const { savedItems, isLoading: isLoadingSaved } = useSavedItems();
+  const { savedItemIds, isLoading: isLoadingSaved } = useSavedItems();
   const [purchases, setPurchases] = useState<Purchase[]>([]);
-  const [videoProgress, setVideoProgress] = useState<VideoProgress[]>([]);
+  const [savedProducts, setSavedProducts] = useState<Product[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
 
   const { watchProgress, isLoading: isLoadingProgress, getProgressPercent } = useWatchProgress(userId);
@@ -95,36 +88,26 @@ export default function MyLibrary() {
       if (purchaseError) throw purchaseError;
       setPurchases((purchaseData as unknown as Purchase[]) || []);
 
-      // Fetch video progress for purchased courses (only those with progress > 0 and < 100)
-      const { data: progressData, error: progressError } = await supabase
-        .from("video_progress")
-        .select(`
-          id,
-          product_id,
-          progress_percentage,
-          last_watched_at,
-          products (
-            id,
-            title,
-            image_url,
-            instructor,
-            price,
-            brand
-          )
-        `)
-        .eq("user_id", userId)
-        .gt("progress_percentage", 0)
-        .lt("progress_percentage", 100)
-        .order("last_watched_at", { ascending: false });
+      // Fetch saved items with product details
+      const savedIdsArray = Array.from(savedItemIds);
+      if (savedIdsArray.length > 0) {
+        const { data: savedData, error: savedError } = await supabase
+          .from("products")
+          .select("id, title, image_url, instructor, price, brand")
+          .in("id", savedIdsArray);
 
-      if (progressError) throw progressError;
-      setVideoProgress((progressData as unknown as VideoProgress[]) || []);
+        if (!savedError && savedData) {
+          setSavedProducts(savedData);
+        }
+      } else {
+        setSavedProducts([]);
+      }
     } catch (error) {
       console.error("Error fetching library data:", error);
     } finally {
       setIsLoading(false);
     }
-  }, [userId]);
+  }, [userId, savedItemIds]);
 
   useEffect(() => {
     if (!userId) return;
@@ -324,38 +307,38 @@ export default function MyLibrary() {
                 <p className="text-muted-foreground mb-4 sm:mb-6 text-sm sm:text-base font-vietnam">
                   Items you've saved to watch or purchase later.
                 </p>
-                {savedItems.length > 0 ? (
+                {savedProducts.length > 0 ? (
                   <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-                    {savedItems.map((item) => (
+                    {savedProducts.map((item) => (
                       <ProductCard
                         key={item.id}
                         id={item.id}
-                        imageSrc={item.image}
+                        imageSrc={item.image_url || "/assets/dashboard-images/face.jpg"}
                         title={item.title}
-                        subtitle={item.creator}
-                        price={item.price}
-                        brand={item.brand}
+                        subtitle={item.instructor || ""}
+                        price={`₦${item.price?.toLocaleString() || "0"}`}
+                        brand={item.brand || undefined}
+                        productId={item.id}
                         onClick={() => {
                           if (item.brand === 'thc') {
                             navigate("/thc-video-player", {
                               state: {
                                 id: item.id,
-                                image: item.image,
+                                image: item.image_url,
                                 title: item.title,
-                                host: item.creator,
+                                host: item.instructor,
                                 episodeCount: 1,
-                                description: item.description || "",
                               }
                             });
                           } else if (item.brand === 'jsity') {
                             navigate("/jsity-course-details", {
                               state: {
                                 id: item.id,
-                                image: item.image,
+                                image: item.image_url,
                                 title: item.title,
-                                creator: item.creator,
-                                price: item.price,
-                                instructor: item.creator,
+                                creator: item.instructor,
+                                price: `₦${item.price}`,
+                                instructor: item.instructor,
                                 role: "Instructor"
                               }
                             });
@@ -363,10 +346,10 @@ export default function MyLibrary() {
                             navigate("/video-details", {
                               state: {
                                 id: item.id,
-                                image: item.image,
+                                image: item.image_url,
                                 title: item.title,
-                                creator: item.creator,
-                                price: item.price
+                                creator: item.instructor,
+                                price: `₦${item.price}`
                               }
                             });
                           }

@@ -21,8 +21,8 @@ export function PodcastCard({
   episodeCount = 24,
   onClick,
 }: PodcastCardProps) {
-  const { isSaved, toggleSave } = useSavedItems();
-  const liked = isSaved(id);
+  const { isItemSaved, toggleSavedItem } = useSavedItems();
+  const liked = isItemSaved(id);
 
   return (
     <div
@@ -43,13 +43,7 @@ export function PodcastCard({
         className="absolute right-3 top-3 z-10 inline-flex h-8 w-8 items-center justify-center rounded-full bg-black/60 ring-1 ring-white/10 transition-colors hover:bg-black/80"
         onClick={(e) => {
           e.stopPropagation();
-          toggleSave({
-            id,
-            title,
-            image: imageSrc,
-            creator: host,
-            price: "Free" 
-          });
+          toggleSavedItem(id);
         }}
       >
         <Heart
