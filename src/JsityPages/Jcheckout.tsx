@@ -6,10 +6,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useCart } from "@/hooks/use-cart";
 import { useUserProfile } from "@/hooks/use-user-profile";
-import { CheckoutForm } from "@/components/checkout";
 import { JHomeHeader } from "./components/home-header";
 import JsityFooter from "./components/JsityFooter";
-import type { BillingDetails, CartItem } from "@/types/checkout";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
 
 const BRAND_COLOR = "#8B5CF6"; // Jsity purple
 
@@ -17,7 +18,7 @@ export default function Jcheckout() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { state: cartState, clearCart } = useCart();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { userName, userEmail, avatarUrl } = useUserProfile();
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
   const handleSignOut = async () => {
@@ -25,7 +26,7 @@ export default function Jcheckout() {
     navigate("/login");
   };
 
-  const handlePayment = async (billingDetails: BillingDetails) => {
+  const handlePayment = async () => {
     if (cartState.items.length === 0) {
       toast({
         title: "Cart is empty",
@@ -36,6 +37,7 @@ export default function Jcheckout() {
     }
 
     try {
+      setIsProcessingPayment(true);
       const {
         data: { user },
       } = await supabase.auth.getUser();
@@ -58,16 +60,6 @@ export default function Jcheckout() {
               id: item.id,
               quantity: item.quantity,
             })),
-            billing_details: {
-              first_name: billingDetails.firstName,
-              last_name: billingDetails.lastName,
-              email: billingDetails.email,
-              phone: billingDetails.phone,
-              country: billingDetails.country,
-              state: billingDetails.state,
-              street: billingDetails.street,
-              notes: billingDetails.notes,
-            },
           },
         }
       );
@@ -86,6 +78,8 @@ export default function Jcheckout() {
         description: error.message || "Failed to initialize payment. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setIsProcessingPayment(false);
     }
   };
 
@@ -98,19 +92,11 @@ export default function Jcheckout() {
         title: "Payment successful!",
         description: "Your courses have been added to your library",
       });
-      window.history.replaceState({}, "", "/mylibrary");
+      navigate("/mylibrary");
     }
-  }, [clearCart, toast]);
+  }, [clearCart, toast, navigate]);
 
-  // Map cart items to the expected type
-  const cartItems: CartItem[] = cartState.items.map((item) => ({
-    id: item.id,
-    title: item.title,
-    image: item.image,
-    quantity: item.quantity,
-    price: item.price,
-    creator: item.creator,
-  }));
+  const total = cartState.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   return (
     <>
@@ -128,7 +114,7 @@ export default function Jcheckout() {
 
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Billing Details */}
-          <div className="bg-[#A3A3A3 10%] border border-zinc-800 rounded-lg p-8">
+          <div className="bg-zinc-900/50 border border-zinc-800 rounded-lg p-8">
             <h2 className="text-2xl font-vietnam font-semibold mb-6">
               Billing Details
             </h2>
@@ -249,7 +235,7 @@ export default function Jcheckout() {
           </div>
 
           {/* Order Summary */}
-          <div className="bg-[#A3A3A3 10%] border border-zinc-800 rounded-lg p-8 h-fit">
+          <div className="bg-zinc-900/50 border border-zinc-800 rounded-lg p-8 h-fit">
             <h2 className="text-2xl font-vietnam font-semibold mb-6">
               Order Summary
             </h2>
@@ -280,7 +266,7 @@ export default function Jcheckout() {
                       </p>
                     </div>
                     <div className="text-sm font-vietnam font-semibold">
-                      {item.price}
+                      ₦{item.price.toLocaleString()}
                     </div>
                   </div>
                 ))
@@ -289,7 +275,7 @@ export default function Jcheckout() {
 
             <div className="flex justify-between text-lg font-vietnam font-semibold pt-4 border-t border-zinc-800 mb-6">
               <span>Total</span>
-              <span>₦{total.toFixed(2)}</span>
+              <span>₦{total.toLocaleString()}</span>
             </div>
 
             <Button

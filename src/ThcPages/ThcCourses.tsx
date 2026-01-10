@@ -196,13 +196,13 @@ export default function ThcCourses() {
                     onClick={() =>
                       navigate("/thc-video-player", {
                         state: {
-                          id: product.id,
-                          image: product.image_url,
-                          title: product.title,
-                          creator: product.instructor,
-                          price: `₦${product.price.toLocaleString()}`,
-                          instructor: product.instructor,
-                          role: product.instructor_role,
+                          id: item.id,
+                          image: item.image_url,
+                          title: item.title,
+                          creator: item.instructor,
+                          price: `₦${item.price.toLocaleString()}`,
+                          instructor: item.instructor,
+                          role: item.instructor_role,
                         },
                       })
                     }

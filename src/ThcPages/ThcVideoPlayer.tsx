@@ -5,6 +5,9 @@ import ThcFooter from "./components/ThcFooter";
 import { supabase } from "@/integrations/supabase/client";
 import { Play, Pause, Volume2, Maximize, Lock } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
+import { useToast } from "@/hooks/use-toast";
+import { useSavedItems } from "@/hooks/use-saved-items";
+import { BrandedSpinner } from "@/components/ui/BrandedSpinner";
 
 interface PodcastData {
   id: string;
@@ -32,7 +35,7 @@ export default function ThcPodcastDetail() {
   const podcastData = location.state as PodcastData;
   const { addItem } = useCart();
   const { toast } = useToast();
-  const { isSaved, toggleSave } = useSavedItems();
+  const { isItemSaved, toggleSavedItem } = useSavedItems();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [userName, setUserName] = useState<string | null>(null);
