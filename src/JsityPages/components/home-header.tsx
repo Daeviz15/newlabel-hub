@@ -154,7 +154,7 @@ export function JHomeHeader({
         <button
           aria-label="Favorites"
           onClick={() => navigate("/mylibrary?tab=saved")}
-          className="inline-flex h-8 w-8 items-center   justify-center rounded-md bg-[#1a1a1a] text-white ring-1 ring-white/10 transition-all duration-200 hover:bg-[#222] hover:scale-105 sm:h-9 sm:w-9"
+          className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-[#1a1a1a] text-white ring-1 ring-white/10 transition-all duration-200 hover:bg-[#222] hover:scale-105 sm:h-9 sm:w-9"
         >
           <div className="relative">
             <Heart

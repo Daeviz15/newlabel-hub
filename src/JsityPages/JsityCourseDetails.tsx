@@ -29,6 +29,7 @@ export default function VideoDetails() {
   const location = useLocation();
   const navigate = useNavigate();
   const { addItem } = useCart();
+  const { toggleSavedItem, isItemSaved } = useSavedItems();
   const profile = useUserProfile();
   const { isSaved, toggleSave } = useSavedItems();
   const [courseData, setCourseData] = useState<any>(null);
@@ -44,7 +45,7 @@ export default function VideoDetails() {
       if (currentData) {
         setCourseData(currentData);
         if (currentData.description) {
-           setLoading(false);
+          setLoading(false);
         }
       }
 
@@ -80,33 +81,33 @@ export default function VideoDetails() {
           }));
         }
       } else if (!currentData) {
-         // Fallback fetch if NO state and NO ID
-          const { data, error } = await supabase
-            .from("products")
-            .select("*")
-            .eq("brand", "jsity")
-            .limit(1)
-            .single();
-          
-          if (data && !error) {
-             const { count } = await supabase
-              .from("course_lessons")
-              .select("*", { count: "exact", head: true })
-              .eq("course_id", data.id);
+        // Fallback fetch if NO state and NO ID
+        const { data, error } = await supabase
+          .from("products")
+          .select("*")
+          .eq("brand", "jsity")
+          .limit(1)
+          .single();
 
-            setCourseData({
-              id: data.id,
-              image: data.image_url,
-              title: data.title,
-              creator: data.instructor,
-              price: `₦${data.price}`,
-              instructor: data.instructor,
-              students: 240,
-              rating: 4.8,
-              description: data.description || "",
-              lessons: count || 0,
-            });
-          }
+        if (data && !error) {
+          const { count } = await supabase
+            .from("course_lessons")
+            .select("*", { count: "exact", head: true })
+            .eq("course_id", data.id);
+
+          setCourseData({
+            id: data.id,
+            image: data.image_url,
+            title: data.title,
+            creator: data.instructor,
+            price: `₦${data.price}`,
+            instructor: data.instructor,
+            students: 240,
+            rating: 4.8,
+            description: data.description || "",
+            lessons: count || 0,
+          });
+        }
       }
       setLoading(false);
     };
@@ -118,7 +119,7 @@ export default function VideoDetails() {
   useEffect(() => {
     const fetchRecommendedCourses = async () => {
       if (!courseData?.id) return;
-      
+
       setIsLoadingRecommendations(true);
       try {
         const { data, error } = await supabase
@@ -160,7 +161,7 @@ export default function VideoDetails() {
         <div className="text-center">
           <h1 className="text-2xl font-bold text-white mb-4">Course Not Found</h1>
           <p className="text-gray-400 mb-6">The course you're looking for doesn't exist or has been removed.</p>
-          <button 
+          <button
             onClick={() => navigate("/jdashboard")}
             className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors"
           >
@@ -192,7 +193,6 @@ export default function VideoDetails() {
     });
     navigate("/Jcheckout");
   };
-
 
 
   const handleSignOut = async () => {
@@ -291,7 +291,7 @@ export default function VideoDetails() {
     <main className="bg-[#0b0b0b] text-white min-h-screen">
       <JHomeHeader
         search=""
-        onSearchChange={() => {}}
+        onSearchChange={() => { }}
         userName={profile.userName || "User"}
         userEmail={profile.userEmail || ""}
         avatarUrl={profile.avatarUrl}
@@ -309,7 +309,7 @@ export default function VideoDetails() {
               className="h-full w-full object-cover"
             />
             <button
-              onClick={() => navigate("/jsity-video-player", { 
+              onClick={() => navigate("/jsity-video-player", {
                 state: {
                   courseId: String(courseData.id),  // ✅ Fixed: passing courseId
                   image: courseData.image,

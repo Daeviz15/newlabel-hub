@@ -231,8 +231,8 @@ function CardsGrid({
               it.brand === "jsity"
                 ? "/jsity-course-details"
                 : it.brand === "thc"
-                ? "/thc-video-player"
-                : "/gospel-course-details";
+                  ? "/thc-video-player"
+                  : "/gospel-course-details";
             router(detailsRoute, {
               state: {
                 id: it.id,

@@ -11,11 +11,8 @@ import { THomeHeader } from "./components/home-header";
 import ChannelMetricsCarousel from "@/components/channel-metrics-carousel";
 import { PodcastCard } from "@/components/podcast-card";
 import { EmptyCoursesGrid } from "@/components/ui/ContentComingSoon";
-import { Mic } from "lucide-react";
-import type { Tables } from "@/integrations/supabase/types";
 import { BrandedSpinner } from "@/components/ui/BrandedSpinner";
-
-type Product = Tables<"products">;
+import { Mic } from "lucide-react";
 
 interface ThcPodcastItem {
   id: string;
@@ -23,9 +20,16 @@ interface ThcPodcastItem {
   host: string;
   episodeCount: number;
   image: string;
-  description?: string;
 }
 
+interface Product {
+  id: string;
+  title: string;
+  instructor?: string;
+  brand?: string;
+  category?: string;
+  image_url?: string;
+}
 export default function ThcPodcastDashboard() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
@@ -40,17 +44,15 @@ export default function ThcPodcastDashboard() {
         .select("*")
         .or("brand.eq.thc,category.eq.thc")
         .order("created_at", { ascending: false });
-      
-      return (data || []).map((item) => ({
+
+      return data ? data.map((item) => ({
         id: item.id,
         title: item.title,
         host: item.instructor || "Host",
         episodeCount: 1,
         image: item.image_url || "/assets/dashboard-images/face.jpg",
-        description: item.description || "",
-      }));
-    },
-    staleTime: 1000 * 60 * 5, // 5 minutes
+      })) : [];
+    }
   });
 
   useEffect(() => {
@@ -73,7 +75,6 @@ export default function ThcPodcastDashboard() {
                 host: newItem.instructor || "Host",
                 episodeCount: 1,
                 image: newItem.image_url || "/assets/dashboard-images/face.jpg",
-                description: newItem.description || "",
               };
               return oldData ? [newPodcast, ...oldData] : [newPodcast];
             });
@@ -86,17 +87,6 @@ export default function ThcPodcastDashboard() {
       supabase.removeChannel(channel);
     };
   }, [queryClient]);
-
-  const getTimeBasedGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) {
-      return "Good Morning";
-    } else if (hour < 17) {
-      return "Good Afternoon";
-    } else {
-      return "Good Evening";
-    }
-  };
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -202,7 +192,7 @@ function PodcastsGrid({
       {items.map((podcast) => (
         <PodcastCard
           key={podcast.id}
-          id={podcast.id.toString()}
+          id={podcast.id}
           imageSrc={podcast.image}
           title={podcast.title}
           host={podcast.host}
@@ -210,12 +200,11 @@ function PodcastsGrid({
           onClick={() =>
             navigate("/thc-video-player", {
               state: {
-                id: podcast.id.toString(),
+                id: podcast.id,
                 image: podcast.image,
                 title: podcast.title,
                 host: podcast.host,
                 episodeCount: podcast.episodeCount,
-                description: podcast.description,
               },
             })
           }

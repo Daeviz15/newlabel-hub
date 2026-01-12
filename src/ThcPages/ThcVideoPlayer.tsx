@@ -3,12 +3,11 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { THomeHeader } from "./components/home-header";
 import ThcFooter from "./components/ThcFooter";
 import { supabase } from "@/integrations/supabase/client";
-import { Play, Pause, Volume2, Maximize, Lock } from "lucide-react";
+import { Play, Pause, Volume2, Maximize, Lock, Heart } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useSavedItems } from "@/hooks/use-saved-items";
-import { Heart } from "lucide-react";
 import { BrandedSpinner } from "@/components/ui/BrandedSpinner";
 
 interface PodcastData {
@@ -37,7 +36,7 @@ export default function ThcPodcastDetail() {
   const podcastData = location.state as PodcastData;
   const { addItem } = useCart();
   const { toast } = useToast();
-  const { isSaved, toggleSave } = useSavedItems();
+  const { isItemSaved, toggleSavedItem } = useSavedItems();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [userName, setUserName] = useState<string | null>(null);
@@ -251,21 +250,14 @@ export default function ThcPodcastDetail() {
                 <button
                   onClick={() => {
                     if (podcastData) {
-                      toggleSave({
-                        id: podcastData.id,
-                        title: podcastData.title,
-                        image: podcastData.image,
-                        creator: podcastData.host,
-                        price: "₦0", // Or fetch price if available
-                        brand: "thc",
-                        description: podcastData.description
-                      });
+                      // Will use toggleSavedItem from useSavedItems
+                      toggleSavedItem(podcastData.id);
                     }
                   }}
                   className="p-2 rounded-full hover:bg-white/10 transition-colors"
                 >
                   <Heart 
-                    className={`w-6 h-6 ${isSaved(podcastData.id) ? "fill-[#70E002] text-[#70E002]" : "text-zinc-400"}`} 
+                    className={`w-6 h-6 ${isItemSaved(podcastData.id) ? "fill-[#70E002] text-[#70E002]" : "text-zinc-400"}`} 
                   />
                 </button>
               </h1>

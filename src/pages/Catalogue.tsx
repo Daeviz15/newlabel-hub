@@ -9,6 +9,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useUserProfile } from "@/hooks/use-user-profile";
 import { InlineLoader } from "@/components/ui/BrandedSpinner";
 import { useInfiniteQuery } from "@tanstack/react-query";
+import { useCart } from "@/hooks/use-cart";
+import { toast } from "sonner";
 
 interface Product {
   id: string;
@@ -25,6 +27,7 @@ const ITEMS_PER_PAGE = 12;
 
 const Catalogue = () => {
   const navigate = useNavigate();
+  const { addItem } = useCart();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const { userName, userEmail, avatarUrl } = useUserProfile();
@@ -93,6 +96,18 @@ const Catalogue = () => {
     fetchNextPage();
   };
 
+  const handleAddToCart = (e: React.MouseEvent, product: Product) => {
+    e.stopPropagation();
+    addItem({
+      id: product.id,
+      title: product.title,
+      price: product.price,
+      image: product.image_url || "/assets/dashboard-images/face.jpg",
+      creator: product.instructor || "Unknown",
+    });
+    toast.success("Added to cart");
+  };
+
   return (
     <main className="bg-[#0b0b0b] text-white min-h-screen">
       <div className="bg-brand-green text-black text-sm sm:text-base m-4 py-2 text-center font-medium rounded-md sm:hidden">
@@ -140,8 +155,8 @@ const Catalogue = () => {
 
           {/* Tab Component - Horizontal scroll on mobile */}
           <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
-            <Tab 
-              selectedTab={selectedCategory} 
+            <Tab
+              selectedTab={selectedCategory}
               onTabChange={setSelectedCategory}
             />
           </div>
@@ -169,42 +184,43 @@ const Catalogue = () => {
                   imageSrc={product.image_url || "/assets/dashboard-images/face.jpg"}
                   title={product.title}
                   subtitle={product.instructor || "—"}
-                  price={`₦${product.price.toLocaleString()}`}
-                  brand={product.brand || ""}
+                  price={`₦${product.price ? product.price.toLocaleString() : "0"}`}
+                  productId={product.id}
+                  onAddToCart={(e) => handleAddToCart(e, product)}
                   onClick={() => {
                     if (product.brand === 'thc') {
-                       navigate("/thc-video-player", {
-                          state: {
-                            id: product.id,
-                            image: product.image_url,
-                            title: product.title,
-                            host: product.instructor,
-                            episodeCount: 1, // You might need to fetch this or default it
-                            description: product.description || "",
-                          }
-                       });
+                      navigate("/thc-video-player", {
+                        state: {
+                          id: product.id,
+                          image: product.image_url,
+                          title: product.title,
+                          host: product.instructor,
+                          episodeCount: 1,
+                          description: product.description || "",
+                        }
+                      });
                     } else if (product.brand === 'jsity') {
-                       navigate("/jsity-course-details", {
-                          state: {
-                            id: product.id,
-                            image: product.image_url,
-                            title: product.title,
-                            creator: product.instructor,
-                            price: `₦${product.price.toLocaleString()}`,
-                            instructor: product.instructor,
-                            role: "Instructor" // Defaulting as we don't have role here
-                          }
-                       });
+                      navigate("/jsity-course-details", {
+                        state: {
+                          id: product.id,
+                          image: product.image_url,
+                          title: product.title,
+                          creator: product.instructor,
+                          price: `₦${product.price.toLocaleString()}`,
+                          instructor: product.instructor,
+                          role: "Instructor"
+                        }
+                      });
                     } else {
-                       navigate("/video-details", { 
-                          state: { 
-                            id: product.id, 
-                            image: product.image_url, 
-                            title: product.title, 
-                            creator: product.instructor, 
-                            price: `₦${product.price.toLocaleString()}` 
-                          } 
-                       });
+                      navigate("/video-details", {
+                        state: {
+                          id: product.id,
+                          image: product.image_url,
+                          title: product.title,
+                          creator: product.instructor,
+                          price: `₦${product.price ? product.price.toLocaleString() : "0"}`
+                        }
+                      });
                     }
                   }}
                 />
@@ -212,8 +228,13 @@ const Catalogue = () => {
             </div>
           )}
 
+          {!loading && products.length === 0 && (
+            <p className="text-gray-400 text-center py-8">No items found in this category.</p>
+          )}
+
+          {/* Load More Button with proper functionality */}
           {!loading && hasMore && (
-            <button 
+            <button
               onClick={handleLoadMore}
               disabled={loadingMore}
               className="flex justify-center items-center text-xs sm:text-sm w-full bg-gray-500/25 hover:bg-gray-500/35 transition-colors h-10 sm:h-12 mt-3 mb-6 sm:mb-10 rounded-sm font-nunito font-bold cursor-pointer active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
