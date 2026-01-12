@@ -160,14 +160,27 @@ export function useSavedItems() {
     }
   };
 
+  // Create a Set of saved item IDs for backward compatibility
+  const savedItemIds = new Set(savedItems.map(item => String(item.id)));
+
   return {
     savedItems,
+    savedItemIds,
     isLoading,
     isSaved,
     toggleSave,
     // Aliases for compatibility
     isItemSaved: isSaved,
     toggleSavedItem: async (productId: string) => {
+        const item = savedItems.find(it => String(it.id) === String(productId));
+        if (item) {
+            await toggleSave(item);
+            return true;
+        }
+        return false;
+    },
+    // Alias for removing items
+    removeSavedItem: async (productId: string) => {
         const item = savedItems.find(it => String(it.id) === String(productId));
         if (item) {
             await toggleSave(item);
