@@ -36,7 +36,7 @@ export default function MyLibrary() {
   const { userName, userEmail, avatarUrl } = useUserProfile();
 
   const [isLoading, setIsLoading] = useState(true);
-  const { savedItemIds, isLoading: isLoadingSaved } = useSavedItems();
+  const { savedItems, isLoading: isLoadingSaved } = useSavedItems();
   const [purchases, setPurchases] = useState<Purchase[]>([]);
   const [savedProducts, setSavedProducts] = useState<Product[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
@@ -55,58 +55,58 @@ export default function MyLibrary() {
     fetchUserData();
   }, [navigate]);
 
-  const fetchLibraryData = useCallback(async () => {
-    if (!userId) return;
-
-    setIsLoading(true);
-    try {
-      // Fetch purchases with product details
-      const { data: purchaseData, error: purchaseError } = await supabase
-        .from("purchases")
-        .select(`
-          id,
-          product_id,
-          purchased_at,
-          products (
-            id,
-            title,
-            image_url,
-            instructor,
-            price,
-            brand
-          )
-        `)
-        .eq("user_id", userId)
-        .order("purchased_at", { ascending: false });
-
-      if (purchaseError) throw purchaseError;
-      setPurchases((purchaseData as unknown as Purchase[]) || []);
-
-      // Fetch saved items with product details
-      const savedIdsArray = Array.from(savedItemIds);
-      if (savedIdsArray.length > 0) {
-        const { data: savedData, error: savedError } = await supabase
-          .from("products")
-          .select("id, title, image_url, instructor, price, brand")
-          .in("id", savedIdsArray);
-
-        if (!savedError && savedData) {
-          setSavedProducts(savedData);
-        }
-      } else {
-        setSavedProducts([]);
-      }
-    } catch (error) {
-      console.error("Error fetching library data:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [userId, savedItemIds]);
-
+  // Fetch library data - only depends on userId, not savedItems to avoid infinite loop
   useEffect(() => {
-    if (!userId) return;
+    if (!userId || isLoadingSaved) return;
+
+    const fetchLibraryData = async () => {
+      setIsLoading(true);
+      try {
+        // Fetch purchases with product details
+        const { data: purchaseData, error: purchaseError } = await supabase
+          .from("purchases")
+          .select(`
+            id,
+            product_id,
+            purchased_at,
+            products (
+              id,
+              title,
+              image_url,
+              instructor,
+              price,
+              brand
+            )
+          `)
+          .eq("user_id", userId)
+          .order("purchased_at", { ascending: false });
+
+        if (purchaseError) throw purchaseError;
+        setPurchases((purchaseData as unknown as Purchase[]) || []);
+
+        // Fetch saved items with product details using saved item IDs
+        const savedIds = savedItems.map(item => String(item.id));
+        if (savedIds.length > 0) {
+          const { data: savedData, error: savedError } = await supabase
+            .from("products")
+            .select("id, title, image_url, instructor, price, brand")
+            .in("id", savedIds);
+
+          if (!savedError && savedData) {
+            setSavedProducts(savedData);
+          }
+        } else {
+          setSavedProducts([]);
+        }
+      } catch (error) {
+        console.error("Error fetching library data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     fetchLibraryData();
-  }, [userId, fetchLibraryData]);
+  }, [userId, isLoadingSaved, savedItems.length]); // Only re-run when savedItems.length changes, not the whole array
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
